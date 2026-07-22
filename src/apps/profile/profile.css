@@ -27,41 +27,20 @@
 
 .pp-stamps {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
   align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding-top: 4px;
 }
 
 .pp-stamp {
-  font-family: var(--nk-font);
-  font-weight: 600;
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 7px 12px;
-  color: #2f6076;
-  background: rgba(255, 255, 255, 0.85);
-  border: 2px solid currentColor;
-  border-radius: 6px;
+  width: 30%;
+  max-width: 104px;
+  height: auto;
+  border-radius: 4px;
   transform: rotate(var(--rot, -6deg));
-}
-
-.pp-stamp--round {
-  border-radius: 50%;
-  width: 62px;
-  height: 62px;
-  display: grid;
-  place-content: center;
-  text-align: center;
-  line-height: 1.1;
-}
-
-.pp-stamp--visa {
-  color: #4e8c36;
-}
-
-.pp-stamp--departure {
-  color: #c2564f;
+  /* Sombra corta y teñida: los sellos parecen pegados sobre la tapa. */
+  filter: drop-shadow(0 3px 4px rgba(20, 60, 75, 0.28));
 }
 
 .pp-brand {

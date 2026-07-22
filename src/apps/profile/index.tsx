@@ -1,4 +1,7 @@
 import airlinesIcon from "../../assets/airlines.webp";
+import sello1 from "../../assets/stamps/sello1.webp";
+import sello2 from "../../assets/stamps/sello2.webp";
+import sello3 from "../../assets/stamps/sello3.webp";
 import { useCurrentUser } from "../../shared/lib/use-current-user";
 import { photoOf } from "./model/photos";
 import { usePassports } from "./model/use-passports";
@@ -6,6 +9,10 @@ import "./profile.css";
 
 /** Máximo del comentario en el juego. Lo respetamos porque es parte del encanto. */
 const GREETING_MAX = 24;
+
+const STAMPS = [sello1, sello2, sello3];
+/** Cada sello va girado un poco distinto, como si los hubieran ido pegando. */
+const ROTATIONS = ["-7deg", "5deg", "-3deg"];
 
 export default function ProfileApp() {
   const me = useCurrentUser();
@@ -19,18 +26,16 @@ export default function ProfileApp() {
       <article className="pp-card">
         <header className="pp-cover">
           <div className="pp-stamps">
-            <span className="pp-stamp pp-stamp--round" style={{ ["--rot" as string]: "-8deg" }}>
-              Llegada
-            </span>
-            <span className="pp-stamp pp-stamp--visa" style={{ ["--rot" as string]: "5deg" }}>
-              Visado aprobado
-            </span>
-            <span className="pp-stamp pp-stamp--departure" style={{ ["--rot" as string]: "-4deg" }}>
-              Salida
-            </span>
-            <span className="pp-stamp" style={{ ["--rot" as string]: "7deg" }}>
-              Inmigración
-            </span>
+            {STAMPS.map((stamp, i) => (
+              <img
+                key={stamp}
+                className="pp-stamp"
+                src={stamp}
+                alt=""
+                draggable={false}
+                style={{ ["--rot" as string]: ROTATIONS[i] }}
+              />
+            ))}
           </div>
 
           <span className="pp-brand">
