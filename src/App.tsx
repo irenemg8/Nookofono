@@ -4,6 +4,7 @@ import {
   PointerSensor,
   TouchSensor,
   closestCenter,
+  useDroppable,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -13,9 +14,10 @@ import { CSS } from "@dnd-kit/utilities";
 
 import LockScreen from "./app/LockScreen";
 import { isWidget, paginate, type HomeItem } from "./apps/home-items";
-import { dockApps, enabledApps, type MiniAppManifest } from "./apps/registry";
+import { enabledApps, type MiniAppManifest } from "./apps/registry";
 import type { WidgetManifest } from "./apps/widgets";
 import { useAppOrder } from "./shared/lib/use-app-order";
+import { useDock } from "./shared/lib/use-dock";
 import { useLongPress } from "./shared/lib/use-long-press";
 import { useBattery } from "./shared/lib/use-battery";
 import { useClock } from "./shared/lib/use-clock";
@@ -25,6 +27,13 @@ import { wallpapers } from "./app/wallpapers";
 
 /** Cuánto hay que mantener pulsado para entrar en modo edición. */
 const LONG_PRESS_MS = 3000;
+
+/**
+ * Una app del dock también está en la rejilla, así que aparecería dos veces
+ * con el mismo id y dnd-kit los confundiría. Se prefijan los del dock.
+ */
+const DOCK_PREFIX = "dock:";
+const DOCK_ZONE = "dock-zone";
 
 /* ---------------------------------------------------------------- iconos
    Pictogramas de la barra de estado. Son SVG mínimos a propósito: la barra
@@ -203,6 +212,33 @@ function Widget({
   );
 }
 
+/* ------------------------------------------------- elementos en modo edición */
+
+/** Icono del dock arrastrable. Sin etiqueta, como el resto del dock. */
+function SortableDockIcon({ app, index }: { app: MiniAppManifest; index: number }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: DOCK_PREFIX + app.id,
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`nk-app nk-sortable nk-sortable--wiggle${
+        isDragging ? " nk-sortable--dragging" : ""
+      }`}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        animationDelay: `${(index % 4) * -0.17}s`,
+      }}
+      {...attributes}
+      {...listeners}
+    >
+      <AppArt app={app} />
+    </div>
+  );
+}
+
 /* -------------------------------------------------- elemento en modo edición */
 
 function SortableItem({ item, index }: { item: HomeItem; index: number }) {
@@ -249,6 +285,7 @@ function HomeScreen({
   homeWallpaper: string | null;
 }) {
   const { items, order, move } = useAppOrder();
+  const dock = useDock();
   const [editing, setEditing] = useState(false);
   const pagesRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(0);
@@ -262,8 +299,32 @@ function HomeScreen({
     useSensor(TouchSensor, { activationConstraint: { delay: 80, tolerance: 8 } }),
   );
 
+  /**
+   * Cuatro casos, según de dónde sale el elemento y dónde cae:
+   * dock→dock reordena, rejilla→dock lo mete (y saca a otro, porque los huecos
+   * son fijos), dock→rejilla lo quita del dock, y rejilla→rejilla reordena.
+   */
   function handleDragEnd({ active, over }: DragEndEvent) {
-    if (over && active.id !== over.id) move(String(active.id), String(over.id));
+    if (!over || active.id === over.id) return;
+
+    const from = String(active.id);
+    const to = String(over.id);
+    const fromDock = from.startsWith(DOCK_PREFIX);
+    const toDock = to.startsWith(DOCK_PREFIX) || to === DOCK_ZONE;
+
+    const appId = fromDock ? from.slice(DOCK_PREFIX.length) : from;
+    const overId = to.startsWith(DOCK_PREFIX) ? to.slice(DOCK_PREFIX.length) : undefined;
+
+    if (fromDock && toDock) return dock.move(appId, overId!);
+    if (fromDock) return dock.remove(appId);
+
+    if (toDock) {
+      // Un widget ocupa cuatro celdas: no cabe en un hueco del dock.
+      if (isWidget(items.find((i) => i.id === appId)!)) return;
+      return dock.insert(appId, overId);
+    }
+
+    move(from, to);
   }
 
   function handleScroll() {
@@ -325,19 +386,8 @@ function HomeScreen({
     </div>
   );
 
-  return (
-    <>
-      {editing ? (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={order} strategy={rectSortingStrategy}>
-            {grid}
-          </SortableContext>
-        </DndContext>
-      ) : (
-        grid
-      )}
-
-      <div className="nk-sea" onPointerDown={() => editing && setEditing(false)}>
+  const sea = (
+    <div className="nk-sea" onPointerDown={handleBackgroundTap}>
         <svg
           className="nk-sea__wave"
           viewBox="0 0 430 26"
@@ -360,19 +410,73 @@ function HomeScreen({
           ))}
         </div>
 
-        <div className="nk-dock">
-          {dockApps.map((app) => (
-            <AppIcon
-              key={app.id}
-              app={app}
-              showLabel={false}
-              onOpen={onOpen}
-              onLongPress={() => setEditing(true)}
-            />
-          ))}
-        </div>
-      </div>
-    </>
+      <Dock
+        apps={dock.apps}
+        editing={editing}
+        onOpen={onOpen}
+        onLongPress={() => setEditing(true)}
+      />
+    </div>
+  );
+
+  if (!editing) {
+    return (
+      <>
+        {grid}
+        {sea}
+      </>
+    );
+  }
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={order} strategy={rectSortingStrategy}>
+        {grid}
+      </SortableContext>
+      <SortableContext
+        items={dock.ids.map((id) => DOCK_PREFIX + id)}
+        strategy={rectSortingStrategy}
+      >
+        {sea}
+      </SortableContext>
+    </DndContext>
+  );
+}
+
+/** Barra fija inferior. En modo edición es también zona de destino. */
+function Dock({
+  apps,
+  editing,
+  onOpen,
+  onLongPress,
+}: {
+  apps: MiniAppManifest[];
+  editing: boolean;
+  onOpen: (a: MiniAppManifest) => void;
+  onLongPress: () => void;
+}) {
+  // Permite soltar en el dock aunque esté vacío o se apunte a un hueco libre.
+  const { setNodeRef, isOver } = useDroppable({ id: DOCK_ZONE, disabled: !editing });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`nk-dock${editing ? " nk-dock--editing" : ""}${isOver ? " nk-dock--over" : ""}`}
+    >
+      {apps.map((app, i) =>
+        editing ? (
+          <SortableDockIcon key={app.id} app={app} index={i} />
+        ) : (
+          <AppIcon
+            key={app.id}
+            app={app}
+            showLabel={false}
+            onOpen={onOpen}
+            onLongPress={onLongPress}
+          />
+        ),
+      )}
+    </div>
   );
 }
 

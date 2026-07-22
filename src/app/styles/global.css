@@ -455,7 +455,12 @@ body {
 
 .nk-sortable--wiggle .nk-app__icon,
 .nk-sortable--wiggle .nk-widget__frame {
-  animation: nk-wiggle 0.35s ease-in-out infinite alternate;
+  animation: nk-wiggle 0.5s ease-in-out infinite alternate;
+  /* El icono lleva `transition: transform` para el rebote al pulsarlo. Si se
+     deja activa durante el temblor, el navegador intenta interpolar cada
+     fotograma de la animación y el giro sale a tirones. */
+  transition: none;
+  will-change: transform;
 }
 
 .nk-sortable--dragging {
@@ -543,6 +548,20 @@ body {
   gap: 10px;
   background: var(--nk-sea-deep);
   padding: 14px clamp(10px, 3.5vw, 18px) calc(14px + var(--sab));
+  transition: background 0.2s ease;
+}
+
+/* En modo edición se marcan los cuatro huecos, para que se vea dónde soltar. */
+.nk-dock--editing {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.09) 0 calc(25% - 1px),
+    transparent calc(25% - 1px) 25%
+  );
+}
+
+.nk-dock--over {
+  background-color: color-mix(in srgb, var(--nk-sea-deep) 78%, #fff);
 }
 
 .nk-dock .nk-app__icon {
