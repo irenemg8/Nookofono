@@ -8,7 +8,13 @@
  * Comprobado el 22/07/2026: `accounts.spotify.com/api/token` responde con CORS
  * al origen que la llama, y `api.spotify.com` con `*`.
  */
-const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID ?? "";
+/**
+ * Va en el código a propósito. En PKCE el `client_id` es público: sin
+ * `client_secret` que proteger, no hay nada que esconder, y así el despliegue a
+ * Pages no necesita variables de entorno. Se puede sobreescribir con
+ * `VITE_SPOTIFY_CLIENT_ID` si algún día hace falta otra app.
+ */
+const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID || "a23f4196bca240a3a31fafd02b1340a5";
 
 const AUTHORIZE = "https://accounts.spotify.com/authorize";
 const TOKEN = "https://accounts.spotify.com/api/token";
