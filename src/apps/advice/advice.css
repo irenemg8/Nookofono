@@ -1,0 +1,255 @@
+.va {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 12px;
+}
+
+/* ---------- Cabecera ---------- */
+
+.va-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 20px;
+  background: var(--nk-bg-cream);
+  border: 2px solid rgba(224, 218, 202, 0.9);
+  box-shadow: 0 5px 12px var(--nk-shadow);
+}
+
+.va-head img {
+  width: 46px;
+  height: 46px;
+  border-radius: 24%;
+  flex: none;
+}
+
+.va-head__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.va-head__name {
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--nk-text-strong);
+}
+
+.va-head__role {
+  font-size: 0.72rem;
+  color: var(--nk-text-muted);
+}
+
+.va-head button {
+  flex: none;
+  border: none;
+  border-radius: 999px;
+  padding: 0.4em 0.9em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+/* ---------- Conversación ---------- */
+
+.va-log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 2px 8px;
+}
+
+.va-turn {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.va-turn--user {
+  justify-content: flex-end;
+}
+
+.va-face {
+  width: 38px;
+  height: 38px;
+  border-radius: 24%;
+  flex: none;
+  box-shadow: 0 2px 5px var(--nk-shadow);
+}
+
+.va-said {
+  position: relative;
+  max-width: 78%;
+}
+
+/* La etiqueta naranja con el nombre, como el bocadillo del juego. */
+.va-said__name {
+  position: absolute;
+  top: -11px;
+  left: 14px;
+  z-index: 1;
+  padding: 0.2em 0.9em;
+  border-radius: 30% / 100% 100% 120% 120%;
+  background: #dd8530;
+  color: var(--nk-bg-cream);
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.66rem;
+}
+
+.va-bubble {
+  padding: 1.1em 1.2em 1em;
+  background: var(--nk-bg-cream);
+  color: var(--nk-text);
+  /* Los radios orgánicos del bocadillo de Animal Crossing. */
+  border-radius: 26px 26px 26px 8px / 30px 30px 30px 12px;
+  box-shadow: 0 5px 14px var(--nk-shadow);
+  font-family: var(--nk-font-body);
+  font-size: 0.94rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.va-turn--user .va-bubble {
+  background: var(--nk-leaf);
+  color: #fff;
+  border-radius: 26px 26px 8px 26px / 30px 30px 12px 30px;
+  box-shadow: 0 5px 14px var(--nk-shadow);
+}
+
+/* El cursor del texto que se está escribiendo. */
+.va-caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: -0.16em;
+  border-radius: 2px;
+  background: var(--nk-accent-yellow);
+  animation: va-blink 0.7s steps(1) infinite;
+}
+
+@keyframes va-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Tres puntos mientras piensa. */
+.va-dots {
+  display: inline-flex;
+  gap: 5px;
+  padding: 0.35em 0;
+}
+
+.va-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--nk-text-muted);
+  animation: va-bounce 1.1s ease-in-out infinite;
+}
+
+.va-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.va-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes va-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
+}
+
+/* ---------- Barra de escritura ---------- */
+
+.va-compose {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding-top: 2px;
+}
+
+.va-compose textarea {
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+  max-height: 120px;
+  resize: none;
+  border: none;
+  border-radius: 22px;
+  padding: 0.8em 1.1em;
+  background: var(--nk-bg-cream);
+  font-family: var(--nk-font-body);
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--nk-text-strong);
+  box-shadow: inset 0 1px 4px var(--nk-shadow), 0 3px 8px var(--nk-shadow);
+}
+
+.va-compose textarea:focus {
+  outline: 2px solid var(--nk-leaf);
+}
+
+.va-send {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-leaf);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--nk-leaf-dark), 0 6px 10px var(--nk-shadow);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.va-send:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--nk-leaf-dark);
+}
+
+.va-send:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.va-send svg {
+  width: 20px;
+  height: 20px;
+}
+
+.va-note {
+  margin: 0;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--nk-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .va-caret,
+  .va-dots span {
+    animation: none;
+  }
+}

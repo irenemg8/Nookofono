@@ -18,4 +18,5 @@ export const screens: Record<string, LazyExoticComponent<ComponentType>> = {
   airlines: lazy(() => import("./airlines")),
   music: lazy(() => import("./music")),
   sos: lazy(() => import("./sos")),
+  advice: lazy(() => import("./advice")),
 };

@@ -79,9 +79,9 @@ Estado: 🟢 funcional en v1 · 🟡 funcional con datos locales · 🔵 requier
 | 4 | **Nilo** | ✅ Construida | Ficha fija, vacunas, gráfica de peso, paseos con GPS |
 | 5 | **Pug airlines** | ✅ Construida | Tarjetas de embarque. Falta el globo terráqueo |
 | 6 | **Spotify** ⚓ | ✅ Construida | Tocadiscos real vía Web Playback SDK |
-| 7 | **Cacahuete** ⚓ | ✅ Construida | Aviso al otro móvil vía ntfy. Ver §9.7 |
+| 7 | **Cacahuete** ⚓ | ✅ Construida | Aviso al otro móvil vía ntfy. Ver §9.6 |
 | 8 | **Compra** ⚓ | ⬜ Pendiente | Requiere el JSON precomputado de Mercadona |
-| 9 | **Valentín** ⚓ | ⬜ Pendiente | Falta definir cómo habla |
+| 9 | **Valentín** ⚓ | 🟡 Interfaz lista | Falta el modelo entrenado. Ver §9.7 |
 | 10 | **Cuentas** | ⬜ Pendiente | Entrada manual + importar CSV |
 | 11 | **Calendario** | ⬜ Pendiente | Necesita backend para compartir de verdad |
 | 12 | **Casa** | ⬜ Pendiente | |
@@ -1022,7 +1022,68 @@ archivo permanente se lleva aparte en el dispositivo.
 **Al migrar** esto se sustituye por Web Push con VAPID desde el Worker, y el
 canal deja de ser adivinable. Ver `MIGRACION-BACKEND.md` §12.2.
 
-### 9.7 Las tres reglas que salen de todo esto
+### 9.7 Valentín — el chatbot con modelo propio
+
+**Quién es.** Valentín es el hijo ficticio de Irene y Vicente. Su papel es
+decirle a Vicente cuando la está cagando. La app está pensada específicamente
+para que hable con él; Irene también puede abrirla, pero la voz apunta a
+Vicente.
+
+**Estado.** La interfaz está construida. El modelo, no. Irene lo va a entrenar
+con **Unsloth**.
+
+#### El puerto: dónde enchufa el modelo
+
+La pantalla no sabe de dónde salen las respuestas. Hay un puerto
+`ValentinBrain` en `src/apps/advice/model/brain.ts` con dos adaptadores:
+
+| Adaptador | Cuándo | Qué hace |
+|---|---|---|
+| `stubBrain` | Ahora | Dice que todavía no le han enseñado a hablar |
+| `httpBrain` | Con modelo | `POST { messages } → { reply }` |
+
+Se cambia poniendo `VITE_VALENTIN_ENDPOINT`. **Ni un componente cambia.**
+
+> **Decisión de diseño:** mientras no haya modelo, el stub **no imita a
+> Valentín ni inventa consejos**. Un chatbot que finge tener personalidad
+> cuando no la tiene es peor que uno que avisa — y además contaminaría la
+> impresión de cómo habla el modelo real cuando llegue.
+
+#### Dónde alojar el modelo entrenado
+
+Unsloth produce exactamente lo que hace falta: **un adaptador LoRA**, no un
+modelo entero. Eso abre la mejor opción, que además es donde ya vais a estar:
+
+**Cloudflare Workers AI con LoRA propio** (verificado el 22/07/2026):
+
+- Se sube el adaptador con `npx wrangler ai finetune create`.
+- Requiere **exactamente dos ficheros**: `adapter_config.json` y
+  `adapter_model.safetensors`.
+- `adapter_config.json` debe llevar `model_type` con valor `llama`, `mistral`
+  o `gemma`.
+- **Rango ≤ 8** (admite hasta 32) y **máximo 300 MB**.
+- El modelo base **no puede estar cuantizado**.
+- Hasta **100 adaptadores por cuenta**.
+- **Gratis mientras dure la beta abierta.**
+- Se invoca pasando el id del finetune en el parámetro `lora`, contra el
+  endpoint del modelo base (p. ej. `@cf/mistralai/mistral-7b-instruct-v0.2-lora`).
+
+⚠️ **Al entrenar con Unsloth hay que fijar el rango a 8**, o el adaptador no se
+podrá subir. Es la restricción que más fácil se pasa por alto, porque los
+tutoriales de Unsloth suelen usar 16 o 32.
+
+Alternativas, por si esa vía se cierra: Hugging Face Inference Endpoints (de
+pago, dedicado), Replicate (de pago por segundo), u Ollama en un ordenador de
+casa (gratis, pero sólo funciona con ese ordenador encendido).
+
+#### Qué hace falta para entrenarlo
+
+Un fichero de conversaciones en formato *chat*, con ejemplos de cómo habla
+Valentín: tono, latiguillos, qué le reprocha a Vicente y cómo. Cuantos más
+ejemplos reales y coherentes, mejor sale. Es la parte que no puede hacer el
+código.
+
+### 9.8 Las tres reglas que salen de todo esto
 
 1. **Precomputar en build-time todo lo que se pueda.** Catálogo de Mercadona y
    dataset de ciudades. Convierte tres problemas de API en cero problemas.
