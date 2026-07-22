@@ -71,28 +71,36 @@ Estado: 🟢 funcional en v1 · 🟡 funcional con datos locales · 🔵 requier
 
 20 apps, todas con icono ilustrado. Las 4 marcadas con ⚓ están además en el dock.
 
-| # | App | Página | Estado v1 | Depende de |
-|---|---|---|---|---|
-| 1 | **Compra** ⚓ | 1 | 🟡 | 🔵 API Mercadona (proxy) |
-| 2 | **Spotify** ⚓ | 1 | 🔵 | API Spotify |
-| 3 | **Cacahuete** ⚓ | 1 | 🟡 | — |
-| 4 | **Valentín** ⚓ | 1 | 🟡 | — |
-| 5 | **Tiempo** | 1 | 🟡 | API meteorológica |
-| 6 | **Pugporte** | 1 | 🟡 | — |
-| 7 | **Pug airlines** | 1 | 🟡 | — |
-| 8 | **Cuentas** | 1 | 🟡 | 🔵 APIs bancarias |
-| 9 | **Calendario** | 1 | 🟡 | Backend para sincronizar |
-| 10 | **Notas** | 1 | 🟡 | Backend para compartir |
-| 11 | **Nilo** | 1 | 🟡 | — |
-| 12 | **Casa** | 1 | 🟡 | — |
-| 13 | **Tareas** | 2 | 🟡 | — |
-| 14 | **Incidencias** | 2 | 🟡 | — |
-| 15 | **Calculadora** | 2 | 🟢 | — |
-| 16 | **Excel** | 2 | 🟡 | — |
-| 17 | **Fotos** | 2 | 🔵 | R2 |
-| 18 | **Archivos** | 2 | 🔵 | R2 |
-| 19 | **Deporte** | 2 | 🟡 | — |
-| 20 | **Por hablar** | 2 | 🟡 | — |
+| # | App | Estado | Notas |
+|---|---|---|---|
+| 1 | **Tiempo** | ✅ Construida | Datos reales de Open-Meteo, ubicación del móvil |
+| 2 | **Notas** | ✅ Construida | Papel con renglones, reordenables, personales y compartidas |
+| 3 | **Pugporte** | ✅ Construida | Datos fijos en código; sólo el lema es editable |
+| 4 | **Nilo** | ✅ Construida | Ficha fija, vacunas, gráfica de peso, paseos con GPS |
+| 5 | **Pug airlines** | ✅ Construida | Tarjetas de embarque. Falta el globo terráqueo |
+| 6 | **Spotify** ⚓ | ✅ Construida | Tocadiscos real vía Web Playback SDK |
+| 7 | **Cacahuete** ⚓ | ✅ Construida | Aviso al otro móvil vía ntfy. Ver §9.7 |
+| 8 | **Compra** ⚓ | ⬜ Pendiente | Requiere el JSON precomputado de Mercadona |
+| 9 | **Valentín** ⚓ | ⬜ Pendiente | Falta definir cómo habla |
+| 10 | **Cuentas** | ⬜ Pendiente | Entrada manual + importar CSV |
+| 11 | **Calendario** | ⬜ Pendiente | Necesita backend para compartir de verdad |
+| 12 | **Casa** | ⬜ Pendiente | |
+| 13 | **Tareas** | ⬜ Pendiente | |
+| 14 | **Incidencias** | ⬜ Pendiente | |
+| 15 | **Calculadora** | ⬜ Pendiente | La única que no necesita nada |
+| 16 | **Excel** | ⬜ Pendiente | |
+| 17 | **Fotos** | ⬜ Pendiente | Necesita R2 |
+| 18 | **Archivos** | ⬜ Pendiente | RAG sobre documentos, según el rename a "RAGugtín" |
+| 19 | **Deporte** | ⬜ Pendiente | |
+| 20 | **Por hablar** | ⬜ Pendiente | |
+
+⚓ = también en el dock.
+
+> ⚠️ **Todas las apps construidas guardan en `localStorage`**, es decir, en el
+> móvil de cada uno. **Irene y Vicente no comparten datos todavía**: cada uno ve
+> sus notas, sus destinos y su historial. Eso no se arregla con más frontend —
+> hace falta el backend de la fase 2. Es la limitación más importante del
+> estado actual.
 
 Apps aportadas por Irene junto con sus iconos, con la interpretación que les di
 (pendiente de confirmar): **Cacahuete** = botón de "me agobio, rescátame".
@@ -981,7 +989,40 @@ Lock**, todo con la **app abierta y la pantalla encendida**.
 > y hace un POST a la app. Diez minutos de configuración y precisión perfecta,
 > porque viene del coprocesador. En Android, MacroDroid o Tasker hacen lo mismo.
 
-### 9.6 Las tres reglas que salen de todo esto
+### 9.6 Notificaciones push — ⚠️ requiere servidor
+
+**Este es el caso más claro de "aquí hace falta backend" de todo el proyecto.**
+
+Una notificación push de verdad (Web Push) necesita tres cosas que un sitio
+estático no puede dar:
+
+1. Un **service worker** que reciba el mensaje. Esto sí lo puede hacer Pages.
+2. Un sitio donde **guardar la suscripción** de cada móvil.
+3. Un servidor que **firme el envío con claves VAPID** — y la clave privada no
+   puede estar en el navegador, porque cualquiera podría mandaros avisos.
+
+Además, en iOS las push **sólo funcionan si la app está instalada en la pantalla
+de inicio**, nunca desde Safari.
+
+**Solución provisional adoptada: ntfy.sh.** Se publica en un "tema" y quien esté
+suscrito recibe la notificación. Sin cuenta, sin clave, sin servidor propio, y
+con CORS abierto (comprobado el 22/07/2026). Los dos necesitan la **app ntfy**
+instalada y suscrita al canal.
+
+```
+POST https://ntfy.sh/<tema>          → enviar
+GET  https://ntfy.sh/<tema>/json?poll=1&since=12h  → historial reciente
+```
+
+⚠️ **Un tema de ntfy es público para quien sepa su nombre.** No hay contraseña:
+la privacidad depende de que nadie lo adivine. Vale para "estoy agobiada, ven";
+no vale para nada delicado. Y ntfy sólo guarda los mensajes ~12 h, así que el
+archivo permanente se lleva aparte en el dispositivo.
+
+**Al migrar** esto se sustituye por Web Push con VAPID desde el Worker, y el
+canal deja de ser adivinable. Ver `MIGRACION-BACKEND.md` §12.2.
+
+### 9.7 Las tres reglas que salen de todo esto
 
 1. **Precomputar en build-time todo lo que se pueda.** Catálogo de Mercadona y
    dataset de ciudades. Convierte tres problemas de API en cero problemas.

@@ -946,7 +946,58 @@ r.get('/product/:id', async (c) => {
 ⚠️ Cuidado con la cuota de KV (1.000 escrituras/día): con caché de 24 h y un
 catálogo que se consulta poco, no hay problema, pero **no cachees cada búsqueda**.
 
-### 12.2 Claude (fase 3)
+### 12.2 Notificaciones push (sustituye a ntfy)
+
+Hoy los avisos de **Cacahuete** salen por `ntfy.sh`, que funciona sin servidor
+pero deja el canal abierto a quien adivine su nombre. Con el Worker se pasa a
+**Web Push con VAPID**, que es privado de verdad.
+
+**Piezas nuevas:**
+
+| Pieza | Dónde | Función |
+|---|---|---|
+| `VAPID_PUBLIC_KEY` | `vars` de `wrangler.jsonc` | Va al navegador al suscribirse. Es pública. |
+| `VAPID_PRIVATE_KEY` | **Worker Secret** | Firma los envíos. Si se filtra, cualquiera os manda push. |
+| `VAPID_SUBJECT` | `vars` | `mailto:` de contacto, lo exige el estándar |
+| Tabla `push_subscriptions` | D1 | Un registro por móvil |
+| `public/sw.js` | Frontend | Service worker que recibe y muestra el aviso |
+
+```sql
+CREATE TABLE push_subscriptions (
+  id         TEXT PRIMARY KEY,
+  person_id  TEXT NOT NULL REFERENCES users(id),
+  endpoint   TEXT NOT NULL UNIQUE,   -- URL del push service del navegador
+  p256dh     TEXT NOT NULL,          -- clave pública del cliente
+  auth       TEXT NOT NULL,          -- secreto de autenticación
+  user_agent TEXT,
+  created_at INTEGER NOT NULL
+);
+```
+
+**Endpoints:**
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| `GET` | `/api/push/key` | Devuelve `VAPID_PUBLIC_KEY` |
+| `POST` | `/api/push/subscribe` | Guarda la suscripción del móvil |
+| `DELETE` | `/api/push/subscribe` | La borra |
+| `POST` | `/api/sos` | Registra el aviso en D1 **y** lo envía al otro |
+
+Generar las claves una sola vez: `npx web-push generate-vapid-keys`.
+
+⚠️ **Dos trampas que cuestan una tarde si no se saben:**
+
+- En iOS las push **sólo llegan si la app está instalada en la pantalla de
+  inicio**. Desde Safari no funcionan nunca, y el permiso además hay que pedirlo
+  **desde un gesto del usuario**, no al cargar.
+- Un `endpoint` puede caducar: si el push service responde **404 o 410**, hay que
+  **borrar esa suscripción de D1**. Si no, la tabla se llena de móviles muertos y
+  cada aviso gasta intentos fallidos.
+
+Al migrar, el historial local de `ipug.sos.history` se importa a una tabla
+`alerts` y pasa a ser compartido de verdad, en vez de una copia por móvil.
+
+### 12.3 Claude (fase 3)
 
 ```
 worker/routes/llm.ts
