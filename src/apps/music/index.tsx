@@ -48,7 +48,6 @@ function Player({
   if (state.failed) return <EmbedFallback info={info} reason={state.failed} />;
 
   const cover = state.track?.cover ?? info?.cover ?? null;
-  const progress = state.duration > 0 ? (state.position / state.duration) * 100 : 0;
 
   return (
     <div className="mu">
@@ -108,10 +107,6 @@ function Player({
           <ExitIcon />
         </button>
       </div>
-
-      <div className="mu-progress" aria-hidden="true">
-        <div className="mu-progress__fill" style={{ width: `${progress}%` }} />
-      </div>
     </div>
   );
 }
@@ -126,10 +121,17 @@ function EmbedFallback({
   reason: string;
 }) {
   const { hostRef, state, toggle } = useSpotifyEmbed(PLAYLIST_URI);
+  const progress = state.duration > 0 ? (state.position / state.duration) * 100 : 0;
 
   return (
     <div className="mu">
       <Turntable cover={info?.cover ?? null} title={info?.title} playing={state.playing} />
+
+      {/* Aquí sí tiene sentido: el embed no deja avanzar, así que la barra es
+          lo único que dice por dónde va la canción. */}
+      <div className="mu-progress" aria-hidden="true">
+        <div className="mu-progress__fill" style={{ width: `${progress}%` }} />
+      </div>
 
       <div className="mu-controls">
         <button
