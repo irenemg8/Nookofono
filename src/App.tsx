@@ -13,6 +13,7 @@ import { SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sort
 import { CSS } from "@dnd-kit/utilities";
 
 import LockScreen from "./app/LockScreen";
+import LoginScreen from "./app/LoginScreen";
 import { buildHomeItems, isWidget, paginate, type HomeItem } from "./apps/home-items";
 import { appsById, type MiniAppManifest } from "./apps/registry";
 import { screens } from "./apps/screens";
@@ -32,6 +33,7 @@ import { ErrorBoundary } from "./shared/ui/ErrorBoundary";
 import { useBattery } from "./shared/lib/use-battery";
 import { useClock } from "./shared/lib/use-clock";
 import { usePhotos, useRotatingPhoto } from "./shared/lib/use-photos";
+import { useSession } from "./shared/lib/use-session";
 import { useTimeOfDay } from "./shared/lib/use-time-of-day";
 import { wallpapers } from "./app/wallpapers";
 
@@ -662,10 +664,27 @@ export default function App() {
   const [locked, setLocked] = useState(true);
   const [open, setOpen] = useState<MiniAppManifest | null>(null);
   const phase = useTimeOfDay();
+  const { state: session, enter } = useSession();
 
-  // El fondo de inicio va en la carcasa, no en la rejilla, para que la ola del
-  // mar pueda dibujarse entre el fondo y los iconos.
-  const homeWallpaper = !locked && !open ? wallpapers[phase].home : null;
+  // Fuera de la sesión no hay escritorio que pintar, así que tampoco fondo de
+  // inicio. `locked` sigue mandando dentro: se entra con el código al móvil
+  // bloqueado, igual que un teléfono de verdad.
+  const signedIn = session.status === "in";
+  const homeWallpaper = signedIn && !locked && !open ? wallpapers[phase].home : null;
+
+  // Mientras se pregunta al servidor si hay sesión no se pinta nada: enseñar el
+  // acceso para quitarlo medio segundo después es peor que esperar.
+  if (session.status === "checking") {
+    return <main className="nk-phone nk-phone--locked" data-theme={phase} />;
+  }
+
+  if (session.status === "out") {
+    return (
+      <main className="nk-phone nk-phone--locked" data-theme={phase}>
+        <LoginScreen onEnter={enter} phase={phase} />
+      </main>
+    );
+  }
 
   return (
     <main

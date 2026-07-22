@@ -192,6 +192,141 @@ body {
 }
 
 /* =========================================================================
+   Pantalla de acceso (el código del autenticador)
+   ========================================================================= */
+
+.nk-login {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: calc(28px + var(--sat)) 24px calc(24px + var(--sab));
+  background-size: cover;
+  background-position: center;
+  background-color: var(--nk-sand);
+}
+
+.nk-login__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 28px 22px 22px;
+  border-radius: var(--nk-radius-panel);
+  background: var(--nk-bg-cream);
+  box-shadow: 0 8px 20px var(--nk-shadow-strong);
+}
+
+.nk-login__device {
+  margin: 0;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--nk-text-muted);
+}
+
+.nk-login__title {
+  margin: 0;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--nk-text-strong);
+}
+
+.nk-login__hint {
+  margin: -4px 0 4px;
+  font-family: var(--nk-font);
+  font-size: 0.9rem;
+  color: var(--nk-text);
+  text-align: center;
+}
+
+.nk-login__people {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.nk-login__person {
+  width: 100%;
+}
+
+/* Los seis huecos. El campo de verdad está encima, transparente y a pantalla
+   completa del recuadro, para que el toque en cualquier hueco abra el teclado. */
+.nk-login__slots {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.nk-login__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.nk-login__input {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  border: none;
+  background: none;
+  /* Transparente, no `hidden`: un campo oculto no recibe foco y en iOS no
+     saldría el teclado. El texto se dibuja en los huecos de abajo. */
+  color: transparent;
+  caret-color: transparent;
+  /* Nunca por debajo de 16px: iOS haría zoom al enfocar y descolocaría todo. */
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.nk-login__input:focus {
+  outline: none;
+}
+
+.nk-login__slot {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--nk-surface-sunk);
+  box-shadow: inset 0 2px 4px var(--nk-shadow);
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--nk-text-strong);
+}
+
+.nk-login__slot--active {
+  box-shadow: inset 0 2px 4px var(--nk-shadow), 0 0 0 2px var(--nk-leaf);
+}
+
+/* Reserva el alto siempre, aunque esté vacío: si no, el panel pega un salto
+   cada vez que aparece o desaparece el aviso. */
+.nk-login__error {
+  min-height: 1.2em;
+  margin: 0;
+  font-family: var(--nk-font);
+  font-size: 0.85rem;
+  color: #e2504a;
+  text-align: center;
+}
+
+.nk-login__input:focus-visible + .nk-login__slot {
+  box-shadow: inset 0 2px 4px var(--nk-shadow), 0 0 0 2px var(--nk-leaf);
+}
+
+/* =========================================================================
    Barra de estado
    ========================================================================= */
 
