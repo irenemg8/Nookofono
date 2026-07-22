@@ -1,0 +1,338 @@
+.cal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---------- Cabecera del mes ---------- */
+
+.cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cal-head__title {
+  margin: 0;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--nk-text-strong);
+  text-transform: capitalize;
+}
+
+.cal-head__nav {
+  display: flex;
+  gap: 6px;
+}
+
+.cal-head__nav button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-bg-cream);
+  color: var(--nk-text);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--nk-border);
+}
+
+.cal-head__nav button:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+.cal-today {
+  border: none;
+  border-radius: 999px;
+  padding: 0.4em 0.9em;
+  background: var(--nk-leaf);
+  color: #fff;
+  font-family: var(--nk-font);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--nk-leaf-dark);
+}
+
+/* ---------- Cuadrícula ---------- */
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  padding: 10px 8px;
+  border-radius: 20px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 6px 16px var(--nk-shadow);
+}
+
+.cal-weekday {
+  text-align: center;
+  padding-bottom: 6px;
+  font-family: var(--nk-font);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+}
+
+.cal-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 0 6px;
+  border: none;
+  border-radius: 12px;
+  background: none;
+  cursor: pointer;
+  font-family: var(--nk-font);
+  font-size: 0.85rem;
+  color: var(--nk-text-strong);
+  /* El gesto largo abre el formulario: hay que quitarle el scroll al navegador. */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Los días del mes anterior y siguiente se ven, pero apagados. */
+.cal-day--out {
+  color: var(--nk-text-muted);
+  opacity: 0.45;
+}
+
+.cal-day--today .cal-day__n {
+  background: var(--nk-accent-yellow);
+  color: #fff;
+}
+
+.cal-day--on {
+  background: var(--nk-surface-sunk);
+}
+
+.cal-day--on .cal-day__n {
+  background: var(--nk-leaf);
+  color: #fff;
+}
+
+.cal-day__n {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+}
+
+/* Un punto por evento, hasta tres. El color dice de quién es. */
+.cal-dots {
+  display: flex;
+  gap: 3px;
+  height: 6px;
+}
+
+.cal-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.cal-dot--irene {
+  background: #e86a92;
+}
+.cal-dot--vicente {
+  background: #5aa9e6;
+}
+.cal-dot--both {
+  background: var(--nk-leaf);
+}
+
+/* ---------- Día seleccionado ---------- */
+
+.cal-day-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cal-day-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cal-day-panel__head h3 {
+  margin: 0;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--nk-text-strong);
+  text-transform: capitalize;
+}
+
+.cal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cal-event {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 10px var(--nk-shadow);
+}
+
+/* Franja de color a la izquierda: se sabe de quién es sin leer nada. */
+.cal-event__bar {
+  flex: none;
+  width: 5px;
+  border-radius: 3px;
+}
+
+.cal-event__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.cal-event__title {
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--nk-text-strong);
+}
+
+.cal-event__meta {
+  margin-top: 2px;
+  font-size: 0.74rem;
+  color: var(--nk-text-muted);
+}
+
+.cal-event__notes {
+  margin-top: 5px;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--nk-text);
+}
+
+.cal-event__x {
+  flex: none;
+  align-self: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-surface-sunk);
+  color: var(--nk-text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cal-empty {
+  text-align: center;
+  font-size: 0.84rem;
+  color: var(--nk-text-muted);
+  padding: 18px 0;
+}
+
+.cal-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--nk-text-muted);
+}
+
+/* ---------- Formulario ---------- */
+
+.cal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cal-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cal-form label > span {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.cal-form input,
+.cal-form textarea {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 0.6em 0.8em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font-body);
+  font-size: 16px;
+  color: var(--nk-text-strong);
+  resize: none;
+}
+
+.cal-form input:focus,
+.cal-form textarea:focus {
+  outline: 2px solid var(--nk-leaf);
+}
+
+.cal-form__row {
+  display: flex;
+  gap: 8px;
+}
+
+.cal-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cal-chip {
+  border: none;
+  border-radius: 999px;
+  padding: 0.45em 0.95em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+.cal-chip[aria-pressed="true"] {
+  background: var(--nk-leaf);
+  color: #fff;
+}
+
+/* Cada persona con su color también en el selector, para que el punto de la
+   cuadrícula se reconozca sin tener que aprenderse una leyenda. */
+.cal-chip--irene[aria-pressed="true"] {
+  background: #e86a92;
+}
+.cal-chip--vicente[aria-pressed="true"] {
+  background: #5aa9e6;
+}
+
+.cal-form__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 2px;
+}
