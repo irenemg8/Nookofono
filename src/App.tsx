@@ -277,13 +277,7 @@ function SortableItem({ item, index }: { item: HomeItem; index: number }) {
 
 /* -------------------------------------------------------------------- home */
 
-function HomeScreen({
-  onOpen,
-  homeWallpaper,
-}: {
-  onOpen: (a: MiniAppManifest) => void;
-  homeWallpaper: string | null;
-}) {
+function HomeScreen({ onOpen }: { onOpen: (a: MiniAppManifest) => void }) {
   const { items, order, move } = useAppOrder();
   const dock = useDock();
   const [editing, setEditing] = useState(false);
@@ -357,7 +351,6 @@ function HomeScreen({
       ref={pagesRef}
       onScroll={handleScroll}
       onPointerDown={handleBackgroundTap}
-      style={homeWallpaper ? { backgroundImage: `url(${homeWallpaper})` } : undefined}
     >
       {pages.map((pageItems, i) => (
         <div className="nk-page" key={i}>
@@ -511,10 +504,15 @@ export default function App() {
   const [open, setOpen] = useState<MiniAppManifest | null>(null);
   const phase = useTimeOfDay();
 
+  // El fondo de inicio va en la carcasa, no en la rejilla, para que la ola del
+  // mar pueda dibujarse entre el fondo y los iconos.
+  const homeWallpaper = !locked && !open ? wallpapers[phase].home : null;
+
   return (
     <main
       className={`nk-phone${locked ? " nk-phone--locked" : ""}`}
       data-theme={phase}
+      style={homeWallpaper ? { backgroundImage: `url(${homeWallpaper})` } : undefined}
     >
       {locked ? (
         <LockScreen onUnlock={() => setLocked(false)} phase={phase} />
@@ -524,7 +522,7 @@ export default function App() {
           {open ? (
             <AppView app={open} onBack={() => setOpen(null)} />
           ) : (
-            <HomeScreen onOpen={setOpen} homeWallpaper={wallpapers[phase].home} />
+            <HomeScreen onOpen={setOpen} />
           )}
         </>
       )}
