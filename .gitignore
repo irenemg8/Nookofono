@@ -12,6 +12,18 @@ dist
 dist-ssr
 *.local
 
+# Secretos del backend: nunca al repositorio.
+.env
+.env.*
+!.env.example
+
+# Capturas de las pruebas con Playwright.
+.playwright-mcp/
+
+# Estado local de la herramienta APEX (incluye una base de datos de contexto).
+# No es código de la aplicación.
+.apex/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
