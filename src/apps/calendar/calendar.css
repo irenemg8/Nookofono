@@ -46,16 +46,25 @@
 }
 
 .cal-today {
+  /* Los hermanos son círculos de 32px y este es un flex item: sin `flex: none`
+     se encogía hasta cortar la palabra. */
+  flex: none;
+  white-space: nowrap;
   border: none;
   border-radius: 999px;
-  padding: 0.4em 0.9em;
+  padding: 0.5em 1.3em;
   background: var(--nk-leaf);
   color: #fff;
   font-family: var(--nk-font);
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 3px 0 var(--nk-leaf-dark);
+}
+
+.cal-today:active {
+  transform: translateY(2px);
+  box-shadow: none;
 }
 
 /* ---------- Cuadrícula ---------- */
@@ -296,6 +305,15 @@
 .cal-form__row {
   display: flex;
   gap: 8px;
+}
+
+.cal-form__legend {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
 }
 
 .cal-chips {

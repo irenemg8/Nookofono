@@ -12,6 +12,7 @@ import {
   toKey,
   todayKey,
 } from "./model/dates";
+import { REPEAT_LABEL, occursOn, type Repeat } from "./model/repeat";
 import "./calendar.css";
 
 /** Igual que en la pantalla de inicio, para que el gesto se sienta el mismo. */
@@ -21,7 +22,7 @@ type Who = "irene" | "vicente" | "both";
 
 interface CalEvent extends Entity {
   title: string;
-  /** `YYYY-MM-DD` en hora local. */
+  /** `YYYY-MM-DD` en hora local. Primera vez, si se repite. */
   date: string;
   /** `HH:MM`, vacío si dura todo el día. */
   startsAt: string;
@@ -29,6 +30,9 @@ interface CalEvent extends Entity {
   allDay: boolean;
   who: Who;
   notes: string;
+  repeat: Repeat;
+  /** Última fecha posible. Vacío = sin fin. */
+  repeatUntil: string;
 }
 
 const WHO_LABEL: Record<Who, string> = {
@@ -56,19 +60,23 @@ export default function CalendarApp() {
   const month = cursor.getMonth();
   const grid = useMemo(() => monthGrid(year, month), [year, month]);
 
-  /** Eventos agrupados por día: la cuadrícula los consulta 42 veces. */
+  /**
+   * Eventos de cada día visible. No basta con agrupar por fecha: uno que se
+   * repite aparece en días que no son el suyo, así que hay que preguntar por
+   * cada casilla.
+   */
   const byDate = useMemo(() => {
     const map = new Map<string, CalEvent[]>();
-    for (const e of events.items) {
-      const list = map.get(e.date) ?? [];
-      list.push(e);
-      map.set(e.date, list);
-    }
-    for (const list of map.values()) {
+    const days = new Set(grid.map(toKey));
+    days.add(selected);
+
+    for (const key of days) {
+      const list = events.items.filter((e) => occursOn(e, key));
       list.sort((a, b) => (a.allDay ? "" : a.startsAt).localeCompare(b.allDay ? "" : b.startsAt));
+      if (list.length > 0) map.set(key, list);
     }
     return map;
-  }, [events.items]);
+  }, [events.items, grid, selected]);
 
   const dayEvents = byDate.get(selected) ?? [];
 
@@ -152,6 +160,7 @@ export default function CalendarApp() {
                       : `${e.startsAt} – ${endTime(e.startsAt, e.durationMin)} · ${humanDuration(e.durationMin)}`}
                     {" · "}
                     {WHO_LABEL[e.who]}
+                    {e.repeat !== "none" && ` · ${REPEAT_LABEL[e.repeat].toLowerCase()}`}
                   </div>
                   {e.notes && <p className="cal-event__notes">{e.notes}</p>}
                 </div>
@@ -185,7 +194,11 @@ export default function CalendarApp() {
       {pending && (
         <ConfirmDialog
           title="¿Borrar este evento?"
-          body={`Se borrará «${pending.title}» del ${longDate(pending.date)}.`}
+          body={
+            pending.repeat === "none"
+              ? `Se borrará «${pending.title}» del ${longDate(pending.date)}.`
+              : `«${pending.title}» se repite ${REPEAT_LABEL[pending.repeat].toLowerCase()}. Se borrarán todas sus repeticiones, no sólo la de este día.`
+          }
           confirmLabel="Borrar"
           onConfirm={() => {
             events.remove(pending.id);
@@ -265,11 +278,24 @@ function EventForm({
   const [allDay, setAllDay] = useState(false);
   const [who, setWho] = useState<Who>("both");
   const [notes, setNotes] = useState("");
+  const [repeat, setRepeat] = useState<Repeat>("none");
+  const [repeatUntil, setRepeatUntil] = useState("");
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
-    onSave({ title: title.trim(), date, startsAt, durationMin, allDay, who, notes: notes.trim() });
+    onSave({
+      title: title.trim(),
+      date,
+      startsAt,
+      durationMin,
+      allDay,
+      who,
+      notes: notes.trim(),
+      repeat,
+      // Una fecha de fin sin repetición no significa nada: se descarta.
+      repeatUntil: repeat === "none" ? "" : repeatUntil,
+    });
   }
 
   return (
@@ -349,6 +375,35 @@ function EventForm({
                 ))}
               </div>
             </>
+          )}
+
+          <div>
+            <span className="cal-form__legend">Se repite</span>
+            <div className="cal-chips">
+              {(Object.keys(REPEAT_LABEL) as Repeat[]).map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  className="cal-chip"
+                  aria-pressed={repeat === r}
+                  onClick={() => setRepeat(r)}
+                >
+                  {REPEAT_LABEL[r]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {repeat !== "none" && (
+            <label>
+              <span>Hasta cuándo (opcional)</span>
+              <input
+                type="date"
+                value={repeatUntil}
+                min={date}
+                onChange={(e) => setRepeatUntil(e.target.value)}
+              />
+            </label>
           )}
 
           <label>

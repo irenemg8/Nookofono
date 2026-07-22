@@ -58,6 +58,13 @@ export function endTime(start: string, minutes: number): string {
   return `${hh}:${mm}`;
 }
 
+/** Días completos entre dos claves. Ambas se leen como fechas locales. */
+export function daysBetween(from: string, to: string): number {
+  const a = fromKey(from);
+  const b = fromKey(to);
+  return Math.round((b.getTime() - a.getTime()) / 86_400_000);
+}
+
 export function humanDuration(minutes: number): string {
   if (minutes < 60) return `${minutes} min`;
   const h = Math.floor(minutes / 60);
