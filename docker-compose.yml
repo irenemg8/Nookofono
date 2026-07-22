@@ -1,0 +1,72 @@
+# iPug — base de datos y API.
+#
+# En el VPS, Caddy (contenedor `vrlabs-caddy`) es quien publica el sitio: habla
+# con `ipug-app` por la red interna, así que la API **no** expone ningún puerto
+# al exterior. La base de datos tampoco: sólo la ve la API.
+#
+# El puerto 5439 de `ipug-db` se publica únicamente para poder inspeccionar la
+# base desde el portátil durante el desarrollo. En el VPS conviene quitarlo.
+services:
+  ipug-db:
+    image: postgres:17-alpine
+    container_name: ipug-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ipug}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ipug}
+      POSTGRES_DB: ${POSTGRES_DB:-ipug}
+    ports:
+      - "127.0.0.1:5439:5432"
+    volumes:
+      - ipug-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # `pg_isready` responde antes de que la base acepte conexiones de verdad;
+      # con una consulta real se evita que la API arranque demasiado pronto.
+      test: ["CMD-SHELL", "psql -U $${POSTGRES_USER} -d $${POSTGRES_DB} -c 'SELECT 1' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks: [ipug]
+
+  ipug-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ipug-app
+    restart: unless-stopped
+    depends_on:
+      ipug-db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "8011"
+      DATABASE_URL: postgres://${POSTGRES_USER:-ipug}:${POSTGRES_PASSWORD:-ipug}@ipug-db:5432/${POSTGRES_DB:-ipug}
+      JWT_SECRET: ${JWT_SECRET:?falta JWT_SECRET}
+      SESSION_TTL_DAYS: ${SESSION_TTL_DAYS:-30}
+      TOTP_WINDOW: ${TOTP_WINDOW:-1}
+      RATE_LIMIT_AUTH_MAX: ${RATE_LIMIT_AUTH_MAX:-5}
+      RATE_LIMIT_AUTH_WINDOW_S: ${RATE_LIMIT_AUTH_WINDOW_S:-900}
+      # El Dockerfile deja el frontend compilado en ./public, relativo al
+      # directorio de trabajo (/app/server).
+      STATIC_ROOT: ./public
+    healthcheck:
+      # `/api/health` no toca la base de datos a propósito: aquí sólo se
+      # comprueba que el proceso responde, no el estado de Postgres.
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8011/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks: [ipug, web]
+
+volumes:
+  ipug-pgdata:
+
+networks:
+  ipug:
+  # Red compartida con `vrlabs-caddy`; es externa porque la crea la pila de
+  # Caddy, no esta.
+  web:
+    external: true
+    name: ${CADDY_NETWORK:-vrlabs-network}

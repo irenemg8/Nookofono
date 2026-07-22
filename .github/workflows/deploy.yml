@@ -29,7 +29,11 @@ jobs:
           cache: npm
 
       - run: npm ci
+      # Sin esto el bundle se construye para la raíz del dominio y en
+      # irenemg8.github.io/Nookofono/ los assets darían 404. Ver vite.config.ts.
       - run: npm run build
+        env:
+          DEPLOY_TARGET: pages
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

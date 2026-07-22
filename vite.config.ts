@@ -4,8 +4,14 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // El sitio se publica en https://irenemg8.github.io/Nookofono/, así que todas
-  // las rutas de los assets tienen que colgar de ese subdirectorio. Sin esto,
-  // el bundle se pide a la raíz del dominio y da 404.
-  base: '/Nookofono/',
+  // El sitio vive en dos sitios a la vez y cada uno quiere una raíz distinta:
+  //
+  //   - GitHub Pages lo publica en https://irenemg8.github.io/Nookofono/, o sea
+  //     colgando de un subdirectorio. Sin `base` los assets se piden a la raíz
+  //     del dominio y dan 404. El workflow `.github/workflows/deploy.yml` es
+  //     quien pone DEPLOY_TARGET=pages.
+  //   - En https://ipug.vrlabs.es el dominio es sólo suyo y los sirve la propia
+  //     API desde la raíz, así que el prefijo sobra: con él los assets se
+  //     pedirían a /Nookofono/assets/… y darían 404 igualmente.
+  base: process.env.DEPLOY_TARGET === 'pages' ? '/Nookofono/' : '/',
 })

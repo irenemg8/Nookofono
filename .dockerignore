@@ -1,0 +1,20 @@
+# Lo que no debe entrar en el contexto de build: acelera el `docker build` y,
+# sobre todo, evita que un .env acabe dentro de la imagen.
+node_modules
+server/node_modules
+dist
+server/dist
+.git
+.github
+logs
+*.log
+
+.env
+.env.*
+!.env.example
+
+.apex
+docs
+.playwright-mcp
+.vscode
+.idea
