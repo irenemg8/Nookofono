@@ -372,8 +372,7 @@ body {
 /* ---------- Widgets ---------- */
 
 .nk-widget {
-  grid-column: span 2;
-  grid-row: span 2;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -389,15 +388,18 @@ body {
   touch-action: pan-x;
 }
 
+/* Tamaños: N columnas × M filas de la rejilla. */
+.nk-widget--2x2 { grid-column: span 2; grid-row: span 2; }
+.nk-widget--4x2 { grid-column: span 4; grid-row: span 2; }
+.nk-widget--4x4 { grid-column: span 4; grid-row: span 4; }
+
 .nk-widget__frame {
   position: relative;
-  /* Se ata al alto de dos filas, no al ancho de dos columnas: si no, en móviles
-     estrechos el widget sería más alto que las dos filas que ocupa y empujaría
-     al resto hacia abajo. El 36px es el hueco + etiqueta de una fila. */
+  width: 100%;
+  /* El alto se deriva de las filas que ocupa, no del ancho: si se dejara al
+     ancho, en móviles estrechos el widget sobresaldría de sus filas y empujaría
+     al resto hacia abajo. Cada fila mide icono + 36px de hueco y etiqueta. */
   height: calc(2 * var(--nk-icon) + 36px);
-  width: auto;
-  aspect-ratio: 1;
-  max-width: 100%;
   border-radius: 16%;
   overflow: hidden;
   background: var(--nk-surface-sunk);
@@ -411,14 +413,78 @@ body {
   display: block;
 }
 
+.nk-widget__frame--4x2 { border-radius: 8%; }
+
+.nk-widget__frame--4x4 {
+  height: calc(4 * var(--nk-icon) + 108px);
+  border-radius: 8%;
+}
+
 .nk-widget__empty {
   display: grid;
   place-content: center;
+  justify-items: center;
   gap: 4px;
   height: 100%;
   padding: 10px;
   text-align: center;
   color: var(--nk-text-muted);
+}
+
+.nk-widget__glyph {
+  width: 34px;
+  height: 34px;
+  border-radius: 24%;
+  margin-bottom: 4px;
+}
+
+/* Botón de quitar, en la esquina del widget. */
+.nk-remove {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-text-strong);
+  color: var(--nk-bg-cream);
+  font-family: var(--nk-font);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Botón de añadir widget, arriba a la derecha en modo edición. */
+.nk-add {
+  position: absolute;
+  top: calc(var(--sat) + 42px);
+  right: 14px;
+  z-index: 15;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0 0 3px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-leaf);
+  color: #fff;
+  font-family: var(--nk-font);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--nk-leaf-dark), 0 6px 12px var(--nk-shadow-strong);
+}
+
+.nk-add:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--nk-leaf-dark), 0 2px 5px var(--nk-shadow);
 }
 
 .nk-widget__empty strong {
@@ -446,6 +512,193 @@ body {
   color: var(--nk-text);
 }
 
+/* ---------- Hoja de widgets y diálogos ---------- */
+
+.nk-sheet,
+.nk-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  background: rgba(40, 24, 16, 0.45);
+  backdrop-filter: blur(3px);
+  animation: nk-fade 0.18s ease;
+}
+
+.nk-sheet {
+  align-items: flex-end;
+}
+
+.nk-modal {
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+@keyframes nk-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.nk-sheet__panel {
+  width: 100%;
+  max-height: 78%;
+  display: flex;
+  flex-direction: column;
+  background: var(--nk-bg-cream);
+  border-radius: 26px 26px 0 0;
+  padding: 18px 18px calc(18px + var(--sab));
+  animation: nk-rise 0.24s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes nk-rise {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.nk-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.nk-sheet__head h2 {
+  margin: 0;
+  font-family: var(--nk-font);
+  font-size: 1.15rem;
+  color: var(--nk-text-strong);
+}
+
+.nk-sheet__close {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-surface-sunk);
+  color: var(--nk-text);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.nk-sheet__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nk-source {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 16px;
+  background: var(--nk-surface);
+}
+
+.nk-source__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 24%;
+  flex: none;
+}
+
+.nk-source__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.nk-source__body strong {
+  font-family: var(--nk-font);
+  font-weight: 600;
+  color: var(--nk-text-strong);
+}
+
+.nk-source__soon {
+  font-size: 0.68rem;
+  color: var(--nk-text-muted);
+}
+
+.nk-source__sizes {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+.nk-size {
+  border: none;
+  border-radius: 999px;
+  padding: 0.42em 0.9em;
+  background: var(--nk-leaf);
+  color: #fff;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.72rem;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--nk-leaf-dark);
+}
+
+.nk-size:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--nk-leaf-dark);
+}
+
+.nk-modal__panel {
+  width: 100%;
+  max-width: 330px;
+  background: var(--nk-bg-cream);
+  border-radius: 22px;
+  padding: 22px;
+  text-align: center;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+}
+
+.nk-modal__title {
+  margin: 0 0 8px;
+  font-family: var(--nk-font);
+  font-size: 1.1rem;
+  color: var(--nk-text-strong);
+}
+
+.nk-modal__body {
+  margin: 0 0 18px;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--nk-text);
+}
+
+.nk-modal__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.nk-btn--ghost {
+  background: var(--nk-surface-sunk);
+  color: var(--nk-text);
+  box-shadow: 0 4px 0 var(--nk-border);
+}
+
+.nk-btn--ghost:active {
+  box-shadow: 0 1px 0 var(--nk-border);
+}
+
+.nk-btn--danger {
+  background: #e2504a;
+  box-shadow: 0 4px 0 #b13a35, 0 6px 10px var(--nk-shadow);
+}
+
+.nk-btn--danger:active {
+  box-shadow: 0 1px 0 #b13a35, 0 2px 4px var(--nk-shadow);
+}
+
 /* ---------- Modo edición: temblor estilo iOS ---------- */
 
 /* El temblor va sobre el icono o el marco del widget, y no sobre el contenedor,
@@ -458,7 +711,7 @@ body {
 
 .nk-sortable--wiggle .nk-app__icon,
 .nk-sortable--wiggle .nk-widget__frame {
-  animation: nk-wiggle 0.5s ease-in-out infinite alternate;
+  animation: nk-wiggle 0.16s ease-in-out infinite alternate;
   /* El icono lleva `transition: transform` para el rebote al pulsarlo. Si se
      deja activa durante el temblor, el navegador intenta interpolar cada
      fotograma de la animación y el giro sale a tirones. */
@@ -484,10 +737,10 @@ body {
 
 @keyframes nk-wiggle {
   from {
-    transform: rotate(-1.1deg);
+    transform: rotate(-2deg);
   }
   to {
-    transform: rotate(1.1deg);
+    transform: rotate(2deg);
   }
 }
 

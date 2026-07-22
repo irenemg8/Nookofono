@@ -1,5 +1,5 @@
-import { useCallback, useState } from "react";
-import { homeItems, type HomeItem } from "../../apps/home-items";
+import { useCallback, useMemo, useState } from "react";
+import type { HomeItem } from "../../apps/home-items";
 
 const STORAGE_KEY = "ipug.icon-order";
 
@@ -7,65 +7,61 @@ const STORAGE_KEY = "ipug.icon-order";
  * Orden de los elementos de la pantalla de inicio (iconos y widgets),
  * persistido en el dispositivo.
  *
- * En fase 2 esto pasa a `app_preferences` en D1 con la clave `icon_order`, y
- * entonces el orden se comparte entre los dos móviles. Ver
+ * Recibe el catálogo completo porque los widgets se añaden y se quitan en
+ * caliente. El orden guardado se reconcilia contra él: los ids desconocidos se
+ * descartan y los elementos nuevos entran al final. Así, añadir un widget nunca
+ * rompe la colocación que ya había.
+ *
+ * En fase 2 esto pasa a `app_preferences` en D1 con la clave `icon_order`. Ver
  * docs/MIGRACION-BACKEND.md §6.
  */
-export function useAppOrder() {
+export function useAppOrder(catalog: HomeItem[]) {
   const [order, setOrder] = useState<string[]>(readOrder);
 
-  const move = useCallback((fromId: string, toId: string) => {
-    setOrder((prev) => {
-      const from = prev.indexOf(fromId);
-      const to = prev.indexOf(toId);
-      if (from === -1 || to === -1 || from === to) return prev;
+  const ids = useMemo(() => reconcile(order, catalog), [order, catalog]);
 
-      const next = [...prev];
-      next.splice(to, 0, next.splice(from, 1)[0]);
-      writeOrder(next);
-      return next;
-    });
-  }, []);
+  const items = useMemo(() => {
+    const byId = new Map(catalog.map((item) => [item.id, item]));
+    return ids.map((id) => byId.get(id)!).filter(Boolean);
+  }, [ids, catalog]);
 
-  const reset = useCallback(() => {
-    const next = defaultOrder();
-    writeOrder(next);
-    setOrder(next);
-  }, []);
+  const move = useCallback(
+    (fromId: string, toId: string) => {
+      // Se parte de la lista reconciliada, no del estado en bruto: si no, mover
+      // un widget recién añadido no haría nada, porque todavía no está guardado.
+      setOrder((prev) => {
+        const base = reconcile(prev, catalog);
+        const from = base.indexOf(fromId);
+        const to = base.indexOf(toId);
+        if (from === -1 || to === -1 || from === to) return prev;
 
-  const items = order
-    .map((id) => homeItems.find((item) => item.id === id))
-    .filter((item): item is HomeItem => item !== undefined);
+        const next = [...base];
+        next.splice(to, 0, next.splice(from, 1)[0]);
+        writeOrder(next);
+        return next;
+      });
+    },
+    [catalog],
+  );
 
-  return { items, order, move, reset };
+  return { items, order: ids, move };
 }
 
-function defaultOrder(): string[] {
-  return homeItems.map((item) => item.id);
+function reconcile(order: string[], catalog: HomeItem[]): string[] {
+  const known = new Set(catalog.map((item) => item.id));
+  const kept = order.filter((id) => known.has(id));
+  const seen = new Set(kept);
+  const fresh = catalog.filter((item) => !seen.has(item.id)).map((item) => item.id);
+  return [...kept, ...fresh];
 }
 
-/**
- * Reconcilia lo guardado con el registry: descarta ids que ya no existen y
- * añade al final los nuevos. Así, dar de alta una app o un widget nunca rompe
- * el orden guardado.
- */
 function readOrder(): string[] {
-  const fallback = defaultOrder();
-
-  let saved: unknown;
   try {
-    saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
+    return Array.isArray(saved) ? saved.filter((id): id is string => typeof id === "string") : [];
   } catch {
-    return fallback;
+    return [];
   }
-
-  if (!Array.isArray(saved)) return fallback;
-
-  const known = new Set(fallback);
-  const kept = saved.filter((id): id is string => typeof id === "string" && known.has(id));
-  const missing = fallback.filter((id) => !kept.includes(id));
-
-  return [...kept, ...missing];
 }
 
 function writeOrder(order: string[]) {

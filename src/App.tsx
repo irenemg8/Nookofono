@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   DndContext,
   PointerSensor,
@@ -13,12 +13,18 @@ import { SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sort
 import { CSS } from "@dnd-kit/utilities";
 
 import LockScreen from "./app/LockScreen";
-import { isWidget, paginate, type HomeItem } from "./apps/home-items";
-import { enabledApps, type MiniAppManifest } from "./apps/registry";
-import type { WidgetManifest } from "./apps/widgets";
+import { buildHomeItems, isWidget, paginate, type HomeItem } from "./apps/home-items";
+import { appsById, type MiniAppManifest } from "./apps/registry";
+import {
+  WIDGET_CATALOG,
+  WIDGET_SIZE_LABEL,
+  type WidgetInstance,
+  type WidgetSize,
+} from "./apps/widgets";
 import { useAppOrder } from "./shared/lib/use-app-order";
 import { useDock } from "./shared/lib/use-dock";
 import { useLongPress } from "./shared/lib/use-long-press";
+import { useWidgets } from "./shared/lib/use-widgets";
 import { useBattery } from "./shared/lib/use-battery";
 import { useClock } from "./shared/lib/use-clock";
 import { usePhotos, useRotatingPhoto } from "./shared/lib/use-photos";
@@ -165,21 +171,30 @@ function AppIcon({
 
 /* ------------------------------------------------------------------ widgets */
 
-function PhotoWidget({ widget, seed }: { widget: WidgetManifest; seed: number }) {
+/** Contenido del widget. Hoy sólo Fotos tiene datos reales detrás. */
+function WidgetFrame({ widget, seed }: { widget: WidgetInstance; seed: number }) {
   const photos = usePhotos();
   const photo = useRotatingPhoto(photos, seed);
+  const app = appsById.get(widget.appId);
+  const isPhotos = widget.appId === "photos";
 
   return (
-    <div className="nk-widget__frame">
-      {photo ? (
+    <div className={`nk-widget__frame nk-widget__frame--${widget.size}`}>
+      {isPhotos && photo ? (
         <img src={photo} alt="" loading="lazy" decoding="async" draggable={false} />
-      ) : (
+      ) : isPhotos ? (
         <div className="nk-widget__empty">
           <strong>Sin fotos</strong>
           <span>Deja imágenes en src/assets/photos/</span>
         </div>
+      ) : (
+        <div className="nk-widget__empty">
+          {app && <img className="nk-widget__glyph" src={app.iconSrc} alt="" draggable={false} />}
+          <strong>{app?.title}</strong>
+          <span>Próximamente</span>
+        </div>
       )}
-      {widget.label && <span className="nk-widget__badge">{widget.label}</span>}
+      {app && <span className="nk-widget__badge">{app.title}</span>}
     </div>
   );
 }
@@ -187,27 +202,46 @@ function PhotoWidget({ widget, seed }: { widget: WidgetManifest; seed: number })
 function Widget({
   widget,
   seed,
-  onOpenPhotos,
+  onOpen,
+  onRemove,
   onLongPress,
 }: {
-  widget: WidgetManifest;
+  widget: WidgetInstance;
   seed: number;
-  onOpenPhotos: () => void;
+  onOpen: (a: MiniAppManifest) => void;
+  onRemove: (id: string) => void;
   onLongPress: () => void;
 }) {
   const { handlers, firedRef } = useLongPress(onLongPress, LONG_PRESS_MS);
+  const app = appsById.get(widget.appId);
+
+  const open = () => app && onOpen(app);
 
   return (
     <div
-      className="nk-widget"
+      className={`nk-widget nk-widget--${widget.size}`}
       role="button"
       tabIndex={0}
       {...handlers}
-      onClick={() => !firedRef.current && onOpenPhotos()}
-      onKeyDown={(e) => e.key === "Enter" && onOpenPhotos()}
+      onClick={() => !firedRef.current && open()}
+      onKeyDown={(e) => e.key === "Enter" && open()}
     >
-      <PhotoWidget widget={widget} seed={seed} />
-      <span className="nk-app__label">{widget.label}</span>
+      <WidgetFrame widget={widget} seed={seed} />
+      <span className="nk-app__label">{app?.title}</span>
+
+      {/* Se puede quitar en cualquier momento, sin entrar en modo edición. */}
+      <button
+        type="button"
+        className="nk-remove"
+        aria-label={`Quitar widget de ${app?.title}`}
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove(widget.id);
+        }}
+      >
+        ×
+      </button>
     </div>
   );
 }
@@ -229,7 +263,7 @@ function SortableDockIcon({ app, index }: { app: MiniAppManifest; index: number 
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
-        animationDelay: `${(index % 4) * -0.17}s`,
+        animationDelay: `${(index % 4) * -0.05}s`,
       }}
       {...attributes}
       {...listeners}
@@ -241,18 +275,27 @@ function SortableDockIcon({ app, index }: { app: MiniAppManifest; index: number 
 
 /* -------------------------------------------------- elemento en modo edición */
 
-function SortableItem({ item, index }: { item: HomeItem; index: number }) {
+function SortableItem({
+  item,
+  index,
+  onRemove,
+}: {
+  item: HomeItem;
+  index: number;
+  onRemove: (id: string) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
   });
 
   const widget = isWidget(item);
+  const app = widget ? appsById.get(item.appId) : item;
 
   return (
     <div
       ref={setNodeRef}
       className={[
-        widget ? "nk-widget" : "nk-app",
+        widget ? `nk-widget nk-widget--${item.size}` : "nk-app",
         "nk-sortable nk-sortable--wiggle",
         isDragging ? "nk-sortable--dragging" : "",
       ]
@@ -263,14 +306,82 @@ function SortableItem({ item, index }: { item: HomeItem; index: number }) {
         transition,
         // Desfase por elemento para que no tiemblen todos a la vez: sin esto
         // el efecto parece un parpadeo, no un temblor.
-        animationDelay: `${(index % 7) * -0.13}s`,
-        animationDuration: `${0.32 + (index % 3) * 0.03}s`,
+        animationDelay: `${(index % 7) * -0.04}s`,
+        animationDuration: `${0.16 + (index % 3) * 0.015}s`,
       }}
       {...attributes}
       {...listeners}
     >
-      {widget ? <PhotoWidget widget={item} seed={index} /> : <AppArt app={item} />}
-      <span className="nk-app__label">{widget ? item.label : item.title}</span>
+      {widget ? <WidgetFrame widget={item} seed={index} /> : <AppArt app={item} />}
+      <span className="nk-app__label">{app?.title}</span>
+
+      {/* Sólo los widgets se pueden quitar: las apps siempre están. */}
+      {widget && (
+        <button
+          type="button"
+          className="nk-remove"
+          aria-label={`Quitar widget de ${app?.title}`}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(item.id);
+          }}
+        >
+          ×
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------- menú de widgets */
+
+function WidgetPicker({
+  onAdd,
+  onClose,
+}: {
+  onAdd: (appId: string, size: WidgetSize) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="nk-sheet" onPointerDown={onClose}>
+      <div className="nk-sheet__panel" onPointerDown={(e) => e.stopPropagation()}>
+        <header className="nk-sheet__head">
+          <h2>Añadir widget</h2>
+          <button type="button" className="nk-sheet__close" onClick={onClose} aria-label="Cerrar">
+            ×
+          </button>
+        </header>
+
+        <ul className="nk-sheet__list">
+          {WIDGET_CATALOG.map((source) => {
+            const app = appsById.get(source.appId);
+            if (!app) return null;
+
+            return (
+              <li key={source.appId} className="nk-source">
+                <img className="nk-source__icon" src={app.iconSrc} alt="" draggable={false} />
+                <div className="nk-source__body">
+                  <strong>{app.title}</strong>
+                  {!source.ready && <span className="nk-source__soon">Sin contenido aún</span>}
+                </div>
+                <div className="nk-source__sizes">
+                  {source.sizes.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      className="nk-size"
+                      onClick={() => onAdd(source.appId, size)}
+                    >
+                      {WIDGET_SIZE_LABEL[size]}
+                    </button>
+                  ))}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </div>
   );
 }
@@ -278,13 +389,32 @@ function SortableItem({ item, index }: { item: HomeItem; index: number }) {
 /* -------------------------------------------------------------------- home */
 
 function HomeScreen({ onOpen }: { onOpen: (a: MiniAppManifest) => void }) {
-  const { items, order, move } = useAppOrder();
+  const widgets = useWidgets();
+  const catalog = useMemo(() => buildHomeItems(widgets.widgets), [widgets.widgets]);
+  const { items, order, move } = useAppOrder(catalog);
   const dock = useDock();
   const [editing, setEditing] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const [pendingRemove, setPendingRemove] = useState<WidgetInstance | null>(null);
   const pagesRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(0);
 
   const pages = paginate(items);
+
+  function askRemove(id: string) {
+    const widget = items.find((i) => i.id === id);
+    if (widget && isWidget(widget)) setPendingRemove(widget);
+  }
+
+  function confirmRemove() {
+    if (pendingRemove) widgets.remove(pendingRemove.id);
+    setPendingRemove(null);
+  }
+
+  function addWidget(appId: string, size: WidgetSize) {
+    widgets.add(appId, size);
+    setPicking(false);
+  }
 
   const sensors = useSensors(
     // En modo edición ya no hace falta esperar: basta un pequeño desplazamiento
@@ -333,16 +463,10 @@ function HomeScreen({ onOpen }: { onOpen: (a: MiniAppManifest) => void }) {
     el.scrollTo({ left: index * el.clientWidth, behavior: "smooth" });
   }
 
-  /** Tocar un widget de fotos abre la app Fotos. */
-  function openPhotos() {
-    const target = enabledApps.find((a) => a.id === "photos");
-    if (target) onOpen(target);
-  }
-
   /** Tocar cualquier hueco que no sea un icono o un widget sale del modo edición. */
   function handleBackgroundTap(e: React.PointerEvent) {
     if (!editing) return;
-    if (!(e.target as HTMLElement).closest(".nk-app, .nk-widget")) setEditing(false);
+    if (!(e.target as HTMLElement).closest(".nk-app, .nk-widget, .nk-add")) setEditing(false);
   }
 
   const grid = (
@@ -356,13 +480,17 @@ function HomeScreen({ onOpen }: { onOpen: (a: MiniAppManifest) => void }) {
         <div className="nk-page" key={i}>
           {pageItems.map((item) => {
             const index = items.indexOf(item);
-            if (editing) return <SortableItem key={item.id} item={item} index={index} />;
+            if (editing)
+              return (
+                <SortableItem key={item.id} item={item} index={index} onRemove={askRemove} />
+              );
             return isWidget(item) ? (
               <Widget
                 key={item.id}
                 widget={item}
                 seed={index}
-                onOpenPhotos={openPhotos}
+                onOpen={onOpen}
+                onRemove={askRemove}
                 onLongPress={() => setEditing(true)}
               />
             ) : (
@@ -412,27 +540,96 @@ function HomeScreen({ onOpen }: { onOpen: (a: MiniAppManifest) => void }) {
     </div>
   );
 
+  const overlays = (
+    <>
+      {editing && (
+        <button
+          type="button"
+          className="nk-add"
+          aria-label="Añadir widget"
+          onClick={() => setPicking(true)}
+        >
+          +
+        </button>
+      )}
+
+      {picking && <WidgetPicker onAdd={addWidget} onClose={() => setPicking(false)} />}
+
+      {pendingRemove && (
+        <ConfirmDialog
+          title="¿Quitar este widget?"
+          body={`Se quitará el widget de ${appsById.get(pendingRemove.appId)?.title} de la pantalla de inicio. Puedes volver a añadirlo cuando quieras.`}
+          confirmLabel="Quitar"
+          onConfirm={confirmRemove}
+          onCancel={() => setPendingRemove(null)}
+        />
+      )}
+    </>
+  );
+
   if (!editing) {
     return (
       <>
         {grid}
         {sea}
+        {overlays}
       </>
     );
   }
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={order} strategy={rectSortingStrategy}>
-        {grid}
-      </SortableContext>
-      <SortableContext
-        items={dock.ids.map((id) => DOCK_PREFIX + id)}
-        strategy={rectSortingStrategy}
+    <>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={order} strategy={rectSortingStrategy}>
+          {grid}
+        </SortableContext>
+        <SortableContext
+          items={dock.ids.map((id) => DOCK_PREFIX + id)}
+          strategy={rectSortingStrategy}
+        >
+          {sea}
+        </SortableContext>
+      </DndContext>
+      {overlays}
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------- diálogo */
+
+function ConfirmDialog({
+  title,
+  body,
+  confirmLabel,
+  onConfirm,
+  onCancel,
+}: {
+  title: string;
+  body: string;
+  confirmLabel: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="nk-modal" onPointerDown={onCancel}>
+      <div
+        className="nk-modal__panel"
+        role="alertdialog"
+        aria-modal="true"
+        onPointerDown={(e) => e.stopPropagation()}
       >
-        {sea}
-      </SortableContext>
-    </DndContext>
+        <h2 className="nk-modal__title">{title}</h2>
+        <p className="nk-modal__body">{body}</p>
+        <div className="nk-modal__actions">
+          <button type="button" className="nk-btn nk-btn--ghost" onClick={onCancel}>
+            Cancelar
+          </button>
+          <button type="button" className="nk-btn nk-btn--danger" onClick={onConfirm}>
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

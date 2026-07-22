@@ -1,30 +1,32 @@
 import { enabledApps, type MiniAppManifest } from "./registry";
-import { WIDGET_CELLS, widgets, type WidgetManifest } from "./widgets";
+import { WIDGET_CELLS, type WidgetInstance } from "./widgets";
 
 /** Lo que puede vivir en la rejilla: un icono de app o un widget. */
-export type HomeItem = (MiniAppManifest & { kind: "app" }) | WidgetManifest;
+export type HomeItem = (MiniAppManifest & { kind: "app" }) | WidgetInstance;
 
 /** Celdas por página: 4 columnas × 6 filas. */
 export const PAGE_CELLS = 24;
 
-export const homeItems: HomeItem[] = [
-  ...enabledApps.map((app) => ({ ...app, kind: "app" as const })),
-  ...widgets.filter((w) => w.enabled),
-].sort((a, b) => a.page - b.page);
+const appItems: HomeItem[] = enabledApps.map((app) => ({ ...app, kind: "app" as const }));
+
+/** Combina las apps del registry con los widgets que haya colocados. */
+export function buildHomeItems(widgets: WidgetInstance[]): HomeItem[] {
+  return [...appItems, ...widgets].sort((a, b) => a.page - b.page);
+}
 
 export function cellsOf(item: HomeItem): number {
   return item.kind === "widget" ? WIDGET_CELLS[item.size] : 1;
 }
 
-export function isWidget(item: HomeItem): item is WidgetManifest {
+export function isWidget(item: HomeItem): item is WidgetInstance {
   return item.kind === "widget";
 }
 
 /**
  * Trocea la lista ordenada en páginas de `PAGE_CELLS` celdas.
  *
- * Un widget 2×2 gasta cuatro celdas, así que si no cabe entero al final de una
- * página, salta a la siguiente en vez de partirse. La rejilla usa
+ * Un widget gasta varias celdas, así que si no cabe entero al final de una
+ * página salta a la siguiente en vez de partirse. La rejilla usa
  * `grid-auto-flow: dense`, de modo que los iconos sueltos rellenan el hueco que
  * quede detrás.
  */
