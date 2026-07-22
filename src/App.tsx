@@ -8,17 +8,19 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import {
-  SortableContext,
-  rectSortingStrategy,
-  useSortable,
-} from "@dnd-kit/sortable";
+import { SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import { PAGE_SIZE, dockApps, type MiniAppManifest } from "./apps/registry";
+import LockScreen from "./app/LockScreen";
+import { isWidget, paginate, type HomeItem } from "./apps/home-items";
+import { dockApps, enabledApps, type MiniAppManifest } from "./apps/registry";
+import type { WidgetManifest } from "./apps/widgets";
 import { useAppOrder } from "./shared/lib/use-app-order";
 import { useBattery } from "./shared/lib/use-battery";
 import { useClock } from "./shared/lib/use-clock";
+import { usePhotos, useRotatingPhoto } from "./shared/lib/use-photos";
+import { useTimeOfDay } from "./shared/lib/use-time-of-day";
+import { wallpapers } from "./app/wallpapers";
 
 /** Cuánto hay que mantener pulsado para entrar en modo edición. */
 const LONG_PRESS_MS = 3000;
@@ -71,7 +73,7 @@ function BoltIcon() {
 /* ------------------------------------------------------------ barra de estado */
 
 /** Tres tramos, como los iconos clásicos de pila: llena, media o vacía. */
-function batteryLevelClass(level: number): "full" | "half" | "empty" {
+function batteryStep(level: number): "full" | "half" | "empty" {
   if (level > 66) return "full";
   if (level > 25) return "half";
   return "empty";
@@ -80,7 +82,7 @@ function batteryLevelClass(level: number): "full" | "half" | "empty" {
 function StatusBar() {
   const time = useClock();
   const battery = useBattery();
-  const step = battery.supported ? batteryLevelClass(battery.level) : "empty";
+  const step = battery.supported ? batteryStep(battery.level) : "empty";
   const fill = step === "full" ? "100%" : step === "half" ? "50%" : "0%";
 
   return (
@@ -145,10 +147,7 @@ function AppIcon({
     }, LONG_PRESS_MS);
   }
 
-  function cancel() {
-    window.clearTimeout(timer.current);
-  }
-
+  const cancel = () => window.clearTimeout(timer.current);
   useEffect(() => cancel, []);
 
   return (
@@ -170,19 +169,94 @@ function AppIcon({
   );
 }
 
-/** Icono en modo edición: tiembla y se puede arrastrar. */
-function SortableAppIcon({ app, index }: { app: MiniAppManifest; index: number }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: app.id });
+/* ------------------------------------------------------------------ widgets */
+
+function PhotoWidget({ widget, seed }: { widget: WidgetManifest; seed: number }) {
+  const photos = usePhotos();
+  const photo = useRotatingPhoto(photos, seed);
+
+  return (
+    <div className="nk-widget__frame">
+      {photo ? (
+        <img src={photo} alt="" loading="lazy" decoding="async" draggable={false} />
+      ) : (
+        <div className="nk-widget__empty">
+          <strong>Sin fotos</strong>
+          <span>Deja imágenes en src/assets/photos/</span>
+        </div>
+      )}
+      {widget.label && <span className="nk-widget__badge">{widget.label}</span>}
+    </div>
+  );
+}
+
+function Widget({
+  widget,
+  seed,
+  onOpenPhotos,
+  onLongPress,
+}: {
+  widget: WidgetManifest;
+  seed: number;
+  onOpenPhotos: () => void;
+  onLongPress: () => void;
+}) {
+  const timer = useRef<number>(0);
+  const fired = useRef(false);
+
+  function start() {
+    fired.current = false;
+    timer.current = window.setTimeout(() => {
+      fired.current = true;
+      onLongPress();
+    }, LONG_PRESS_MS);
+  }
+
+  const cancel = () => window.clearTimeout(timer.current);
+  useEffect(() => cancel, []);
+
+  return (
+    <div
+      className="nk-widget"
+      role="button"
+      tabIndex={0}
+      onPointerDown={start}
+      onPointerUp={cancel}
+      onPointerLeave={cancel}
+      onPointerCancel={cancel}
+      onClick={() => !fired.current && onOpenPhotos()}
+      onKeyDown={(e) => e.key === "Enter" && onOpenPhotos()}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      <PhotoWidget widget={widget} seed={seed} />
+      <span className="nk-app__label">{widget.label}</span>
+    </div>
+  );
+}
+
+/* -------------------------------------------------- elemento en modo edición */
+
+function SortableItem({ item, index }: { item: HomeItem; index: number }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: item.id,
+  });
+
+  const widget = isWidget(item);
 
   return (
     <div
       ref={setNodeRef}
-      className={`nk-app nk-app--wiggle${isDragging ? " nk-app--dragging" : ""}`}
+      className={[
+        widget ? "nk-widget" : "nk-app",
+        "nk-sortable nk-sortable--wiggle",
+        isDragging ? "nk-sortable--dragging" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
-        // Desfase por icono para que no tiemblen todos a la vez: sin esto
+        // Desfase por elemento para que no tiemblen todos a la vez: sin esto
         // el efecto parece un parpadeo, no un temblor.
         animationDelay: `${(index % 7) * -0.13}s`,
         animationDuration: `${0.32 + (index % 3) * 0.03}s`,
@@ -190,24 +264,27 @@ function SortableAppIcon({ app, index }: { app: MiniAppManifest; index: number }
       {...attributes}
       {...listeners}
     >
-      <AppArt app={app} />
-      <span className="nk-app__label">{app.title}</span>
+      {widget ? <PhotoWidget widget={item} seed={index} /> : <AppArt app={item} />}
+      <span className="nk-app__label">{widget ? item.label : item.title}</span>
     </div>
   );
 }
 
 /* -------------------------------------------------------------------- home */
 
-function HomeScreen({ onOpen }: { onOpen: (a: MiniAppManifest) => void }) {
-  const { apps, order, move } = useAppOrder();
+function HomeScreen({
+  onOpen,
+  homeWallpaper,
+}: {
+  onOpen: (a: MiniAppManifest) => void;
+  homeWallpaper: string | null;
+}) {
+  const { items, order, move } = useAppOrder();
   const [editing, setEditing] = useState(false);
   const pagesRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(0);
 
-  const pages: MiniAppManifest[][] = [];
-  for (let i = 0; i < apps.length; i += PAGE_SIZE) {
-    pages.push(apps.slice(i, i + PAGE_SIZE));
-  }
+  const pages = paginate(items);
 
   const sensors = useSensors(
     // En modo edición ya no hace falta esperar: basta un pequeño desplazamiento
@@ -232,22 +309,41 @@ function HomeScreen({ onOpen }: { onOpen: (a: MiniAppManifest) => void }) {
     el.scrollTo({ left: index * el.clientWidth, behavior: "smooth" });
   }
 
+  /** Tocar un widget de fotos abre la app Fotos. */
+  function openPhotos() {
+    const target = enabledApps.find((a) => a.id === "photos");
+    if (target) onOpen(target);
+  }
+
   const grid = (
-    <div className="nk-pages" ref={pagesRef} onScroll={handleScroll}>
-      {pages.map((pageApps, i) => (
+    <div
+      className="nk-pages"
+      ref={pagesRef}
+      onScroll={handleScroll}
+      style={homeWallpaper ? { backgroundImage: `url(${homeWallpaper})` } : undefined}
+    >
+      {pages.map((pageItems, i) => (
         <div className="nk-page" key={i}>
-          {pageApps.map((app) =>
-            editing ? (
-              <SortableAppIcon key={app.id} app={app} index={apps.indexOf(app)} />
+          {pageItems.map((item) => {
+            const index = items.indexOf(item);
+            if (editing) return <SortableItem key={item.id} item={item} index={index} />;
+            return isWidget(item) ? (
+              <Widget
+                key={item.id}
+                widget={item}
+                seed={index}
+                onOpenPhotos={openPhotos}
+                onLongPress={() => setEditing(true)}
+              />
             ) : (
               <AppIcon
-                key={app.id}
-                app={app}
+                key={item.id}
+                app={item}
                 onOpen={onOpen}
                 onLongPress={() => setEditing(true)}
               />
-            ),
-          )}
+            );
+          })}
         </div>
       ))}
     </div>
@@ -340,15 +436,26 @@ function AppView({ app, onBack }: { app: MiniAppManifest; onBack: () => void }) 
 }
 
 export default function App() {
+  const [locked, setLocked] = useState(true);
   const [open, setOpen] = useState<MiniAppManifest | null>(null);
+  const phase = useTimeOfDay();
 
   return (
-    <main className="nk-phone">
-      <StatusBar />
-      {open ? (
-        <AppView app={open} onBack={() => setOpen(null)} />
+    <main
+      className={`nk-phone${locked ? " nk-phone--locked" : ""}`}
+      data-theme={phase}
+    >
+      {locked ? (
+        <LockScreen onUnlock={() => setLocked(false)} phase={phase} />
       ) : (
-        <HomeScreen onOpen={setOpen} />
+        <>
+          <StatusBar />
+          {open ? (
+            <AppView app={open} onBack={() => setOpen(null)} />
+          ) : (
+            <HomeScreen onOpen={setOpen} homeWallpaper={wallpapers[phase].home} />
+          )}
+        </>
       )}
     </main>
   );

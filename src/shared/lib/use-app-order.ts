@@ -1,10 +1,11 @@
 import { useCallback, useState } from "react";
-import { enabledApps, type MiniAppManifest } from "../../apps/registry";
+import { homeItems, type HomeItem } from "../../apps/home-items";
 
 const STORAGE_KEY = "ipug.icon-order";
 
 /**
- * Orden de los iconos en la pantalla de inicio, persistido en el dispositivo.
+ * Orden de los elementos de la pantalla de inicio (iconos y widgets),
+ * persistido en el dispositivo.
  *
  * En fase 2 esto pasa a `app_preferences` en D1 con la clave `icon_order`, y
  * entonces el orden se comparte entre los dos móviles. Ver
@@ -32,21 +33,21 @@ export function useAppOrder() {
     setOrder(next);
   }, []);
 
-  const apps = order
-    .map((id) => enabledApps.find((app) => app.id === id))
-    .filter((app): app is MiniAppManifest => app !== undefined);
+  const items = order
+    .map((id) => homeItems.find((item) => item.id === id))
+    .filter((item): item is HomeItem => item !== undefined);
 
-  return { apps, order, move, reset };
+  return { items, order, move, reset };
 }
 
 function defaultOrder(): string[] {
-  return enabledApps.map((app) => app.id);
+  return homeItems.map((item) => item.id);
 }
 
 /**
- * Reconcilia lo guardado con el registry: descarta ids de apps que ya no
- * existen y añade al final las que se hayan dado de alta desde la última vez.
- * Así, añadir una app nueva nunca rompe el orden guardado.
+ * Reconcilia lo guardado con el registry: descarta ids que ya no existen y
+ * añade al final los nuevos. Así, dar de alta una app o un widget nunca rompe
+ * el orden guardado.
  */
 function readOrder(): string[] {
   const fallback = defaultOrder();

@@ -53,3 +53,27 @@
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
 }
+
+/* =========================================================================
+   Tema de noche (21:00 – 7:00)
+   Colores muestreados de los fondos nocturnos que pasó Irene.
+   ========================================================================= */
+
+[data-theme="night"] {
+  --nk-sand: #414b6e;      /* cielo nocturno: fondo de la rejilla */
+  --nk-sea: #128b80;       /* mar */
+  --nk-sea-deep: #0e7268;  /* mar profundo: fondo del dock */
+
+  --nk-surface: #4d5880;
+  --nk-surface-sunk: #384063;
+  --nk-border: #5a648c;
+
+  --nk-text: #dfe3ef;
+  --nk-text-strong: #f4f1e6;
+  --nk-text-muted: #a3accb;
+
+  --nk-bg-cream: #4d5880;  /* burbujas y paneles, en versión oscura */
+
+  --nk-shadow: rgba(0, 0, 0, 0.28);
+  --nk-shadow-strong: rgba(0, 0, 0, 0.42);
+}

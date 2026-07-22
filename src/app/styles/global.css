@@ -46,6 +46,167 @@ body {
 }
 
 /* =========================================================================
+   Pantalla de bloqueo
+   ========================================================================= */
+
+.nk-phone--locked {
+  background: var(--nk-sand);
+}
+
+.nk-lock {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: calc(28px + var(--sat)) 24px calc(14px + var(--sab));
+  background-size: cover;
+  background-position: center;
+  background-color: var(--nk-sand);
+  touch-action: none;
+  cursor: grab;
+  will-change: transform;
+}
+
+.nk-lock:active {
+  cursor: grabbing;
+}
+
+/* Escena de playa por defecto, si no hay wallpaper.* en src/assets/ */
+.nk-lock__scene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    /* mar */
+    linear-gradient(to bottom, transparent 0 62%, var(--nk-sea) 62% 100%),
+    /* horizonte cálido */
+    linear-gradient(to bottom, #fdf6e0 0%, #f6efdb 45%, #f0e7cf 62%);
+}
+
+.nk-lock__scene::before {
+  /* espuma de la orilla */
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 62%;
+  height: 26px;
+  translate: 0 -100%;
+  background: var(--nk-sea);
+  clip-path: polygon(
+    0 100%, 0 45%, 12% 20%, 25% 42%, 38% 18%, 50% 40%, 63% 16%, 76% 38%, 88% 20%, 100% 42%, 100% 100%
+  );
+}
+
+.nk-lock__scene::after {
+  /* isla */
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  translate: -50% -78%;
+  width: 128px;
+  height: 46px;
+  border-radius: 50% 50% 40% 40% / 90% 90% 30% 30%;
+  background: var(--nk-leaf);
+  box-shadow: 0 10px 0 -2px #e8d9a8;
+}
+
+.nk-lock__top {
+  text-align: center;
+  color: var(--nk-text-strong);
+}
+
+.nk-lock__battery {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--nk-nook-green);
+}
+
+.nk-lock__device {
+  color: var(--nk-text-muted);
+}
+
+.nk-lock__time {
+  margin: 6px 0 0;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: clamp(4rem, 22vw, 5.6rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--nk-nook-green);
+}
+
+.nk-lock__date {
+  margin: 2px 0 0;
+  font-family: var(--nk-font);
+  font-size: 1rem;
+  color: var(--nk-text);
+}
+
+.nk-lock__bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.nk-lock__actions {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding-inline: 8px;
+}
+
+.nk-lock__action {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(72, 32, 22, 0.16);
+  backdrop-filter: blur(6px);
+  color: var(--nk-bg-cream);
+  cursor: pointer;
+}
+
+.nk-lock__unlock {
+  border: none;
+  background: none;
+  font-family: var(--nk-font);
+  font-size: 0.82rem;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+  animation: nk-hint 2.4s ease-in-out infinite;
+}
+
+@keyframes nk-hint {
+  0%, 100% { transform: translateY(0); opacity: 0.75; }
+  50% { transform: translateY(-5px); opacity: 1; }
+}
+
+.nk-lock__indicator {
+  width: 128px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(72, 32, 22, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nk-lock__unlock {
+    animation: none;
+  }
+}
+
+/* =========================================================================
    Barra de estado
    ========================================================================= */
 
@@ -127,6 +288,11 @@ body {
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  /* El fondo se ancla arriba y no se desplaza con las páginas: así el cielo
+     estrellado se queda quieto mientras los iconos pasan por delante. */
+  background-size: cover;
+  background-position: top center;
+  background-attachment: local;
 }
 
 .nk-pages::-webkit-scrollbar {
@@ -139,6 +305,9 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: min-content;
+  /* `dense` deja que un icono suelto rellene el hueco que un widget 2×2
+     no llega a ocupar, en vez de dejar un agujero. */
+  grid-auto-flow: row dense;
   gap: clamp(14px, 3.2vw, 22px) clamp(4px, 1.5vw, 10px);
   align-content: start;
   padding: clamp(12px, 3vw, 20px) clamp(10px, 3.5vw, 18px) 0;
@@ -215,6 +384,76 @@ body {
   white-space: nowrap;
 }
 
+/* ---------- Widgets ---------- */
+
+.nk-widget {
+  grid-column: span 2;
+  grid-row: span 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+.nk-widget__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 16%;
+  overflow: hidden;
+  background: var(--nk-surface-sunk);
+  box-shadow: 0 2px 6px rgba(72, 32, 22, 0.18);
+}
+
+.nk-widget__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.nk-widget__empty {
+  display: grid;
+  place-content: center;
+  gap: 4px;
+  height: 100%;
+  padding: 10px;
+  text-align: center;
+  color: var(--nk-text-muted);
+}
+
+.nk-widget__empty strong {
+  font-family: var(--nk-font);
+  font-size: 0.9rem;
+  color: var(--nk-text);
+}
+
+.nk-widget__empty span {
+  font-size: 0.6rem;
+  line-height: 1.3;
+}
+
+.nk-widget__badge {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 0.2em 0.7em;
+  border-radius: 999px;
+  background: rgba(253, 248, 227, 0.85);
+  backdrop-filter: blur(4px);
+  font-family: var(--nk-font);
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--nk-text);
+}
+
 /* ---------- Modo edición: temblor estilo iOS ---------- */
 
 .nk-editbar {
@@ -236,30 +475,32 @@ body {
   padding: 0.4em 1.1em;
 }
 
-/* El temblor va sobre .nk-app__icon y no sobre .nk-app, porque el contenedor
-   lleva el `transform` que dnd-kit necesita para mover el icono. Si los
+/* El temblor va sobre el icono o el marco del widget, y no sobre el contenedor,
+   porque este lleva el `transform` que dnd-kit necesita para moverlo. Si los
    mezcláramos, la rotación pisaría al arrastre. */
-.nk-app--wiggle {
+.nk-sortable {
   cursor: grab;
   touch-action: none; /* si no, el navegador se queda el gesto para hacer scroll */
 }
 
-.nk-app--wiggle .nk-app__icon {
+.nk-sortable--wiggle .nk-app__icon,
+.nk-sortable--wiggle .nk-widget__frame {
   animation: nk-wiggle 0.35s ease-in-out infinite alternate;
 }
 
-.nk-app--dragging {
+.nk-sortable--dragging {
   z-index: 10;
   cursor: grabbing;
 }
 
-.nk-app--dragging .nk-app__icon {
+.nk-sortable--dragging .nk-app__icon,
+.nk-sortable--dragging .nk-widget__frame {
   animation: none;
-  transform: scale(1.12);
+  transform: scale(1.1);
   box-shadow: 0 10px 18px rgba(72, 32, 22, 0.32);
 }
 
-.nk-app--dragging .nk-app__label {
+.nk-sortable--dragging .nk-app__label {
   opacity: 0;
 }
 
@@ -273,7 +514,8 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nk-app--wiggle .nk-app__icon {
+  .nk-sortable--wiggle .nk-app__icon,
+  .nk-sortable--wiggle .nk-widget__frame {
     animation: none;
     outline: 3px dashed var(--nk-leaf);
     outline-offset: 3px;
