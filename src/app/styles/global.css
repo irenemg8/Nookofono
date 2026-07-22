@@ -73,47 +73,6 @@ body {
   cursor: grabbing;
 }
 
-/* Escena de playa por defecto, si no hay wallpaper.* en src/assets/ */
-.nk-lock__scene {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    /* mar */
-    linear-gradient(to bottom, transparent 0 62%, var(--nk-sea) 62% 100%),
-    /* horizonte cálido */
-    linear-gradient(to bottom, #fdf6e0 0%, #f6efdb 45%, #f0e7cf 62%);
-}
-
-.nk-lock__scene::before {
-  /* espuma de la orilla */
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 62%;
-  height: 26px;
-  translate: 0 -100%;
-  background: var(--nk-sea);
-  clip-path: polygon(
-    0 100%, 0 45%, 12% 20%, 25% 42%, 38% 18%, 50% 40%, 63% 16%, 76% 38%, 88% 20%, 100% 42%, 100% 100%
-  );
-}
-
-.nk-lock__scene::after {
-  /* isla */
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 62%;
-  translate: -50% -78%;
-  width: 128px;
-  height: 46px;
-  border-radius: 50% 50% 40% 40% / 90% 90% 30% 30%;
-  background: var(--nk-leaf);
-  box-shadow: 0 10px 0 -2px #e8d9a8;
-}
-
 .nk-lock__top {
   text-align: center;
   color: var(--nk-text-strong);
@@ -183,7 +142,7 @@ body {
   background: none;
   font-family: var(--nk-font);
   font-size: 0.82rem;
-  color: var(--nk-text-muted);
+  color: white;
   cursor: pointer;
   animation: nk-hint 2.4s ease-in-out infinite;
 }
@@ -328,7 +287,12 @@ body {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+  -webkit-user-select: none;
   user-select: none;
+  /* `pan-x` deja pasar el deslizamiento entre páginas pero le quita al
+     navegador el gesto vertical, que es otro de los que cancelaba la
+     pulsación larga en iOS. */
+  touch-action: pan-x;
 }
 
 .nk-app__icon {
@@ -348,11 +312,18 @@ body {
   background: none;
 }
 
-.nk-app__icon img {
+.nk-app__icon img,
+.nk-widget__frame img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  /* Sin esto, mantener pulsado en iOS abre el menú de "Guardar imagen" y mata
+     el gesto antes de que llegue a los 3 segundos. Dejando la imagen fuera del
+     enrutado de eventos, la pulsación la recibe siempre el botón. */
+  pointer-events: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
 }
 
 .nk-app__icon svg {
@@ -399,7 +370,9 @@ body {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+  -webkit-user-select: none;
   user-select: none;
+  touch-action: pan-x;
 }
 
 .nk-widget__frame {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   DndContext,
   PointerSensor,
@@ -16,6 +16,7 @@ import { isWidget, paginate, type HomeItem } from "./apps/home-items";
 import { dockApps, enabledApps, type MiniAppManifest } from "./apps/registry";
 import type { WidgetManifest } from "./apps/widgets";
 import { useAppOrder } from "./shared/lib/use-app-order";
+import { useLongPress } from "./shared/lib/use-long-press";
 import { useBattery } from "./shared/lib/use-battery";
 import { useClock } from "./shared/lib/use-clock";
 import { usePhotos, useRotatingPhoto } from "./shared/lib/use-photos";
@@ -136,31 +137,15 @@ function AppIcon({
   onOpen: (a: MiniAppManifest) => void;
   onLongPress: () => void;
 }) {
-  const timer = useRef<number>(0);
-  const fired = useRef(false);
-
-  function start() {
-    fired.current = false;
-    timer.current = window.setTimeout(() => {
-      fired.current = true;
-      onLongPress();
-    }, LONG_PRESS_MS);
-  }
-
-  const cancel = () => window.clearTimeout(timer.current);
-  useEffect(() => cancel, []);
+  const { handlers, firedRef } = useLongPress(onLongPress, LONG_PRESS_MS);
 
   return (
     <button
       type="button"
       className="nk-app"
-      onPointerDown={start}
-      onPointerUp={cancel}
-      onPointerLeave={cancel}
-      onPointerCancel={cancel}
+      {...handlers}
       // Si la pulsación larga ya ha disparado, el tap no debe abrir la app.
-      onClick={() => !fired.current && onOpen(app)}
-      onContextMenu={(e) => e.preventDefault()}
+      onClick={() => !firedRef.current && onOpen(app)}
       aria-label={app.title}
     >
       <AppArt app={app} />
@@ -201,32 +186,16 @@ function Widget({
   onOpenPhotos: () => void;
   onLongPress: () => void;
 }) {
-  const timer = useRef<number>(0);
-  const fired = useRef(false);
-
-  function start() {
-    fired.current = false;
-    timer.current = window.setTimeout(() => {
-      fired.current = true;
-      onLongPress();
-    }, LONG_PRESS_MS);
-  }
-
-  const cancel = () => window.clearTimeout(timer.current);
-  useEffect(() => cancel, []);
+  const { handlers, firedRef } = useLongPress(onLongPress, LONG_PRESS_MS);
 
   return (
     <div
       className="nk-widget"
       role="button"
       tabIndex={0}
-      onPointerDown={start}
-      onPointerUp={cancel}
-      onPointerLeave={cancel}
-      onPointerCancel={cancel}
-      onClick={() => !fired.current && onOpenPhotos()}
+      {...handlers}
+      onClick={() => !firedRef.current && onOpenPhotos()}
       onKeyDown={(e) => e.key === "Enter" && onOpenPhotos()}
-      onContextMenu={(e) => e.preventDefault()}
     >
       <PhotoWidget widget={widget} seed={seed} />
       <span className="nk-app__label">{widget.label}</span>
