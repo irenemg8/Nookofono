@@ -1,4 +1,3 @@
-import airlinesIcon from "../../assets/airlines.webp";
 import { useWeather } from "./model/use-weather";
 import { describe, skyOf } from "./model/wmo";
 import { SkyIcon } from "./ui/SkyIcon";
@@ -21,13 +20,6 @@ export default function WeatherApp() {
   return (
     <div className="wx">
       <section className={`wx-sky${w.isDay ? "" : " wx-sky--night"}`}>
-        <div className="wx-sky__top">
-          <span className="wx-brand">
-            <img src={airlinesIcon} alt="" />
-            PugPug Airlines
-          </span>
-        </div>
-
         <div className="wx-sky__hero">
           <div className="wx-temp">
             <div className="wx-temp__now">{w.temp}°</div>
