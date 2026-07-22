@@ -1,4 +1,3 @@
-import airlinesIcon from "../../assets/airlines.webp";
 import sello1 from "../../assets/stamps/sello1.webp";
 import sello2 from "../../assets/stamps/sello2.webp";
 import sello3 from "../../assets/stamps/sello3.webp";
@@ -39,10 +38,10 @@ export default function ProfileApp() {
             ))}
           </div>
 
-          <span className="pp-brand">
+        {/*  <span className="pp-brand">
             <img src={airlinesIcon} alt="" />
             PugPug Airlines
-          </span>
+          </span>*/}
         </header>
 
         <div className="pp-body">

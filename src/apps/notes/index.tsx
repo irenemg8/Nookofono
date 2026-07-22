@@ -116,9 +116,9 @@ export default function NotesApp() {
       <p className="nt-empty">Aquí no hay nada todavía.</p>
     ) : (
       <ul className="nt-list">
-        {visible.map((note) =>
+        {visible.map((note, i) =>
           editing ? (
-            <SortableNote key={note.id} note={note} onRemove={() => setPending(note)} />
+            <SortableNote key={note.id} note={note} index={i} onRemove={() => setPending(note)} />
           ) : (
             <NoteCard
               key={note.id}
@@ -232,7 +232,15 @@ function NoteCard({
   );
 }
 
-function SortableNote({ note, onRemove }: { note: Note; onRemove: () => void }) {
+function SortableNote({
+  note,
+  index,
+  onRemove,
+}: {
+  note: Note;
+  index: number;
+  onRemove: () => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: note.id,
   });
@@ -246,6 +254,10 @@ function SortableNote({ note, onRemove }: { note: Note; onRemove: () => void }) 
           ["--nt-paper" as string]: note.paper,
           transform: CSS.Transform.toString(transform),
           transition,
+          // Cada nota va por su lado: si comparten ritmo, el conjunto parece
+          // una sola pieza vibrando en vez de varios papeles sueltos.
+          animationDelay: `${(index % 5) * -0.09}s`,
+          animationDuration: `${0.34 + (index % 4) * 0.05}s`,
         }}
         {...attributes}
         {...listeners}

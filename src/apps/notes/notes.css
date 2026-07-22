@@ -107,8 +107,20 @@
   touch-action: none;
 }
 
+/* Amplitud propia, mucho menor que la de los iconos: una tarjeta ancha barre
+   muchos más píxeles que un icono al girar los mismos grados, así que con la
+   rotación de la pantalla de inicio parecía que se sacudían. */
 .nt-sortable--wiggle {
-  animation: nk-wiggle 0.16s ease-in-out infinite alternate;
+  animation: nt-wiggle 0.36s ease-in-out infinite alternate;
+}
+
+@keyframes nt-wiggle {
+  from {
+    transform: rotate(-0.5deg);
+  }
+  to {
+    transform: rotate(0.5deg);
+  }
 }
 
 .nt-sortable--dragging {

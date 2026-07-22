@@ -20,7 +20,7 @@ export interface Person {
 }
 
 /** La isla es compartida: viven los dos en la misma. */
-const ISLAND = "Hogar de Pugs";
+const ISLAND = "Hogar de Pus";
 
 export const PEOPLE: Record<PersonId, Person> = {
   irene: {
