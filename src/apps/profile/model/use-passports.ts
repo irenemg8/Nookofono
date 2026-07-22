@@ -1,74 +1,46 @@
 import { useCallback, useState } from "react";
+import type { PersonId } from "../../../shared/lib/use-current-user";
 
-const STORAGE_KEY = "ipug.passports";
+const STORAGE_KEY = "ipug.greetings";
 
-export type PersonId = "irene" | "vicente";
+/**
+ * Lo único editable del pasaporte: el lema.
+ *
+ * El resto de datos son fijos y viven en `people.ts`. En fase 2 esto pasa a la
+ * tabla `profiles` en D1. Ver docs/MIGRACION-BACKEND.md §6.
+ */
+export function useGreetings() {
+  const [greetings, setGreetings] = useState<Record<PersonId, string>>(read);
 
-export interface Passport {
-  name: string;
-  island: string;
-  fruit: string;
-  birthday: string;
-  greeting: string;
-  since: string;
-  /** Data URL. En fase 2 pasa a una clave de R2. Ver MIGRACION-BACKEND.md §11. */
-  photo: string | null;
-}
-
-const DEFAULTS: Record<PersonId, Passport> = {
-  irene: {
-    name: "Irene",
-    island: "Isla Pug",
-    fruit: "Naranja",
-    birthday: "",
-    greeting: "",
-    since: "2026",
-    photo: null,
-  },
-  vicente: {
-    name: "Vicente",
-    island: "Isla Pug",
-    fruit: "Naranja",
-    birthday: "",
-    greeting: "",
-    since: "2026",
-    photo: null,
-  },
-};
-
-export function usePassports() {
-  const [passports, setPassports] = useState<Record<PersonId, Passport>>(read);
-
-  const update = useCallback((who: PersonId, patch: Partial<Passport>) => {
-    setPassports((prev) => {
-      const next = { ...prev, [who]: { ...prev[who], ...patch } };
+  const setGreeting = useCallback((who: PersonId, value: string) => {
+    setGreetings((prev) => {
+      const next = { ...prev, [who]: value };
       write(next);
       return next;
     });
   }, []);
 
-  return { passports, update };
+  return { greetings, setGreeting };
 }
 
-function read(): Record<PersonId, Passport> {
+function read(): Record<PersonId, string> {
+  const empty = { irene: "", vicente: "" };
   try {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
-    if (!raw || typeof raw !== "object") return DEFAULTS;
-    // Se mezcla con los valores por defecto para que añadir un campo nuevo no
-    // deje pasaportes a medias.
+    if (!raw || typeof raw !== "object") return empty;
     return {
-      irene: { ...DEFAULTS.irene, ...raw.irene },
-      vicente: { ...DEFAULTS.vicente, ...raw.vicente },
+      irene: typeof raw.irene === "string" ? raw.irene : "",
+      vicente: typeof raw.vicente === "string" ? raw.vicente : "",
     };
   } catch {
-    return DEFAULTS;
+    return empty;
   }
 }
 
-function write(passports: Record<PersonId, Passport>) {
+function write(greetings: Record<PersonId, string>) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(passports));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(greetings));
   } catch {
-    // Las fotos en data URL pueden llenar la cuota de localStorage.
+    // Modo privado o cuota llena.
   }
 }

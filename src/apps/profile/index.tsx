@@ -4,7 +4,8 @@ import sello2 from "../../assets/stamps/sello2.webp";
 import sello3 from "../../assets/stamps/sello3.webp";
 import { useCurrentUser } from "../../shared/lib/use-current-user";
 import { photoOf } from "./model/photos";
-import { usePassports } from "./model/use-passports";
+import { PEOPLE } from "./model/people";
+import { useGreetings } from "./model/use-passports";
 import "./profile.css";
 
 /** Máximo del comentario en el juego. Lo respetamos porque es parte del encanto. */
@@ -16,9 +17,9 @@ const ROTATIONS = ["-7deg", "5deg", "-3deg"];
 
 export default function ProfileApp() {
   const me = useCurrentUser();
-  const { passports, update } = usePassports();
+  const { greetings, setGreeting } = useGreetings();
 
-  const p = passports[me];
+  const person = PEOPLE[me];
   const photo = photoOf(me);
 
   return (
@@ -47,49 +48,40 @@ export default function ProfileApp() {
         <div className="pp-body">
           <p className="pp-label">Pasaporte</p>
 
-          <div className="pp-photo">{photo && <img src={photo} alt={p.name} />}</div>
+          <div className="pp-photo">{photo && <img src={photo} alt={person.name} />}</div>
 
-          <div className="pp-fields">
-            <label className="pp-field">
-              <span>Nombre</span>
-              <input value={p.name} onChange={(e) => update(me, { name: e.target.value })} />
-            </label>
-            <label className="pp-field">
-              <span>Isla</span>
-              <input value={p.island} onChange={(e) => update(me, { island: e.target.value })} />
-            </label>
-            <label className="pp-field">
-              <span>Fruta autóctona</span>
-              <input value={p.fruit} onChange={(e) => update(me, { fruit: e.target.value })} />
-            </label>
-            <label className="pp-field">
-              <span>Cumpleaños</span>
-              <input
-                value={p.birthday}
-                placeholder="29 de octubre"
-                onChange={(e) => update(me, { birthday: e.target.value })}
-              />
-            </label>
-          </div>
+          <dl className="pp-fields">
+            <div className="pp-field">
+              <dt>Nombre</dt>
+              <dd>{person.name || "—"}</dd>
+            </div>
+            <div className="pp-field">
+              <dt>Isla</dt>
+              <dd>{person.island || "—"}</dd>
+            </div>
+            <div className="pp-field">
+              <dt>Fruta autóctona</dt>
+              <dd>{person.fruit || "—"}</dd>
+            </div>
+            <div className="pp-field">
+              <dt>Cumpleaños</dt>
+              <dd>{person.birthday || "—"}</dd>
+            </div>
+          </dl>
 
           <div className="pp-greeting">
             <span>Lema</span>
             <input
               className="pp-bubble"
-              value={p.greeting}
+              value={greetings[me]}
               maxLength={GREETING_MAX}
               placeholder="¡Hola!"
-              onChange={(e) => update(me, { greeting: e.target.value })}
+              onChange={(e) => setGreeting(me, e.target.value)}
             />
             <span className="pp-count">
-              {p.greeting.length}/{GREETING_MAX}
+              {greetings[me].length}/{GREETING_MAX}
             </span>
           </div>
-
-          <footer className="pp-foot">
-            <span className="pp-rep">🌿 Residente</span>
-            <span>Desde {p.since}</span>
-          </footer>
         </div>
       </article>
     </div>
