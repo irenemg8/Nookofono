@@ -101,7 +101,9 @@ function batteryStep(level: number): "full" | "half" | "empty" {
 function StatusBar() {
   const time = useClock();
   const battery = useBattery();
-  const step = battery.supported ? batteryStep(battery.level) : "empty";
+  // Sin dato, la pila se dibuja a medias: vacía y en rojo daba la falsa alarma
+  // de que el móvil se está quedando sin batería.
+  const step = battery.supported ? batteryStep(battery.level) : "half";
   const fill = step === "full" ? "100%" : step === "half" ? "50%" : "0%";
 
   return (

@@ -49,6 +49,16 @@ export default function LockScreen({
   const start = useRef<number | null>(null);
   const wallpaper = wallpapers[phase].lock;
 
+  // Tres tramos, y a medias cuando el navegador no da el dato.
+  const step = !battery.supported
+    ? "half"
+    : battery.level > 66
+      ? "full"
+      : battery.level > 25
+        ? "half"
+        : "empty";
+  const fill = step === "full" ? "100%" : step === "half" ? "50%" : "0%";
+
   const now = new Date();
   const date = `${DAYS[now.getDay()]}, ${now.getDate()} de ${MONTHS[now.getMonth()]}`;
 
@@ -85,11 +95,8 @@ export default function LockScreen({
     >
       <div className="nk-lock__top">
         <div className="nk-lock__battery">
-          <span className={`nk-battery nk-battery--${battery.level > 66 ? "full" : battery.level > 25 ? "half" : "empty"}`}>
-            <span
-              className="nk-battery__fill"
-              style={{ width: battery.supported ? (battery.level > 66 ? "100%" : battery.level > 25 ? "50%" : "0%") : 0 }}
-            />
+          <span className={`nk-battery nk-battery--${step}`}>
+            <span className="nk-battery__fill" style={{ width: fill }} />
           </span>
           {battery.supported && <span>{battery.level} %</span>}
           <span className="nk-lock__device">iPug</span>
