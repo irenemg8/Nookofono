@@ -1,24 +1,69 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { brain, type ChatMessage } from "./brain";
 
-const STORE = "ipug.valentin.chat";
+const STORE = "ipug.valentin.chats";
+const ACTIVE = "ipug.valentin.active";
 
-/** Lo que dice Valentín al abrir el chat por primera vez. */
-const OPENING: ChatMessage = {
-  id: "opening",
-  role: "valentin",
-  text: "Hola, papá. Siéntate, que tenemos que hablar.",
-  at: 0,
-};
+/** Lo que dice Valentín al empezar una conversación. */
+const OPENING = "Hola, papá. Siéntate, que tenemos que hablar.";
 
-export function useChat() {
-  const [messages, setMessages] = useState<ChatMessage[]>(read);
+export interface Conversation {
+  id: string;
+  messages: ChatMessage[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+/** Se guardan las últimas 50 conversaciones, y 100 mensajes en cada una. */
+const MAX_CHATS = 50;
+const MAX_MESSAGES = 100;
+
+export function useChats() {
+  const [chats, setChats] = useState<Conversation[]>(read);
+  const [activeId, setActiveId] = useState<string>(() => readActive(chats));
   const [thinking, setThinking] = useState(false);
+
+  const active = useMemo(
+    () => chats.find((c) => c.id === activeId) ?? chats[0],
+    [chats, activeId],
+  );
+
+  const persist = useCallback((next: Conversation[]) => {
+    const trimmed = next
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .slice(0, MAX_CHATS);
+    write(trimmed);
+    setChats(trimmed);
+    return trimmed;
+  }, []);
+
+  const open = useCallback((id: string) => {
+    setActiveId(id);
+    writeActive(id);
+  }, []);
+
+  const create = useCallback(() => {
+    const chat = blank();
+    persist([chat, ...chats]);
+    open(chat.id);
+    return chat.id;
+  }, [chats, persist, open]);
+
+  const remove = useCallback(
+    (id: string) => {
+      const rest = chats.filter((c) => c.id !== id);
+      // Nunca se queda sin conversación: si se borra la última, nace otra.
+      const next = rest.length > 0 ? rest : [blank()];
+      persist(next);
+      if (id === activeId) open(next[0].id);
+    },
+    [chats, activeId, persist, open],
+  );
 
   const send = useCallback(
     async (text: string) => {
       const clean = text.trim();
-      if (!clean || thinking) return;
+      if (!clean || thinking || !active) return;
 
       const mine: ChatMessage = {
         id: crypto.randomUUID(),
@@ -27,62 +72,87 @@ export function useChat() {
         at: Date.now(),
       };
 
-      // El historial que ve el modelo incluye ya el mensaje nuevo.
-      const history = [...messages, mine];
-      setMessages(history);
-      write(history);
+      const history = [...active.messages, mine];
+      let current = persist(
+        chats.map((c) =>
+          c.id === active.id ? { ...c, messages: history, updatedAt: Date.now() } : c,
+        ),
+      );
       setThinking(true);
 
+      let answer: string;
       try {
-        const text = await brain.reply(history);
-        const answer: ChatMessage = {
-          id: crypto.randomUUID(),
-          role: "valentin",
-          text,
-          at: Date.now(),
-        };
-        const next = [...history, answer];
-        setMessages(next);
-        write(next);
+        answer = await brain.reply(history);
       } catch {
-        const failure: ChatMessage = {
-          id: crypto.randomUUID(),
-          role: "valentin",
-          text: "Ahora no puedo hablar. Prueba en un rato.",
-          at: Date.now(),
-        };
-        const next = [...history, failure];
-        setMessages(next);
-        write(next);
-      } finally {
-        setThinking(false);
+        answer = "Ahora no puedo hablar. Prueba en un rato.";
       }
+
+      const withReply = [
+        ...history,
+        {
+          id: crypto.randomUUID(),
+          role: "valentin" as const,
+          text: answer,
+          at: Date.now(),
+        },
+      ].slice(-MAX_MESSAGES);
+
+      persist(
+        current.map((c) =>
+          c.id === active.id ? { ...c, messages: withReply, updatedAt: Date.now() } : c,
+        ),
+      );
+      setThinking(false);
     },
-    [messages, thinking],
+    [active, chats, persist, thinking],
   );
 
-  const clear = useCallback(() => {
-    write([OPENING]);
-    setMessages([OPENING]);
-  }, []);
-
-  return { messages, send, thinking, clear };
+  return { chats, active, activeId: active?.id, thinking, send, create, open, remove };
 }
 
-function read(): ChatMessage[] {
+/** Título de la lista: la primera cosa que se dijo, recortada. */
+export function titleOf(chat: Conversation): string {
+  const first = chat.messages.find((m) => m.role === "user");
+  if (!first) return "Conversación nueva";
+  return first.text.length > 38 ? `${first.text.slice(0, 38)}…` : first.text;
+}
+
+function blank(): Conversation {
+  const now = Date.now();
+  return {
+    id: crypto.randomUUID(),
+    messages: [{ id: crypto.randomUUID(), role: "valentin", text: OPENING, at: now }],
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+function read(): Conversation[] {
   try {
     const raw = JSON.parse(localStorage.getItem(STORE) ?? "null");
-    return Array.isArray(raw) && raw.length > 0 ? raw : [OPENING];
+    if (Array.isArray(raw) && raw.length > 0) return raw;
   } catch {
-    return [OPENING];
+    // Formato corrupto: se empieza de cero en vez de romper la pantalla.
+  }
+  return [blank()];
+}
+
+function readActive(chats: Conversation[]): string {
+  const saved = localStorage.getItem(ACTIVE);
+  return saved && chats.some((c) => c.id === saved) ? saved : chats[0].id;
+}
+
+function write(chats: Conversation[]) {
+  try {
+    localStorage.setItem(STORE, JSON.stringify(chats));
+  } catch {
+    // Cuota llena.
   }
 }
 
-function write(messages: ChatMessage[]) {
+function writeActive(id: string) {
   try {
-    // Se guardan los últimos 100: una conversación larga no debe llenar la
-    // cuota del navegador, y el modelo tampoco necesita más contexto.
-    localStorage.setItem(STORE, JSON.stringify(messages.slice(-100)));
+    localStorage.setItem(ACTIVE, id);
   } catch {
     // Cuota llena.
   }

@@ -1,4 +1,5 @@
 .va {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -6,53 +7,165 @@
   gap: 12px;
 }
 
-/* ---------- Cabecera ---------- */
+/* ---------- Botones flotantes ---------- */
 
-.va-head {
+.va-bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  gap: 8px;
+}
+
+.va-bar button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-bg-cream);
+  color: var(--nk-text);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--nk-border), 0 4px 8px var(--nk-shadow);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.va-bar button:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--nk-border);
+}
+
+.va-bar svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+}
+
+/* ---------- Cajón de conversaciones ---------- */
+
+.va-drawer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(40, 24, 16, 0.4);
+  backdrop-filter: blur(2px);
+  animation: va-fade 0.16s ease;
+}
+
+@keyframes va-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.va-drawer__panel {
+  width: min(84%, 300px);
+  display: flex;
+  flex-direction: column;
+  background: var(--nk-bg-cream);
+  border-radius: 22px 0 0 22px;
+  box-shadow: -8px 0 24px var(--nk-shadow-strong);
+  animation: va-slide 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+  overflow: hidden;
+}
+
+@keyframes va-slide {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+.va-drawer__panel header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 20px;
-  background: var(--nk-bg-cream);
-  border: 2px solid rgba(224, 218, 202, 0.9);
-  box-shadow: 0 5px 12px var(--nk-shadow);
+  justify-content: space-between;
+  padding: 16px 14px 10px;
 }
 
-.va-head img {
-  width: 46px;
-  height: 46px;
-  border-radius: 24%;
-  flex: none;
-}
-
-.va-head__body {
-  flex: 1;
-  min-width: 0;
-}
-
-.va-head__name {
+.va-drawer__panel h2 {
+  margin: 0;
   font-family: var(--nk-font);
-  font-weight: 600;
   font-size: 1rem;
   color: var(--nk-text-strong);
 }
 
-.va-head__role {
-  font-size: 0.72rem;
+.va-drawer__panel header button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-surface-sunk);
+  color: var(--nk-text);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.va-drawer__panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0 10px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.va-drawer__panel li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.va-chat {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 12px;
+  text-align: left;
+  background: var(--nk-surface);
+  cursor: pointer;
+}
+
+.va-chat--on {
+  background: var(--nk-leaf);
+}
+
+.va-chat__title {
+  display: block;
+  font-family: var(--nk-font);
+  font-size: 0.86rem;
+  color: var(--nk-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.va-chat__when {
+  font-size: 0.68rem;
   color: var(--nk-text-muted);
 }
 
-.va-head button {
+.va-chat--on .va-chat__title,
+.va-chat--on .va-chat__when {
+  color: #fff;
+}
+
+.va-chat__x {
   flex: none;
+  width: 26px;
+  height: 26px;
   border: none;
-  border-radius: 999px;
-  padding: 0.4em 0.9em;
-  background: var(--nk-surface-sunk);
-  font-family: var(--nk-font);
-  font-size: 0.7rem;
-  font-weight: 600;
+  border-radius: 50%;
+  background: none;
   color: var(--nk-text-muted);
+  font-size: 1rem;
+  line-height: 1;
   cursor: pointer;
 }
 
@@ -65,7 +178,9 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 4px 2px 8px;
+  /* Hueco arriba a la derecha para que los botones flotantes no tapen la
+     primera burbuja al desplazarse hasta arriba del todo. */
+  padding: 44px 2px 8px;
 }
 
 .va-turn {

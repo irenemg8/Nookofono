@@ -1,24 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import valentinIcon from "../../assets/Valentin_consejos.webp";
-import { useCurrentUser } from "../../shared/lib/use-current-user";
+import { ConfirmDialog } from "../../shared/ui/ConfirmDialog";
 import { hasModel } from "./model/brain";
-import { useChat } from "./model/use-chat";
+import { titleOf, useChats, type Conversation } from "./model/use-chat";
 import "./advice.css";
 
 /** Velocidad del texto de Valentín, en milisegundos por carácter. */
 const TYPE_MS = 24;
 
 export default function AdviceApp() {
-  const me = useCurrentUser();
-  const { messages, send, thinking, clear } = useChat();
+  const { chats, active, thinking, send, create, open, remove } = useChats();
   const [draft, setDraft] = useState("");
+  const [menu, setMenu] = useState(false);
+  const [pending, setPending] = useState<Conversation | null>(null);
   const logRef = useRef<HTMLDivElement>(null);
 
-  // El último mensaje siempre a la vista, también mientras se escribe.
+  // El último mensaje siempre a la vista, también mientras escribe él.
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, thinking]);
+  }, [active?.messages, thinking]);
 
+  const messages = active?.messages ?? [];
   const last = messages[messages.length - 1];
 
   function submit() {
@@ -28,18 +30,30 @@ export default function AdviceApp() {
 
   return (
     <div className="va">
-      <header className="va-head">
-        <img src={valentinIcon} alt="" />
-        <div className="va-head__body">
-          <div className="va-head__name">Valentín</div>
-          <div className="va-head__role">
-            {me === "vicente" ? "Tu hijo, con algo que decirte" : "El hijo de Vicente"}
-          </div>
-        </div>
-        <button type="button" onClick={clear}>
-          Borrar
+      {/* Los dos botones flotan sobre la conversación: así no gastan altura. */}
+      <div className="va-bar">
+        <button type="button" onClick={create} aria-label="Conversación nueva">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+          </svg>
         </button>
-      </header>
+
+        <button
+          type="button"
+          onClick={() => setMenu((m) => !m)}
+          aria-label="Conversaciones"
+          aria-expanded={menu}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M4 7h16M4 12h16M4 17h16"
+              stroke="currentColor"
+              strokeWidth="2.6"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+      </div>
 
       <div className="va-log" ref={logRef}>
         {messages.map((m) =>
@@ -108,6 +122,59 @@ export default function AdviceApp() {
       </div>
 
       {!hasModel && <p className="va-note">Valentín todavía no tiene modelo entrenado.</p>}
+
+      {menu && (
+        <div className="va-drawer" onPointerDown={() => setMenu(false)}>
+          <aside className="va-drawer__panel" onPointerDown={(e) => e.stopPropagation()}>
+            <header>
+              <h2>Conversaciones</h2>
+              <button type="button" onClick={() => setMenu(false)} aria-label="Cerrar">
+                ×
+              </button>
+            </header>
+
+            <ul>
+              {chats.map((c) => (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    className={`va-chat${c.id === active?.id ? " va-chat--on" : ""}`}
+                    onClick={() => {
+                      open(c.id);
+                      setMenu(false);
+                    }}
+                  >
+                    <span className="va-chat__title">{titleOf(c)}</span>
+                    <span className="va-chat__when">{when(c.updatedAt)}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="va-chat__x"
+                    onClick={() => setPending(c)}
+                    aria-label="Borrar conversación"
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        </div>
+      )}
+
+      {pending && (
+        <ConfirmDialog
+          title="¿Borrar esta conversación?"
+          body={`Se borrará «${titleOf(pending)}» y todo lo que os dijisteis en ella.`}
+          confirmLabel="Borrar"
+          onConfirm={() => {
+            remove(pending.id);
+            setPending(null);
+          }}
+          onCancel={() => setPending(null)}
+        />
+      )}
     </div>
   );
 }
@@ -141,4 +208,12 @@ function Typed({ text }: { text: string }) {
       {!done && <span className="va-caret" />}
     </span>
   );
+}
+
+function when(at: number): string {
+  const mins = Math.floor((Date.now() - at) / 60_000);
+  if (mins < 1) return "Ahora";
+  if (mins < 60) return `Hace ${mins} min`;
+  if (mins < 24 * 60) return `Hace ${Math.floor(mins / 60)} h`;
+  return new Date(at).toLocaleDateString("es-ES", { day: "numeric", month: "short" });
 }
