@@ -141,10 +141,14 @@ body {
   border: none;
   background: none;
   font-family: var(--nk-font);
+  font-weight: 600;
   font-size: 0.82rem;
-  color: white;
+  color: #fff;
   cursor: pointer;
   animation: nk-hint 2.4s ease-in-out infinite;
+  /* De día el fondo es crema, así que el blanco solo se sostiene con un halo
+     oscuro detrás. De noche no estorba: se funde con el cielo. */
+  text-shadow: 0 1px 3px rgba(72, 32, 22, 0.55), 0 0 10px rgba(72, 32, 22, 0.35);
 }
 
 @keyframes nk-hint {

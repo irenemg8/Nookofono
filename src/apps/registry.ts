@@ -231,7 +231,7 @@ export const registry: MiniAppManifest[] = [
   },
   {
     id: "files",
-    title: "Archivos",
+    title: "RAG-Pugtín",
     iconSrc: archivosIcon,
     path: "/archivos",
     enabled: true,
