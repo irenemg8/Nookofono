@@ -1,0 +1,242 @@
+.mu {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ---------- Tocadiscos ---------- */
+
+.mu-deck {
+  position: relative;
+  padding: 20px 18px 18px;
+  border-radius: 22px;
+  /* Madera clara, como los muebles de la isla. */
+  background: linear-gradient(165deg, #c9975c 0%, #b07f47 100%);
+  box-shadow: 0 10px 24px var(--nk-shadow-strong), inset 0 2px 0 rgba(255, 255, 255, 0.28);
+}
+
+.mu-deck__plate {
+  position: relative;
+  width: min(74%, 240px);
+  margin-inline: auto;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  /* Plato metálico bajo el vinilo. */
+  background: radial-gradient(circle, #8f6537 0 62%, #7c572e 62% 100%);
+  padding: 5%;
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.35);
+}
+
+.mu-vinyl {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  /* Surcos: anillos finos alternos, no una textura de imagen. */
+  background:
+    repeating-radial-gradient(circle, #1c1c1e 0 2px, #262629 2px 4px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  animation: mu-spin 3.4s linear infinite;
+  animation-play-state: paused;
+}
+
+.mu-vinyl--on {
+  animation-play-state: running;
+}
+
+@keyframes mu-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Brillo diagonal fijo sobre el disco: da sensación de laca sin girar con él. */
+.mu-deck__plate::after {
+  content: "";
+  position: absolute;
+  inset: 5%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0.16) 0 28%, transparent 44%);
+}
+
+.mu-label {
+  width: 38%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--nk-accent-yellow);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.25);
+}
+
+.mu-label img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Agujero central del vinilo. */
+.mu-label::after {
+  content: "";
+  position: absolute;
+  width: 5%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #6f4c26;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Brazo: pivota desde arriba a la derecha y baja sobre el disco al sonar. */
+.mu-arm {
+  position: absolute;
+  top: 14%;
+  right: 9%;
+  width: 12px;
+  height: 46%;
+  transform-origin: 50% 8px;
+  transform: rotate(28deg);
+  transition: transform 0.7s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+.mu-arm--on {
+  transform: rotate(-8deg);
+}
+
+.mu-arm__pivot {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #f0e2c8, #d3c0a0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mu-arm__rod {
+  position: absolute;
+  top: 10px;
+  left: 3px;
+  width: 6px;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #f5ead6, #cbb492);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.mu-arm__head {
+  position: absolute;
+  bottom: -12px;
+  left: -3px;
+  width: 18px;
+  height: 16px;
+  border-radius: 4px;
+  background: #4a3a26;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Controles ---------- */
+
+.mu-now {
+  margin: 16px 0 0;
+  text-align: center;
+  color: #fff8e8;
+}
+
+.mu-now__title {
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.mu-now__state {
+  font-size: 0.72rem;
+  opacity: 0.82;
+}
+
+.mu-progress {
+  height: 5px;
+  margin: 10px 4px 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+.mu-progress__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--nk-accent-yellow);
+  transition: width 0.4s linear;
+}
+
+.mu-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.mu-play {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-leaf);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 5px 0 var(--nk-leaf-dark), 0 8px 14px rgba(0, 0, 0, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.mu-play:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--nk-leaf-dark), 0 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+.mu-play:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.mu-play svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* ---------- Lista ---------- */
+
+.mu-list {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px var(--nk-shadow);
+  min-height: 80px;
+}
+
+.mu-list iframe {
+  display: block;
+  border: none;
+  width: 100%;
+}
+
+.mu-note {
+  margin: 0;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--nk-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mu-vinyl {
+    animation: none;
+  }
+  .mu-arm {
+    transition: none;
+  }
+}
