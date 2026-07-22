@@ -1,0 +1,221 @@
+.wx {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ---------- Panel de cielo ---------- */
+
+.wx-sky {
+  position: relative;
+  border-radius: 24px;
+  padding: 18px 18px 22px;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(165deg, #5cc0f0 0%, #4aa9e4 100%);
+  box-shadow: 0 8px 20px var(--nk-shadow-strong);
+}
+
+.wx-sky--night {
+  background: linear-gradient(165deg, #4b5680 0%, #39415f 100%);
+}
+
+/* Textura de olas del panel, como el fondo del concepto original. */
+.wx-sky::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  background-image: radial-gradient(circle at 50% 100%, #fff 0 2px, transparent 2px);
+  background-size: 16px 12px;
+  pointer-events: none;
+}
+
+.wx-sky__top {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wx-clock {
+  font-family: var(--nk-font);
+  line-height: 1;
+}
+
+.wx-clock__time {
+  font-size: 2.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.wx-clock__date {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  opacity: 0.92;
+}
+
+.wx-brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  font-family: var(--nk-font);
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.wx-brand img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+}
+
+.wx-sky__hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.wx-sky__hero .wx-icon {
+  width: 92px;
+  height: 92px;
+  flex: none;
+}
+
+.wx-temp {
+  font-family: var(--nk-font);
+  line-height: 1;
+}
+
+.wx-temp__now {
+  font-size: 3.4rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.wx-temp__range {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  opacity: 0.92;
+}
+
+.wx-pill {
+  position: relative;
+  display: inline-block;
+  margin-top: 12px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.24);
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.wx-place {
+  position: relative;
+  margin: 10px 0 0;
+  font-size: 0.76rem;
+  opacity: 0.85;
+}
+
+/* ---------- Franjas del día ---------- */
+
+.wx-slots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 14px 12px;
+  border-radius: 22px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 6px 16px var(--nk-shadow);
+}
+
+.wx-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.wx-slot__tile {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 22%;
+  background: linear-gradient(160deg, #6fc3ee, #59aade);
+}
+
+.wx-slot__tile .wx-icon {
+  width: 68%;
+  height: 68%;
+}
+
+.wx-slot--night .wx-slot__tile {
+  background: linear-gradient(160deg, #4d5981, #3a4260);
+}
+
+.wx-slot--grey .wx-slot__tile {
+  background: linear-gradient(160deg, #9aa7b8, #7f8c9e);
+}
+
+.wx-slot__label {
+  font-family: var(--nk-font);
+  font-size: 0.7rem;
+  color: var(--nk-text-muted);
+}
+
+.wx-slot__temp {
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--nk-text-strong);
+}
+
+/* ---------- Detalles ---------- */
+
+.wx-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.wx-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 10px var(--nk-shadow);
+}
+
+.wx-detail dt {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.wx-detail dd {
+  margin: 0;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--nk-text-strong);
+}
+
+.wx-note {
+  margin: 0;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--nk-text-muted);
+}

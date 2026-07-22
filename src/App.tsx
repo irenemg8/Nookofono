@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
 import {
   DndContext,
   PointerSensor,
@@ -15,6 +15,7 @@ import { CSS } from "@dnd-kit/utilities";
 import LockScreen from "./app/LockScreen";
 import { buildHomeItems, isWidget, paginate, type HomeItem } from "./apps/home-items";
 import { appsById, type MiniAppManifest } from "./apps/registry";
+import { screens } from "./apps/screens";
 import {
   WIDGET_CATALOG,
   WIDGET_SIZE_LABEL,
@@ -203,13 +204,11 @@ function Widget({
   widget,
   seed,
   onOpen,
-  onRemove,
   onLongPress,
 }: {
   widget: WidgetInstance;
   seed: number;
   onOpen: (a: MiniAppManifest) => void;
-  onRemove: (id: string) => void;
   onLongPress: () => void;
 }) {
   const { handlers, firedRef } = useLongPress(onLongPress, LONG_PRESS_MS);
@@ -228,21 +227,32 @@ function Widget({
     >
       <WidgetFrame widget={widget} seed={seed} />
       <span className="nk-app__label">{app?.title}</span>
-
-      {/* Se puede quitar en cualquier momento, sin entrar en modo edición. */}
-      <button
-        type="button"
-        className="nk-remove"
-        aria-label={`Quitar widget de ${app?.title}`}
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={(e) => {
-          e.stopPropagation();
-          onRemove(widget.id);
-        }}
-      >
-        ×
-      </button>
     </div>
+  );
+}
+
+/** Botón de quitar de la esquina, con la misma factura que el resto de la app. */
+function RemoveBadge({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <button
+      type="button"
+      className="nk-remove"
+      aria-label={label}
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        onRemove();
+      }}
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M8 8l8 8M16 8l-8 8"
+          stroke="currentColor"
+          strokeWidth="3.2"
+          strokeLinecap="round"
+        />
+      </svg>
+    </button>
   );
 }
 
@@ -317,18 +327,10 @@ function SortableItem({
 
       {/* Sólo los widgets se pueden quitar: las apps siempre están. */}
       {widget && (
-        <button
-          type="button"
-          className="nk-remove"
-          aria-label={`Quitar widget de ${app?.title}`}
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove(item.id);
-          }}
-        >
-          ×
-        </button>
+        <RemoveBadge
+          label={`Quitar widget de ${app?.title}`}
+          onRemove={() => onRemove(item.id)}
+        />
       )}
     </div>
   );
@@ -490,7 +492,6 @@ function HomeScreen({ onOpen }: { onOpen: (a: MiniAppManifest) => void }) {
                 widget={item}
                 seed={index}
                 onOpen={onOpen}
-                onRemove={askRemove}
                 onLongPress={() => setEditing(true)}
               />
             ) : (
@@ -673,6 +674,8 @@ function Dock({
 /* --------------------------------------------------------------- vista app */
 
 function AppView({ app, onBack }: { app: MiniAppManifest; onBack: () => void }) {
+  const Screen = screens[app.id];
+
   return (
     <div className="nk-view">
       <div className="nk-view__head">
@@ -682,16 +685,22 @@ function AppView({ app, onBack }: { app: MiniAppManifest; onBack: () => void }) 
         <h1 className="nk-view__title">{app.title}</h1>
       </div>
 
-      <div style={{ display: "grid", placeItems: "center", gap: 28 }}>
-        <AppArt app={app} size={104} />
+      {Screen ? (
+        <Suspense fallback={<p className="nk-loading">Abriendo…</p>}>
+          <Screen />
+        </Suspense>
+      ) : (
+        <div style={{ display: "grid", placeItems: "center", gap: 28 }}>
+          <AppArt app={app} size={104} />
 
-        <div className="nk-dialogue">
-          <p style={{ margin: 0, fontWeight: 700 }}>{app.teaser}</p>
-          <p style={{ margin: "10px 0 0", fontSize: "0.85rem", opacity: 0.75 }}>
-            Todavía no está construida.
-          </p>
+          <div className="nk-dialogue">
+            <p style={{ margin: 0, fontWeight: 700 }}>{app.teaser}</p>
+            <p style={{ margin: "10px 0 0", fontSize: "0.85rem", opacity: 0.75 }}>
+              Todavía no está construida.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

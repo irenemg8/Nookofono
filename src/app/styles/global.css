@@ -438,26 +438,36 @@ body {
   margin-bottom: 4px;
 }
 
-/* Botón de quitar, en la esquina del widget. */
+/* Botón de quitar, en la esquina superior derecha del widget.
+   Misma factura que los botones píldora: crema, borde inferior sólido y
+   hundido al pulsar. */
 .nk-remove {
   position: absolute;
-  top: -6px;
-  left: -6px;
+  top: -7px;
+  right: -7px;
   z-index: 3;
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: var(--nk-text-strong);
-  color: var(--nk-bg-cream);
-  font-family: var(--nk-font);
-  font-size: 1rem;
-  line-height: 1;
+  background: var(--nk-bg-cream);
+  color: var(--nk-text);
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 0 var(--nk-border), 0 4px 8px var(--nk-shadow-strong);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.nk-remove svg {
+  width: 15px;
+  height: 15px;
+}
+
+.nk-remove:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--nk-border), 0 2px 4px var(--nk-shadow);
 }
 
 /* Botón de añadir widget, arriba a la derecha en modo edición. */
@@ -697,6 +707,18 @@ body {
 
 .nk-btn--danger:active {
   box-shadow: 0 1px 0 #b13a35, 0 2px 4px var(--nk-shadow);
+}
+
+.nk-btn--sm {
+  font-size: 0.8rem;
+  padding: 0.45em 1.1em;
+}
+
+.nk-loading {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--nk-text-muted);
+  padding: 30px 0;
 }
 
 /* ---------- Modo edición: temblor estilo iOS ---------- */
