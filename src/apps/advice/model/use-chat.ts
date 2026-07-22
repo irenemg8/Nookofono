@@ -5,7 +5,7 @@ const STORE = "ipug.valentin.chats";
 const ACTIVE = "ipug.valentin.active";
 
 /** Lo que dice Valentín al empezar una conversación. */
-const OPENING = "Hola, papá. Siéntate, que tenemos que hablar.";
+const OPENING = "Hola progenitor. Siéntese, que tenemos que hablar.";
 
 export interface Conversation {
   id: string;
