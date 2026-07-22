@@ -1,6 +1,7 @@
 import { useState } from "react";
 import airlinesIcon from "../../assets/airlines.webp";
 import { useCollection, type Entity } from "../../shared/lib/use-collection";
+import { ConfirmDialog, RemoveBadge } from "../../shared/ui/ConfirmDialog";
 import "./airlines.css";
 
 /** Valencia es siempre el origen. */
@@ -15,6 +16,7 @@ interface Destination extends Entity {
 export default function AirlinesApp() {
   const trips = useCollection<Destination>("ipug.destinations");
   const [draft, setDraft] = useState("");
+  const [pendingRemove, setPendingRemove] = useState<Destination | null>(null);
 
   const visited = trips.items.filter((t) => t.visited).length;
 
@@ -110,14 +112,30 @@ export default function AirlinesApp() {
                   >
                     ✓
                   </button>
-                  <button type="button" className="pa-remove" onClick={() => trips.remove(t.id)}>
-                    quitar
-                  </button>
+                  <span className="pa-pass__flight">PP-{flightNumber(t.id)}</span>
                 </div>
+
+                <RemoveBadge
+                  danger
+                  label={`Quitar ${t.name}`}
+                  onRemove={() => setPendingRemove(t)}
+                />
               </article>
             </li>
           ))}
         </ul>
+      )}
+
+      {pendingRemove && (
+        <ConfirmDialog
+          title="¿Quitar este destino?"
+          body={`Se borrará ${pendingRemove.name} de la lista de vuelos, junto con su marca de visitado.`}
+          onConfirm={() => {
+            trips.remove(pendingRemove.id);
+            setPendingRemove(null);
+          }}
+          onCancel={() => setPendingRemove(null)}
+        />
       )}
     </div>
   );

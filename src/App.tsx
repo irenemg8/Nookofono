@@ -26,6 +26,7 @@ import { useAppOrder } from "./shared/lib/use-app-order";
 import { useDock } from "./shared/lib/use-dock";
 import { useLongPress } from "./shared/lib/use-long-press";
 import { useWidgets } from "./shared/lib/use-widgets";
+import { ConfirmDialog, RemoveBadge } from "./shared/ui/ConfirmDialog";
 import { useBattery } from "./shared/lib/use-battery";
 import { useClock } from "./shared/lib/use-clock";
 import { usePhotos, useRotatingPhoto } from "./shared/lib/use-photos";
@@ -231,30 +232,6 @@ function Widget({
   );
 }
 
-/** Botón de quitar de la esquina, con la misma factura que el resto de la app. */
-function RemoveBadge({ label, onRemove }: { label: string; onRemove: () => void }) {
-  return (
-    <button
-      type="button"
-      className="nk-remove"
-      aria-label={label}
-      onPointerDown={(e) => e.stopPropagation()}
-      onClick={(e) => {
-        e.stopPropagation();
-        onRemove();
-      }}
-    >
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          d="M8 8l8 8M16 8l-8 8"
-          stroke="currentColor"
-          strokeWidth="3.2"
-          strokeLinecap="round"
-        />
-      </svg>
-    </button>
-  );
-}
 
 /* ------------------------------------------------- elementos en modo edición */
 
@@ -596,43 +573,6 @@ function HomeScreen({ onOpen }: { onOpen: (a: MiniAppManifest) => void }) {
   );
 }
 
-/* ---------------------------------------------------------------- diálogo */
-
-function ConfirmDialog({
-  title,
-  body,
-  confirmLabel,
-  onConfirm,
-  onCancel,
-}: {
-  title: string;
-  body: string;
-  confirmLabel: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  return (
-    <div className="nk-modal" onPointerDown={onCancel}>
-      <div
-        className="nk-modal__panel"
-        role="alertdialog"
-        aria-modal="true"
-        onPointerDown={(e) => e.stopPropagation()}
-      >
-        <h2 className="nk-modal__title">{title}</h2>
-        <p className="nk-modal__body">{body}</p>
-        <div className="nk-modal__actions">
-          <button type="button" className="nk-btn nk-btn--ghost" onClick={onCancel}>
-            Cancelar
-          </button>
-          <button type="button" className="nk-btn nk-btn--danger" onClick={onConfirm}>
-            {confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /** Barra fija inferior. En modo edición es también zona de destino. */
 function Dock({

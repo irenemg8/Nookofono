@@ -4,33 +4,6 @@
   gap: 14px;
 }
 
-.pp-switch {
-  display: flex;
-  gap: 6px;
-  padding: 4px;
-  border-radius: 999px;
-  background: var(--nk-surface-sunk);
-}
-
-.pp-switch button {
-  flex: 1;
-  border: none;
-  border-radius: 999px;
-  padding: 0.5em 0;
-  background: none;
-  font-family: var(--nk-font);
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--nk-text-muted);
-  cursor: pointer;
-}
-
-.pp-switch button[aria-pressed="true"] {
-  background: var(--nk-bg-cream);
-  color: var(--nk-text-strong);
-  box-shadow: 0 2px 5px var(--nk-shadow);
-}
-
 /* ---------- Pasaporte ---------- */
 
 .pp-card {
@@ -137,24 +110,14 @@
   border-radius: 10px;
   border: 4px solid #fff;
   background: #cfe3ee;
-  display: grid;
-  place-items: center;
   overflow: hidden;
   box-shadow: 0 3px 8px var(--nk-shadow);
-  cursor: pointer;
 }
 
 .pp-photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.pp-photo span {
-  font-size: 0.62rem;
-  color: #6d8fa0;
-  text-align: center;
-  padding: 6px;
 }
 
 .pp-fields {

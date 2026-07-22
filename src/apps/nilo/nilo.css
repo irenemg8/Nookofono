@@ -21,27 +21,15 @@
 
 .pug-photo {
   aspect-ratio: 1;
-  border: none;
   border-radius: 18px;
   overflow: hidden;
   background: var(--nk-surface-sunk);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  padding: 0;
 }
 
 .pug-photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.pug-photo span {
-  font-size: 0.62rem;
-  color: var(--nk-text-muted);
-  padding: 8px;
-  text-align: center;
 }
 
 .pug-name {
@@ -83,20 +71,12 @@
   color: var(--nk-text-strong);
 }
 
-.pug-rows input {
-  width: 100%;
-  border: none;
-  background: none;
-  font-family: var(--nk-font);
-  font-size: 1rem;
-  color: var(--nk-text-strong);
-  padding: 2px 4px;
-  border-radius: 6px;
-}
-
-.pug-rows input:focus {
-  outline: none;
-  background: var(--nk-surface-sunk);
+/* El chip y el pasaporte se leen mejor en monoespaciada: son cadenas largas
+   de dígitos y así se pueden comparar carácter a carácter. */
+.pug-mono {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
 }
 
 /* Fila de medidas con iconos, como la del ejemplo. */
@@ -252,4 +232,216 @@
   color: var(--nk-text-muted);
   font-size: 0.85rem;
   padding: 24px 0;
+}
+
+.pug-streak__medal--vax {
+  background: var(--nk-accent-blue);
+  box-shadow: 0 3px 0 #2f9fbf;
+}
+
+.pug-x {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-surface-sunk);
+  color: var(--nk-text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* ---------- Formularios ---------- */
+
+.pug-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 12px var(--nk-shadow);
+}
+
+.pug-form--inline {
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.pug-form label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pug-form label > span {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.pug-form input {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  padding: 0.55em 0.7em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font-body);
+  color: var(--nk-text-strong);
+}
+
+.pug-form input:focus {
+  outline: 2px solid var(--nk-leaf);
+}
+
+.pug-form__row {
+  display: flex;
+  gap: 8px;
+}
+
+.pug-form__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ---------- Paseo ---------- */
+
+.pug-walk {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px;
+  border-radius: 22px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 6px 16px var(--nk-shadow);
+}
+
+.pug-walk--on {
+  background: linear-gradient(160deg, #e8f6d8, #d8eec4);
+}
+
+.pug-walk__timer {
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 3rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--nk-text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.pug-walk__stats {
+  display: flex;
+  gap: 28px;
+  text-align: center;
+}
+
+.pug-walk__stats b {
+  display: block;
+  font-family: var(--nk-font);
+  font-size: 1.3rem;
+  color: var(--nk-text-strong);
+}
+
+.pug-walk__stats span {
+  font-size: 0.68rem;
+  color: var(--nk-text-muted);
+}
+
+.pug-walk__warn {
+  margin: 0;
+  text-align: center;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  color: var(--nk-text-muted);
+}
+
+/* ---------- Gráfica de peso ---------- */
+
+.wc {
+  margin: 0;
+  padding: 14px;
+  border-radius: 20px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 6px 16px var(--nk-shadow);
+}
+
+.wc__caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  color: var(--nk-text-strong);
+}
+
+.wc__caption span {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--nk-text-muted);
+}
+
+.wc__svg {
+  width: 100%;
+  height: auto;
+  margin-top: 6px;
+  overflow: visible;
+}
+
+.wc__grid {
+  stroke: var(--nk-border);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.wc__tick {
+  font-family: var(--nk-font-body);
+  font-size: 8px;
+  fill: var(--nk-text-muted);
+}
+
+.wc__area {
+  fill: var(--nk-leaf);
+  opacity: 0.16;
+}
+
+.wc__line {
+  stroke: var(--nk-leaf-dark);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.wc__dot {
+  fill: var(--nk-leaf-dark);
+  /* Anillo del color de la superficie: separa el punto de la línea. */
+  stroke: var(--nk-bg-cream);
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+.wc__dot--on {
+  fill: var(--nk-accent-yellow);
+}
+
+.wc__value {
+  font-family: var(--nk-font);
+  font-size: 9px;
+  font-weight: 600;
+  fill: var(--nk-text-strong);
+}
+
+.wc__readout {
+  margin: 8px 0 0;
+  text-align: center;
+  font-size: 0.74rem;
+  color: var(--nk-text-muted);
 }

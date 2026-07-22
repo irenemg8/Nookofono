@@ -72,6 +72,13 @@
   filter: saturate(0.55);
 }
 
+/* La tarjeta recorta su contenido para que la perforación quede limpia, así que
+   el aspa va por dentro del borde en lugar de sobresalir. */
+.pa-pass .nk-remove {
+  top: 8px;
+  right: 8px;
+}
+
 .pa-pass__main {
   padding: 12px 14px;
   background: #eafaf3;
@@ -185,13 +192,11 @@
   color: #fff;
 }
 
-.pa-remove {
-  border: none;
-  background: none;
-  color: #7ba894;
-  font-size: 0.68rem;
-  cursor: pointer;
-  text-decoration: underline;
+.pa-pass__flight {
+  font-family: var(--nk-font);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: #5c8c76;
 }
 
 /* Sello de VISITADO, cruzando la tarjeta. */

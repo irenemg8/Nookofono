@@ -21,6 +21,19 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Se sigue pudiendo desplazar, pero sin barra a la vista: en un móvil de
+   mentira una barra de scroll rompe la ilusión. */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
 /* =========================================================================
    Carcasa del teléfono
    ========================================================================= */
@@ -468,6 +481,16 @@ body {
 .nk-remove:active {
   transform: translateY(2px);
   box-shadow: 0 1px 0 var(--nk-border), 0 2px 4px var(--nk-shadow);
+}
+
+.nk-remove--danger {
+  background: #e2504a;
+  color: #fff;
+  box-shadow: 0 3px 0 #b13a35, 0 4px 8px var(--nk-shadow-strong);
+}
+
+.nk-remove--danger:active {
+  box-shadow: 0 1px 0 #b13a35, 0 2px 4px var(--nk-shadow);
 }
 
 /* Botón de añadir widget, arriba a la derecha en modo edición. */
