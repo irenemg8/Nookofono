@@ -128,33 +128,6 @@
   pointer-events: none;
 }
 
-/* Aro que se expande: una sola onda lenta, no un parpadeo. */
-.sos-bell::before {
-  content: "";
-  position: absolute;
-  inset: -14px;
-  border-radius: 50%;
-  border: 3px solid rgba(226, 80, 74, 0.4);
-  animation: sos-ring 2.4s cubic-bezier(0.2, 0.7, 0.4, 1) infinite;
-  pointer-events: none;
-}
-
-.sos-bell:disabled::before {
-  animation: none;
-  opacity: 0;
-}
-
-@keyframes sos-ring {
-  0% {
-    transform: scale(0.94);
-    opacity: 0.75;
-  }
-  100% {
-    transform: scale(1.18);
-    opacity: 0;
-  }
-}
-
 .sos-caption {
   position: relative;
   text-align: center;
@@ -290,7 +263,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sos-bell::before,
   .sos-say {
     animation: none;
   }
