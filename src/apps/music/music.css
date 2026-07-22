@@ -140,22 +140,106 @@
 
 /* ---------- Controles ---------- */
 
-.mu-now {
-  margin: 16px 0 0;
+.mu-deck__caption {
+  margin: 14px 0 0;
   text-align: center;
-  color: #fff8e8;
+  font-family: var(--nk-font);
+  font-size: 0.78rem;
+  color: #fff3dc;
+  opacity: 0.9;
+}
+
+.mu-now {
+  text-align: center;
+  color: var(--nk-text-strong);
 }
 
 .mu-now__title {
   font-family: var(--nk-font);
   font-weight: 600;
-  font-size: 1rem;
-  line-height: 1.2;
+  font-size: 1.05rem;
+  line-height: 1.25;
 }
 
 .mu-now__state {
-  font-size: 0.72rem;
-  opacity: 0.82;
+  margin-top: 2px;
+  font-size: 0.8rem;
+  color: var(--nk-text-muted);
+}
+
+/* ---------- Barra de avance ---------- */
+
+.mu-seek {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--nk-leaf);
+}
+
+.mu-seek:disabled {
+  opacity: 0.45;
+}
+
+.mu-times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -6px;
+  font-size: 0.68rem;
+  color: var(--nk-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Tarjetas ---------- */
+
+.mu-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 20px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 6px 16px var(--nk-shadow);
+  text-align: center;
+}
+
+.mu-card p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--nk-text);
+}
+
+.mu-card--setup {
+  align-items: stretch;
+  text-align: left;
+}
+
+.mu-card--setup h2 {
+  margin: 0;
+  font-family: var(--nk-font);
+  font-size: 1.05rem;
+  color: var(--nk-text-strong);
+}
+
+.mu-card--setup ol {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--nk-text);
+}
+
+.mu-card--setup code {
+  display: block;
+  margin-top: 6px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: var(--nk-surface-sunk);
+  font-size: 0.74rem;
+  word-break: break-all;
+  color: var(--nk-text-strong);
 }
 
 .mu-progress {
@@ -177,8 +261,36 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-top: 14px;
+  gap: 10px;
+}
+
+.mu-side {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-bg-cream);
+  color: var(--nk-text);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--nk-border), 0 4px 8px var(--nk-shadow);
+}
+
+.mu-side:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--nk-border);
+}
+
+.mu-side--on {
+  background: var(--nk-leaf);
+  color: #fff;
+  box-shadow: 0 3px 0 var(--nk-leaf-dark);
+}
+
+.mu-side svg {
+  width: 18px;
+  height: 18px;
 }
 
 .mu-play {

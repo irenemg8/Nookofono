@@ -1,4 +1,4 @@
-import { Suspense, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
   DndContext,
   PointerSensor,
@@ -16,6 +16,7 @@ import LockScreen from "./app/LockScreen";
 import { buildHomeItems, isWidget, paginate, type HomeItem } from "./apps/home-items";
 import { appsById, type MiniAppManifest } from "./apps/registry";
 import { screens } from "./apps/screens";
+import { consumeRedirect } from "./apps/music/model/spotify-auth";
 import {
   WIDGET_CATALOG,
   WIDGET_SIZE_LABEL,
@@ -646,6 +647,13 @@ function AppView({ app, onBack }: { app: MiniAppManifest; onBack: () => void }) 
 }
 
 export default function App() {
+  // Al volver de Spotify se aterriza en la pantalla de bloqueo, no en la de
+  // música, así que el código de autorización se canjea aquí: si esperáramos a
+  // montar el reproductor, se perdería al recargar.
+  useEffect(() => {
+    consumeRedirect();
+  }, []);
+
   const [locked, setLocked] = useState(true);
   const [open, setOpen] = useState<MiniAppManifest | null>(null);
   const phase = useTimeOfDay();
