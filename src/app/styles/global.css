@@ -1,0 +1,409 @@
+@import "./tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--nk-font-body);
+  color: var(--nk-text-strong);
+  background: var(--nk-sea-deep);
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =========================================================================
+   Carcasa del teléfono
+   ========================================================================= */
+
+.nk-phone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 430px);
+  height: 100dvh;
+  margin-inline: auto;
+  background: var(--nk-sand);
+  overflow: hidden;
+}
+
+@media (min-width: 480px) {
+  .nk-phone {
+    height: min(94dvh, 920px);
+    margin-block: 3dvh;
+    border-radius: 46px;
+    box-shadow: 0 18px 40px rgba(72, 32, 22, 0.28);
+  }
+}
+
+/* =========================================================================
+   Barra de estado
+   ========================================================================= */
+
+.nk-statusbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: calc(10px + var(--sat)) 22px 4px;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--nk-text-strong);
+  flex: none;
+}
+
+.nk-statusbar__left,
+.nk-statusbar__right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.nk-statusbar__right {
+  justify-content: flex-end;
+}
+
+.nk-statusbar__time {
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.nk-statusbar svg {
+  display: block;
+}
+
+.nk-battery {
+  width: 26px;
+  height: 13px;
+  border: 1.6px solid var(--nk-text-strong);
+  border-radius: 4px;
+  position: relative;
+  padding: 1.6px;
+}
+
+.nk-battery::after {
+  content: "";
+  position: absolute;
+  right: -3.5px;
+  top: 50%;
+  translate: 0 -50%;
+  width: 2px;
+  height: 5px;
+  border-radius: 0 2px 2px 0;
+  background: var(--nk-text-strong);
+}
+
+.nk-battery__fill {
+  height: 100%;
+  border-radius: 1.5px;
+  background: var(--nk-text-strong);
+  transition: width 0.3s ease;
+}
+
+.nk-battery--empty .nk-battery__fill {
+  background: #e2504a;
+}
+
+/* =========================================================================
+   Páginas de la rejilla
+   ========================================================================= */
+
+.nk-pages {
+  flex: 1;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nk-pages::-webkit-scrollbar {
+  display: none;
+}
+
+.nk-page {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: min-content;
+  gap: clamp(14px, 3.2vw, 22px) clamp(4px, 1.5vw, 10px);
+  align-content: start;
+  padding: clamp(12px, 3vw, 20px) clamp(10px, 3.5vw, 18px) 0;
+}
+
+/* =========================================================================
+   Icono de app
+   ========================================================================= */
+
+.nk-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+.nk-app__icon {
+  display: grid;
+  place-items: center;
+  width: clamp(58px, 16vw, 70px);
+  aspect-ratio: 1;
+  border-radius: 24%;
+  overflow: hidden;
+  background: var(--icon-bg, var(--nk-leaf));
+  box-shadow: 0 2px 5px rgba(72, 32, 22, 0.16);
+  transition: transform 0.15s ease;
+}
+
+/* Los iconos ilustrados traen su propio fondo: van a sangre. */
+.nk-app__icon--art {
+  background: none;
+}
+
+.nk-app__icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.nk-app__icon svg {
+  width: 54%;
+  height: 54%;
+  color: #fffdf2;
+}
+
+.nk-app:active .nk-app__icon {
+  transform: scale(0.92);
+}
+
+@media (hover: hover) {
+  .nk-app:hover .nk-app__icon {
+    transform: scale(1.07);
+  }
+}
+
+.nk-app__label {
+  font-family: var(--nk-font);
+  font-weight: 500;
+  font-size: clamp(0.72rem, 3.1vw, 0.86rem);
+  color: var(--nk-text-strong);
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Modo edición: temblor estilo iOS ---------- */
+
+.nk-editbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 20px 8px;
+  flex: none;
+}
+
+.nk-editbar__hint {
+  font-size: 0.78rem;
+  color: var(--nk-text-muted);
+}
+
+.nk-btn--sm {
+  font-size: 0.82rem;
+  padding: 0.4em 1.1em;
+}
+
+/* El temblor va sobre .nk-app__icon y no sobre .nk-app, porque el contenedor
+   lleva el `transform` que dnd-kit necesita para mover el icono. Si los
+   mezcláramos, la rotación pisaría al arrastre. */
+.nk-app--wiggle {
+  cursor: grab;
+  touch-action: none; /* si no, el navegador se queda el gesto para hacer scroll */
+}
+
+.nk-app--wiggle .nk-app__icon {
+  animation: nk-wiggle 0.35s ease-in-out infinite alternate;
+}
+
+.nk-app--dragging {
+  z-index: 10;
+  cursor: grabbing;
+}
+
+.nk-app--dragging .nk-app__icon {
+  animation: none;
+  transform: scale(1.12);
+  box-shadow: 0 10px 18px rgba(72, 32, 22, 0.32);
+}
+
+.nk-app--dragging .nk-app__label {
+  opacity: 0;
+}
+
+@keyframes nk-wiggle {
+  from {
+    transform: rotate(-2.2deg);
+  }
+  to {
+    transform: rotate(2.2deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nk-app--wiggle .nk-app__icon {
+    animation: none;
+    outline: 3px dashed var(--nk-leaf);
+    outline-offset: 3px;
+  }
+}
+
+/* =========================================================================
+   Mar, ola y dock
+   ========================================================================= */
+
+.nk-sea {
+  position: relative;
+  flex: none;
+  background: var(--nk-sea);
+  padding-top: 4px;
+}
+
+/* La ola se dibuja por encima del borde del mar, invadiendo la arena */
+.nk-sea__wave {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  width: 100%;
+  height: 26px;
+  display: block;
+  fill: var(--nk-sea);
+}
+
+.nk-dots {
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+  padding: 6px 0 10px;
+}
+
+.nk-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(72, 32, 22, 0.22);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.nk-dot[aria-current="true"] {
+  background: rgba(72, 32, 22, 0.62);
+}
+
+.nk-dock {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  justify-items: center;
+  gap: 10px;
+  background: var(--nk-sea-deep);
+  padding: 14px clamp(10px, 3.5vw, 18px) calc(14px + var(--sab));
+}
+
+.nk-dock .nk-app__icon {
+  width: clamp(58px, 16vw, 70px);
+}
+
+/* =========================================================================
+   Vista de app (provisional)
+   ========================================================================= */
+
+.nk-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 24px 28px;
+  overflow-y: auto;
+}
+
+.nk-view__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6dvh;
+}
+
+.nk-view__title {
+  margin: 0;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--nk-text-strong);
+}
+
+.nk-btn {
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #fff;
+  background: var(--nk-leaf);
+  border: none;
+  border-radius: var(--nk-radius-pill);
+  padding: 0.55em 1.3em;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--nk-leaf-dark), 0 6px 10px var(--nk-shadow);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.nk-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--nk-leaf-dark), 0 2px 4px var(--nk-shadow);
+}
+
+.nk-dialogue {
+  background: var(--nk-bg-cream);
+  color: var(--nk-text);
+  border-radius: 40% 40% 30% 30% / 150% 150% 150% 150%;
+  padding: 2.4em 2em;
+  text-align: center;
+  box-shadow: 0 8px 20px var(--nk-shadow-strong);
+  animation: nk-blob 1.25s ease-in-out infinite alternate;
+}
+
+@keyframes nk-blob {
+  from {
+    transform: rotate(0.3deg) scale(1);
+  }
+  to {
+    transform: rotate(-0.3deg) scale(0.99);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nk-dialogue {
+    animation: none;
+  }
+}

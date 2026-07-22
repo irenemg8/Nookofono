@@ -1,0 +1,55 @@
+/* =========================================================================
+   iPug — design tokens
+   Valores marcados [V] verificados contra fuentes públicas (ver docs/PROYECTO.md §3.1)
+   Valores marcados [I] inferidos — afinar con cuentagotas sobre capturas reales.
+   ========================================================================= */
+
+:root {
+  /* --- Pantalla de inicio: playa (muestreado de la referencia) --- */
+  --nk-sand: #f3eee0;      /* arena: fondo de la rejilla */
+  --nk-sea: #8fbfbd;       /* mar: franja bajo la ola */
+  --nk-sea-deep: #74a9a7;  /* mar profundo: fondo del dock */
+
+  /* --- Superficies --- */
+  --nk-bg-cream: #fdf8e3;      /* [V] fondo de pantalla y paneles */
+  --nk-surface: #fffdf2;       /* [I] tarjetas elevadas */
+  --nk-surface-sunk: #f3ebcf;  /* [I] campos hundidos, filas alternas */
+  --nk-border: #e0daca;        /* [V] bordes suaves */
+
+  /* --- Texto --- */
+  --nk-text: #807256;          /* [V] texto principal, marrón cálido */
+  --nk-text-strong: #482016;   /* [V] titulares */
+  --nk-text-muted: #a99b7e;    /* [I] secundario */
+
+  /* --- Verdes de marca --- */
+  --nk-leaf: #8dc63f;          /* [I] verde hoja de la UI */
+  --nk-nook-green: #5dbb63;    /* [V] verde corporativo Nook Inc. */
+  --nk-leaf-dark: #4e8c36;     /* [I] contorno y sombra de la hoja */
+
+  /* --- Acentos pastel --- */
+  --nk-accent-blue: #54d4fc;   /* [V] */
+  --nk-accent-pink: #fdc0c7;   /* [V] */
+  --nk-accent-yellow: #f1ae04; /* [V] flecha de diálogo, Millas */
+
+  /* --- Sombras: nunca gris neutro, siempre teñidas de marrón --- */
+  --nk-shadow: rgba(0, 0, 0, 0.1);           /* [V] */
+  --nk-shadow-strong: rgba(72, 32, 22, 0.18); /* [I] */
+
+  /* --- Tipografía --- */
+  --nk-font: "Fredoka", "Varela Round", system-ui, sans-serif;
+  --nk-font-body: "Nunito", system-ui, sans-serif;
+
+  --nk-fs-app-title: clamp(1.5rem, 7.5vw, 2.1rem);
+  --nk-fs-status: clamp(0.85rem, 4vw, 1.05rem);
+  --nk-fs-body: 1rem;
+  --nk-fs-label: 0.72rem;
+
+  /* --- Geometría --- */
+  --nk-radius-icon: 28%;  /* squircle, NO círculo */
+  --nk-radius-panel: 24px;
+  --nk-radius-pill: 999px;
+
+  /* --- Safe areas (iOS) --- */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
