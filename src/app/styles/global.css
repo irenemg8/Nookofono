@@ -744,6 +744,46 @@ body {
   padding: 30px 0;
 }
 
+/* Pantalla de app rota. Fea a propósito: no es un estado en el que quedarse. */
+.nk-crash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 18px;
+  border-radius: 20px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 6px 16px var(--nk-shadow);
+  text-align: center;
+}
+
+.nk-crash h2 {
+  margin: 0;
+  font-family: var(--nk-font);
+  font-size: 1.05rem;
+  color: var(--nk-text-strong);
+}
+
+.nk-crash p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--nk-text);
+}
+
+.nk-crash pre {
+  margin: 0;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--nk-surface-sunk);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: #c2413c;
+}
+
 /* ---------- Modo edición: temblor estilo iOS ---------- */
 
 /* El temblor va sobre el icono o el marco del widget, y no sobre el contenedor,

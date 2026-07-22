@@ -28,6 +28,7 @@ import { useDock } from "./shared/lib/use-dock";
 import { useLongPress } from "./shared/lib/use-long-press";
 import { useWidgets } from "./shared/lib/use-widgets";
 import { ConfirmDialog, RemoveBadge } from "./shared/ui/ConfirmDialog";
+import { ErrorBoundary } from "./shared/ui/ErrorBoundary";
 import { useBattery } from "./shared/lib/use-battery";
 import { useClock } from "./shared/lib/use-clock";
 import { usePhotos, useRotatingPhoto } from "./shared/lib/use-photos";
@@ -629,9 +630,11 @@ function AppView({ app, onBack }: { app: MiniAppManifest; onBack: () => void }) 
       </div>
 
       {Screen ? (
-        <Suspense fallback={<p className="nk-loading">Abriendo…</p>}>
-          <Screen />
-        </Suspense>
+        <ErrorBoundary name={app.title}>
+          <Suspense fallback={<p className="nk-loading">Abriendo…</p>}>
+            <Screen />
+          </Suspense>
+        </ErrorBoundary>
       ) : (
         <div style={{ display: "grid", placeItems: "center", gap: 28 }}>
           <AppArt app={app} size={104} />
