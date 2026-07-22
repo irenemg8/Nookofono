@@ -9,7 +9,6 @@ import "./nilo.css";
 interface Vaccine extends Entity {
   name: string;
   appliedAt: string;
-  expiresAt: string;
   notes: string;
 }
 
@@ -57,9 +56,9 @@ export default function NiloApp() {
           <dd>{PET.birthday ? longDate(PET.birthday) : "—"}</dd>
           <dt>Microchip</dt>
           <dd className="pug-mono">{PET.chip || "—"}</dd>
-          <dt>Pasaporte</dt>
-          <dd className="pug-mono">{PET.passport || "—"}</dd>
-          <dt>Veterinario</dt>
+         {/* <dt>Pasaporte</dt>
+          <dd className="pug-mono">{PET.passport || "—"}</dd>*/}
+          <dt>Veterinaria</dt>
           <dd>{PET.vet || "—"}</dd>
         </dl>
 
@@ -78,7 +77,7 @@ export default function NiloApp() {
         ))}
       </div>
 
-      {tab === "ficha" && <Summary vaccines={vaccines.items} walks={walks.items} />}
+      {tab === "ficha" && <Summary walks={walks.items} />}
       {tab === "vacunas" && <Vaccines store={vaccines} />}
       {tab === "peso" && <Weights store={weights} sorted={sortedWeights} />}
       {tab === "paseos" && <Walks store={walks} />}
@@ -88,40 +87,24 @@ export default function NiloApp() {
 
 /* ------------------------------------------------------------------ resumen */
 
-function Summary({ vaccines, walks }: { vaccines: Vaccine[]; walks: Walk[] }) {
-  const next = [...vaccines]
-    .filter((v) => v.expiresAt)
-    .sort((a, b) => a.expiresAt.localeCompare(b.expiresAt))[0];
-
+function Summary({ walks }: { walks: Walk[] }) {
   const totalKm = walks.reduce((sum, w) => sum + w.distanceM, 0) / 1000;
 
   return (
-    <>
-      <div className="pug-streak">
-        <span className="pug-streak__medal">🐾</span>
-        <div>
-          <div className="pug-streak__n">{totalKm.toFixed(1)} km</div>
-          <div className="pug-streak__label">paseados en total</div>
-        </div>
+    <div className="pug-streak">
+      <span className="pug-streak__medal">🐾</span>
+      <div>
+        <div className="pug-streak__n">{totalKm.toFixed(1)} km</div>
+        <div className="pug-streak__label">paseados en total</div>
       </div>
-
-      {next && (
-        <div className="pug-streak">
-          <span className="pug-streak__medal pug-streak__medal--vax">💉</span>
-          <div>
-            <div className="pug-streak__n">{shortDate(next.expiresAt)}</div>
-            <div className="pug-streak__label">toca la próxima: {next.name}</div>
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   );
 }
 
 /* ----------------------------------------------------------------- vacunas */
 
 function Vaccines({ store }: { store: ReturnType<typeof useCollection<Vaccine>> }) {
-  const [form, setForm] = useState({ name: "", appliedAt: today(), expiresAt: inAYear(), notes: "" });
+  const [form, setForm] = useState({ name: "", appliedAt: today(), notes: "" });
   const [adding, setAdding] = useState(false);
   const [pending, setPending] = useState<Vaccine | null>(null);
 
@@ -129,7 +112,7 @@ function Vaccines({ store }: { store: ReturnType<typeof useCollection<Vaccine>> 
     e.preventDefault();
     if (!form.name.trim()) return;
     store.create({ ...form, name: form.name.trim() });
-    setForm({ name: "", appliedAt: today(), expiresAt: inAYear(), notes: "" });
+    setForm({ name: "", appliedAt: today(), notes: "" });
     setAdding(false);
   }
 
@@ -149,24 +132,14 @@ function Vaccines({ store }: { store: ReturnType<typeof useCollection<Vaccine>> 
             />
           </label>
 
-          <div className="pug-form__row">
-            <label>
-              <span>Puesta el</span>
-              <input
-                type="date"
-                value={form.appliedAt}
-                onChange={(e) => setForm({ ...form, appliedAt: e.target.value })}
-              />
-            </label>
-            <label>
-              <span>Caduca el</span>
-              <input
-                type="date"
-                value={form.expiresAt}
-                onChange={(e) => setForm({ ...form, expiresAt: e.target.value })}
-              />
-            </label>
-          </div>
+          <label>
+            <span>Puesta el</span>
+            <input
+              type="date"
+              value={form.appliedAt}
+              onChange={(e) => setForm({ ...form, appliedAt: e.target.value })}
+            />
+          </label>
 
           <label>
             <span>Notas</span>
@@ -196,27 +169,20 @@ function Vaccines({ store }: { store: ReturnType<typeof useCollection<Vaccine>> 
         <p className="pug-empty">Sin vacunas registradas.</p>
       ) : (
         <ul className="pug-list">
-          {sorted.map((v) => {
-            const state = expiryState(v.expiresAt);
-            return (
-              <li key={v.id} className="pug-item">
-                <div className="pug-item__body">
-                  <div className="pug-item__title">{v.name}</div>
-                  <div className="pug-item__meta">
-                    Puesta el {shortDate(v.appliedAt)}
-                    {v.expiresAt && ` · caduca el ${shortDate(v.expiresAt)}`}
-                    {v.notes && ` · ${v.notes}`}
-                  </div>
+          {sorted.map((v) => (
+            <li key={v.id} className="pug-item">
+              <div className="pug-item__body">
+                <div className="pug-item__title">{v.name}</div>
+                <div className="pug-item__meta">
+                  Puesta el {shortDate(v.appliedAt)}
+                  {v.notes && ` · ${v.notes}`}
                 </div>
-                <span className={`pug-badge${state ? ` pug-badge--${state}` : ""}`}>
-                  {state === "due" ? "Caducada" : state === "soon" ? "Pronto" : "Al día"}
-                </span>
-                <button type="button" className="pug-x" onClick={() => setPending(v)} aria-label="Quitar">
-                  ×
-                </button>
-              </li>
-            );
-          })}
+              </div>
+              <button type="button" className="pug-x" onClick={() => setPending(v)} aria-label="Quitar">
+                ×
+              </button>
+            </li>
+          ))}
         </ul>
       )}
 
@@ -388,12 +354,6 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function inAYear() {
-  const d = new Date();
-  d.setFullYear(d.getFullYear() + 1);
-  return d.toISOString().slice(0, 10);
-}
-
 function shortDate(iso: string) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" });
@@ -410,11 +370,3 @@ function clock(seconds: number) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-/** Caducada, a menos de un mes, o al día. */
-function expiryState(iso: string): "due" | "soon" | null {
-  if (!iso) return null;
-  const days = (new Date(iso).getTime() - Date.now()) / 86_400_000;
-  if (days < 0) return "due";
-  if (days < 30) return "soon";
-  return null;
-}

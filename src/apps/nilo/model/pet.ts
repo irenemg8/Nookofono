@@ -17,10 +17,10 @@ export const PET = {
   name: "Nilo",
   breed: "Carlino",
   /** ISO. Con esto se calcula la edad. */
-  birthday: "",
-  chip: "",
+  birthday: "2026-02-02",
+  chip: "941000031950924",
   passport: "",
-  vet: "",
+  vet: "Paloma Ricart",
   vetPhone: "",
   photo: Object.values(photos)[0]?.default ?? null,
 } as const;

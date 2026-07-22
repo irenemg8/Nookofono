@@ -208,35 +208,11 @@
   color: var(--nk-text-muted);
 }
 
-.pug-badge {
-  flex: none;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-family: var(--nk-font);
-  font-size: 0.68rem;
-  font-weight: 600;
-  background: var(--nk-leaf);
-  color: #fff;
-}
-
-.pug-badge--due {
-  background: #e2504a;
-}
-
-.pug-badge--soon {
-  background: var(--nk-accent-yellow);
-}
-
 .pug-empty {
   text-align: center;
   color: var(--nk-text-muted);
   font-size: 0.85rem;
   padding: 24px 0;
-}
-
-.pug-streak__medal--vax {
-  background: var(--nk-accent-blue);
-  box-shadow: 0 3px 0 #2f9fbf;
 }
 
 .pug-x {

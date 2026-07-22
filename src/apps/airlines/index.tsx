@@ -18,8 +18,6 @@ export default function AirlinesApp() {
   const [draft, setDraft] = useState("");
   const [pendingRemove, setPendingRemove] = useState<Destination | null>(null);
 
-  const visited = trips.items.filter((t) => t.visited).length;
-
   function add() {
     const name = draft.trim();
     if (!name) return;
@@ -47,7 +45,7 @@ export default function AirlinesApp() {
           Añadir
         </button>
       </div>
-
+{/*
       <div className="pa-summary">
         <div>
           <b>{visited}</b>
@@ -61,7 +59,7 @@ export default function AirlinesApp() {
           <b>{trips.items.length}</b>
           <span>en la lista</span>
         </div>
-      </div>
+      </div>*/}
 
       {trips.items.length === 0 ? (
         <p className="pa-empty">Todavía no hay ningún destino apuntado.</p>
