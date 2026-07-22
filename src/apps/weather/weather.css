@@ -34,26 +34,7 @@
 .wx-sky__top {
   position: relative;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.wx-clock {
-  font-family: var(--nk-font);
-  line-height: 1;
-}
-
-.wx-clock__time {
-  font-size: 2.5rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.wx-clock__date {
-  margin-top: 6px;
-  font-size: 0.85rem;
-  opacity: 0.92;
+  justify-content: flex-end;
 }
 
 .wx-brand {

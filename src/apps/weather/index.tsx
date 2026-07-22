@@ -1,21 +1,11 @@
 import airlinesIcon from "../../assets/airlines.webp";
-import { useClock } from "../../shared/lib/use-clock";
 import { useWeather } from "./model/use-weather";
 import { describe, skyOf } from "./model/wmo";
 import { SkyIcon } from "./ui/SkyIcon";
 import "./weather.css";
 
-const DAYS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
-const MONTHS = [
-  "enero", "febrero", "marzo", "abril", "mayo", "junio",
-  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
-];
-
 export default function WeatherApp() {
-  const time = useClock();
   const state = useWeather();
-  const now = new Date();
-  const date = `${now.getDate()} de ${MONTHS[now.getMonth()]}`;
 
   if (state.status === "loading") {
     return <p className="wx-note">Mirando por la ventana…</p>;
@@ -32,13 +22,6 @@ export default function WeatherApp() {
     <div className="wx">
       <section className={`wx-sky${w.isDay ? "" : " wx-sky--night"}`}>
         <div className="wx-sky__top">
-          <div className="wx-clock">
-            <div className="wx-clock__time">{time}</div>
-            <div className="wx-clock__date">
-              {date} · {DAYS[now.getDay()]}.
-            </div>
-          </div>
-
           <span className="wx-brand">
             <img src={airlinesIcon} alt="" />
             PugPug Airlines
