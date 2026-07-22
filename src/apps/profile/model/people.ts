@@ -19,19 +19,22 @@ export interface Person {
   since: string;
 }
 
+/** La isla es compartida: viven los dos en la misma. */
+const ISLAND = "Hogar de Pugs";
+
 export const PEOPLE: Record<PersonId, Person> = {
   irene: {
     name: "Irene",
-    island: "",
-    fruit: "",
-    birthday: "",
+    island: ISLAND,
+    fruit: "Melocotón",
+    birthday: "8 de junio de 2004",
     since: "2026",
   },
   vicente: {
     name: "Vicente",
-    island: "",
-    fruit: "",
-    birthday: "",
+    island: ISLAND,
+    fruit: "Campo de nabos",
+    birthday: "17 de marzo de 2002",
     since: "2026",
   },
 };
