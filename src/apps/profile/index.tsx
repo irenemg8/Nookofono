@@ -4,7 +4,7 @@ import sello3 from "../../assets/stamps/sello3.webp";
 import { useCurrentUser } from "../../shared/lib/use-current-user";
 import { photoOf } from "./model/photos";
 import { PEOPLE } from "./model/people";
-import { useGreetings } from "./model/use-passports";
+import { usePassport } from "./model/use-passports";
 import "./profile.css";
 
 /** Máximo del comentario en el juego. Lo respetamos porque es parte del encanto. */
@@ -16,8 +16,10 @@ const ROTATIONS = ["-7deg", "5deg", "-3deg"];
 
 export default function ProfileApp() {
   const me = useCurrentUser();
-  const { greetings, setGreeting } = useGreetings();
+  const { passport, setComment, flush, loading } = usePassport();
 
+  // El nombre y la foto siguen en el código: no son datos que se editen, y la
+  // foto es un fichero del repositorio, no una fila.
   const person = PEOPLE[me];
   const photo = photoOf(me);
 
@@ -56,15 +58,15 @@ export default function ProfileApp() {
             </div>
             <div className="pp-field">
               <dt>Isla</dt>
-              <dd>{person.island || "—"}</dd>
+              <dd>{passport.islandName || "—"}</dd>
             </div>
             <div className="pp-field">
               <dt>Fruta autóctona</dt>
-              <dd>{person.fruit || "—"}</dd>
+              <dd>{passport.nativeFruit || "—"}</dd>
             </div>
             <div className="pp-field">
               <dt>Cumpleaños</dt>
-              <dd>{person.birthday || "—"}</dd>
+              <dd>{birthdayLabel(passport.birthday)}</dd>
             </div>
           </dl>
 
@@ -72,17 +74,50 @@ export default function ProfileApp() {
             <span>Lema</span>
             <input
               className="pp-bubble"
-              value={greetings[me]}
+              value={passport.comment}
               maxLength={GREETING_MAX}
-              placeholder="¡Hola!"
-              onChange={(e) => setGreeting(me, e.target.value)}
+              placeholder={loading ? "…" : "¡Hola!"}
+              disabled={loading}
+              onChange={(e) => setComment(e.target.value)}
+              // Al salir del campo se sube ya, sin esperar al retardo.
+              onBlur={flush}
             />
             <span className="pp-count">
-              {greetings[me].length}/{GREETING_MAX}
+              {passport.comment.length}/{GREETING_MAX}
             </span>
           </div>
         </div>
       </article>
     </div>
   );
+}
+
+const MONTHS = [
+  "enero",
+  "febrero",
+  "marzo",
+  "abril",
+  "mayo",
+  "junio",
+  "julio",
+  "agosto",
+  "septiembre",
+  "octubre",
+  "noviembre",
+  "diciembre",
+];
+
+/**
+ * `MM-DD` → "8 de junio".
+ *
+ * Sin año, como el pasaporte del juego: lo que importa es el día que hay que
+ * felicitar. Se formatea a mano y no con `Intl`, porque construir una fecha
+ * exige inventarse un año y eso arrastra husos horarios donde no hacen falta.
+ */
+function birthdayLabel(value: string): string {
+  const match = /^(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return "—";
+
+  const month = MONTHS[Number(match[1]) - 1];
+  return month ? `${Number(match[2])} de ${month}` : "—";
 }

@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { useCollection, type Entity } from "../../shared/lib/use-collection";
+import {
+  msFrom,
+  toEntity,
+  useRemoteCollection,
+  type Entity,
+} from "../../shared/lib/use-remote-collection";
 import { ConfirmDialog } from "../../shared/ui/ConfirmDialog";
 import { PET, ageOf } from "./model/pet";
 import { useWalk } from "./model/use-walk";
@@ -27,10 +32,27 @@ interface Walk extends Entity {
 type Tab = "ficha" | "vacunas" | "peso" | "paseos";
 const TABS: Tab[] = ["ficha", "vacunas", "peso", "paseos"];
 
+/**
+ * Un paseo empieza en un instante concreto, así que la tabla lo guarda como
+ * marca de tiempo y lo devuelve en ISO. La pantalla lleva epoch desde que se
+ * escribió (`new Date(w.startedAt)`), y cambiarla sólo por esto no compensa:
+ * se traduce aquí.
+ */
+const WALK_MAPPER = {
+  fromApi: (row: Record<string, unknown>) =>
+    ({ ...toEntity(row), startedAt: msFrom(row.startedAt) }) as unknown as Walk,
+  toApi: (data: Record<string, unknown>) => ({
+    ...data,
+    ...(data.startedAt !== undefined
+      ? { startedAt: new Date(data.startedAt as number).toISOString() }
+      : {}),
+  }),
+};
+
 export default function NiloApp() {
-  const vaccines = useCollection<Vaccine>("ipug.nilo.vaccines");
-  const weights = useCollection<WeightEntry>("ipug.nilo.weights");
-  const walks = useCollection<Walk>("ipug.nilo.walks");
+  const vaccines = useRemoteCollection<Vaccine>("/api/vaccines");
+  const weights = useRemoteCollection<WeightEntry>("/api/weights");
+  const walks = useRemoteCollection<Walk>("/api/walks", WALK_MAPPER);
   const [tab, setTab] = useState<Tab>("ficha");
 
   const sortedWeights = [...weights.items].sort((a, b) => b.measuredAt.localeCompare(a.measuredAt));
@@ -103,7 +125,7 @@ function Summary({ walks }: { walks: Walk[] }) {
 
 /* ----------------------------------------------------------------- vacunas */
 
-function Vaccines({ store }: { store: ReturnType<typeof useCollection<Vaccine>> }) {
+function Vaccines({ store }: { store: ReturnType<typeof useRemoteCollection<Vaccine>> }) {
   const [form, setForm] = useState({ name: "", appliedAt: today(), notes: "" });
   const [adding, setAdding] = useState(false);
   const [pending, setPending] = useState<Vaccine | null>(null);
@@ -208,7 +230,7 @@ function Weights({
   store,
   sorted,
 }: {
-  store: ReturnType<typeof useCollection<WeightEntry>>;
+  store: ReturnType<typeof useRemoteCollection<WeightEntry>>;
   sorted: WeightEntry[];
 }) {
   const [kg, setKg] = useState("");
@@ -268,7 +290,7 @@ function Weights({
 
 /* ------------------------------------------------------------------ paseos */
 
-function Walks({ store }: { store: ReturnType<typeof useCollection<Walk>> }) {
+function Walks({ store }: { store: ReturnType<typeof useRemoteCollection<Walk>> }) {
   const { live, start, stop } = useWalk();
 
   function finish() {

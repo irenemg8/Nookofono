@@ -13,12 +13,37 @@ import { sql } from "drizzle-orm";
 import { db, pool } from "./client.js";
 import { profiles, users } from "./schema.js";
 
+/**
+ * Los dos, con su pasaporte.
+ *
+ * Los datos del pasaporte estaban escritos en `src/apps/profile/model/people.ts`
+ * y no se podían cambiar sin desplegar. Ahora nacen aquí y viven en la tabla,
+ * que es lo que permite corregir una fruta sin tocar el código.
+ */
 const PEOPLE = [
-  { id: "irene", displayName: "Irene" },
-  { id: "vicente", displayName: "Vicente" },
+  {
+    id: "irene",
+    displayName: "Irene",
+    profile: {
+      islandName: "Hogar de Pus",
+      nativeFruit: "Melocotón",
+      birthday: "06-08",
+      registeredAt: "2026",
+    },
+  },
+  {
+    id: "vicente",
+    displayName: "Vicente",
+    profile: {
+      islandName: "Hogar de Pus",
+      nativeFruit: "Campo de nabos",
+      birthday: "03-17",
+      registeredAt: "2026",
+    },
+  },
 ];
 
-for (const person of PEOPLE) {
+for (const { profile, ...person } of PEOPLE) {
   await db
     .insert(users)
     .values(person)
@@ -29,7 +54,21 @@ for (const person of PEOPLE) {
       set: { displayName: sql`excluded.display_name` },
     });
 
-  await db.insert(profiles).values({ personId: person.id }).onConflictDoNothing();
+  // Los datos impresos del pasaporte se refrescan siempre, para poder corregir
+  // una fruta relanzando el seed. El lema queda fuera a propósito: lo escribís
+  // vosotros y volver a sembrar no debe borrarlo.
+  await db
+    .insert(profiles)
+    .values({ personId: person.id, ...profile })
+    .onConflictDoUpdate({
+      target: profiles.personId,
+      set: {
+        islandName: sql`excluded.island_name`,
+        nativeFruit: sql`excluded.native_fruit`,
+        birthday: sql`excluded.birthday`,
+        registeredAt: sql`excluded.registered_at`,
+      },
+    });
 }
 
 console.log(`Usuarios listos: ${PEOPLE.map((p) => p.id).join(", ")}.`);

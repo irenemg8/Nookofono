@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useCollection, type Entity } from "../../shared/lib/use-collection";
+import { useRemoteCollection, type Entity } from "../../shared/lib/use-remote-collection";
 import { useLongPress } from "../../shared/lib/use-long-press";
 import { ConfirmDialog } from "../../shared/ui/ConfirmDialog";
 import {
@@ -50,7 +50,7 @@ const WHO_COLOR: Record<Who, string> = {
 const DURATIONS = [30, 60, 90, 120, 180];
 
 export default function CalendarApp() {
-  const events = useCollection<CalEvent>("ipug.calendar");
+  const events = useRemoteCollection<CalEvent>("/api/calendar");
   const [cursor, setCursor] = useState(() => new Date());
   const [selected, setSelected] = useState<string>(todayKey);
   const [composing, setComposing] = useState<string | null>(null);

@@ -1,40 +1,18 @@
 import type { PersonId } from "../../../shared/lib/use-current-user";
 
 /**
- * Datos fijos del pasaporte.
+ * El nombre de cada uno.
  *
- * Igual que la ficha de Nilo, van en el código: el nombre, la isla, la fruta
- * autóctona y el cumpleaños no cambian, así que dejarlos editables sólo daría
- * ocasión de estropearlos. Para corregir uno, se edita aquí y se despliega.
- *
- * Lo único que se puede cambiar desde la app es el lema, que es justo lo que
- * en el juego se cambia cuando te apetece.
+ * El resto del pasaporte —isla, fruta autóctona y cumpleaños— vive ahora en la
+ * tabla `profiles` y se sirve por `GET /api/profile/:id`, así que se puede
+ * corregir sin desplegar. Aquí queda sólo el nombre, que acompaña a la foto y
+ * es un fichero del repositorio, no una fila.
  */
 export interface Person {
   name: string;
-  island: string;
-  fruit: string;
-  /** Como se escribe en el pasaporte del juego: "29 de octubre". */
-  birthday: string;
-  since: string;
 }
 
-/** La isla es compartida: viven los dos en la misma. */
-const ISLAND = "Hogar de Pus";
-
 export const PEOPLE: Record<PersonId, Person> = {
-  irene: {
-    name: "Irene",
-    island: ISLAND,
-    fruit: "Melocotón",
-    birthday: "8 de junio de 2004",
-    since: "2026",
-  },
-  vicente: {
-    name: "Vicente",
-    island: ISLAND,
-    fruit: "Campo de nabos",
-    birthday: "17 de marzo de 2002",
-    since: "2026",
-  },
+  irene: { name: "Irene" },
+  vicente: { name: "Vicente" },
 };

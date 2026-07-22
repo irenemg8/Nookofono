@@ -32,6 +32,7 @@ import { ConfirmDialog, RemoveBadge } from "./shared/ui/ConfirmDialog";
 import { ErrorBoundary } from "./shared/ui/ErrorBoundary";
 import { useBattery } from "./shared/lib/use-battery";
 import { useClock } from "./shared/lib/use-clock";
+import { CurrentUserContext } from "./shared/lib/use-current-user";
 import { usePhotos, useRotatingPhoto } from "./shared/lib/use-photos";
 import { useSession } from "./shared/lib/use-session";
 import { useTimeOfDay } from "./shared/lib/use-time-of-day";
@@ -687,23 +688,25 @@ export default function App() {
   }
 
   return (
-    <main
-      className={`nk-phone${locked ? " nk-phone--locked" : ""}`}
-      data-theme={phase}
-      style={homeWallpaper ? { backgroundImage: `url(${homeWallpaper})` } : undefined}
-    >
-      {locked ? (
-        <LockScreen onUnlock={() => setLocked(false)} phase={phase} />
-      ) : (
-        <>
-          <StatusBar />
-          {open ? (
-            <AppView app={open} onBack={() => setOpen(null)} />
-          ) : (
-            <HomeScreen onOpen={setOpen} />
-          )}
-        </>
-      )}
-    </main>
+    <CurrentUserContext.Provider value={session.session.userId}>
+      <main
+        className={`nk-phone${locked ? " nk-phone--locked" : ""}`}
+        data-theme={phase}
+        style={homeWallpaper ? { backgroundImage: `url(${homeWallpaper})` } : undefined}
+      >
+        {locked ? (
+          <LockScreen onUnlock={() => setLocked(false)} phase={phase} />
+        ) : (
+          <>
+            <StatusBar />
+            {open ? (
+              <AppView app={open} onBack={() => setOpen(null)} />
+            ) : (
+              <HomeScreen onOpen={setOpen} />
+            )}
+          </>
+        )}
+      </main>
+    </CurrentUserContext.Provider>
   );
 }

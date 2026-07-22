@@ -14,4 +14,18 @@ export default defineConfig({
   //     API desde la raíz, así que el prefijo sobra: con él los assets se
   //     pedirían a /Nookofono/assets/… y darían 404 igualmente.
   base: process.env.DEPLOY_TARGET === 'pages' ? '/Nookofono/' : '/',
+
+  server: {
+    // En producción, el mismo proceso sirve la API y el frontend, así que
+    // `/api/...` resuelve solo. En desarrollo son dos servidores distintos
+    // (5173 y 8011) y sin este puente las peticiones se quedan en Vite: la
+    // pantalla de acceso respondía "el código no es válido" porque nunca
+    // llegaba a comprobarse.
+    proxy: {
+      '/api': {
+        target: `http://localhost:${process.env.API_PORT ?? 8011}`,
+        changeOrigin: true,
+      },
+    },
+  },
 })

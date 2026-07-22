@@ -1,33 +1,30 @@
-export type PersonId = "irene" | "vicente";
+import { createContext, useContext } from "react";
 
-const STORAGE_KEY = "ipug.me";
+export type PersonId = "irene" | "vicente";
 
 /**
  * Quién está usando el móvil.
  *
- * Todavía no hay inicio de sesión, así que se guarda en el dispositivo: el
- * móvil de Irene dice "irene" y el de Vicente "vicente". Cuando entre el TOTP
- * en fase 2, este hook pasa a leer el `sub` del JWT de sesión y todo lo que
- * cuelga de él sigue funcionando igual. Ver docs/MIGRACION-BACKEND.md §9.
+ * Sale de la sesión real: se entra con el código del autenticador y el servidor
+ * dice quién eres en `GET /api/auth/me`. Antes esto se guardaba en el
+ * dispositivo, lo que significaba que el móvil no distinguía de verdad a Irene
+ * de Vicente — cualquiera podía escribir la clave a mano y hacerse pasar por el
+ * otro.
+ *
+ * El contexto lo rellena `App` con la sesión ya verificada. Fuera de la sesión
+ * no hay escritorio que pintar, así que ninguna app llega a montarse sin él.
  */
+export const CurrentUserContext = createContext<PersonId | null>(null);
+
 export function useCurrentUser(): PersonId {
-  const saved = safeRead();
-  return saved ?? "irene";
-}
+  const me = useContext(CurrentUserContext);
 
-export function setCurrentUser(id: PersonId) {
-  try {
-    localStorage.setItem(STORAGE_KEY, id);
-  } catch {
-    // Modo privado: se queda con el valor por defecto.
+  // No debería pasar: `App` no monta ninguna app sin sesión. Si pasa, es un
+  // fallo de montaje y conviene que se vea, no que la app enseñe datos de otra
+  // persona por defecto.
+  if (!me) {
+    throw new Error("useCurrentUser() fuera de la sesión: falta CurrentUserContext");
   }
-}
 
-function safeRead(): PersonId | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw === "irene" || raw === "vicente" ? raw : null;
-  } catch {
-    return null;
-  }
+  return me;
 }

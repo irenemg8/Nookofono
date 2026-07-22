@@ -1,6 +1,10 @@
 import { useState } from "react";
 import airlinesIcon from "../../assets/airlines.webp";
-import { useCollection, type Entity } from "../../shared/lib/use-collection";
+import {
+  toIsoDate,
+  useRemoteCollection,
+  type Entity,
+} from "../../shared/lib/use-remote-collection";
 import { ConfirmDialog, RemoveBadge } from "../../shared/ui/ConfirmDialog";
 import "./airlines.css";
 
@@ -14,7 +18,7 @@ interface Destination extends Entity {
 }
 
 export default function AirlinesApp() {
-  const trips = useCollection<Destination>("ipug.destinations");
+  const trips = useRemoteCollection<Destination>("/api/destinations");
   const [draft, setDraft] = useState("");
   const [pendingRemove, setPendingRemove] = useState<Destination | null>(null);
 
@@ -26,9 +30,12 @@ export default function AirlinesApp() {
   }
 
   function toggle(t: Destination) {
+    // La fecha va como `YYYY-MM-DD`, no como instante ISO: haber estado en
+    // Roma no ocurre a una hora concreta, y guardarlo con huso lo movería de
+    // día al mirarlo desde otro sitio.
     trips.update(t.id, {
       visited: !t.visited,
-      visitedAt: t.visited ? null : new Date().toISOString(),
+      visitedAt: t.visited ? null : toIsoDate(new Date()),
     });
   }
 

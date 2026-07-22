@@ -3,7 +3,8 @@ import { DndContext, PointerSensor, TouchSensor, closestCenter, useSensor, useSe
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import { useCollection, type Entity } from "../../shared/lib/use-collection";
+import { useDebouncedSave } from "../../shared/lib/use-debounced-save";
+import { useRemoteCollection, type Entity } from "../../shared/lib/use-remote-collection";
 import { useLongPress } from "../../shared/lib/use-long-press";
 import { ConfirmDialog, RemoveBadge } from "../../shared/ui/ConfirmDialog";
 import "./notes.css";
@@ -18,6 +19,9 @@ interface Note extends Entity {
   body: string;
   owner: Owner;
   paper: string;
+  /** Sitio en la lista. Es lo que guarda el arrastre. */
+  position: number;
+  pinned: boolean;
 }
 
 /** Papeles de carta, del más frío al más cálido. */
@@ -30,7 +34,7 @@ const TABS: { id: Owner; label: string }[] = [
 ];
 
 export default function NotesApp() {
-  const notes = useCollection<Note>("ipug.notes");
+  const notes = useRemoteCollection<Note>("/api/notes");
   const [tab, setTab] = useState<Owner>("shared");
   const [openId, setOpenId] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
@@ -44,14 +48,18 @@ export default function NotesApp() {
     useSensor(TouchSensor, { activationConstraint: { delay: 80, tolerance: 8 } }),
   );
 
-  function add() {
-    const note = notes.create({
+  async function add() {
+    const note = await notes.create({
       title: "",
       body: "",
       owner: tab,
       paper: PAPERS[notes.items.length % PAPERS.length],
+      position: notes.items.length,
+      pinned: false,
     });
-    setOpenId(note.id);
+    // Si el servidor no contesta no hay nota que abrir; el hook ya enseña el
+    // aviso de que no se pudo guardar.
+    if (note) setOpenId(note.id);
   }
 
   /**
@@ -67,47 +75,16 @@ export default function NotesApp() {
     if (from === -1 || to === -1) return;
 
     all.splice(to, 0, all.splice(from, 1)[0]);
-    notes.persist(all);
+    void notes.reorder(all);
   }
 
   if (open) {
     return (
-      <div className="nt-editor">
-        <div className="nt-editor__head">
-          <input
-            className="nt-editor__title"
-            value={open.title}
-            placeholder="Título"
-            onChange={(e) => notes.update(open.id, { title: e.target.value })}
-          />
-          <button type="button" className="nk-btn nk-btn--sm" onClick={() => setOpenId(null)}>
-            Guardar
-          </button>
-        </div>
-
-        <textarea
-          className="nt-sheet"
-          value={open.body}
-          placeholder="Escribe aquí…"
-          onChange={(e) => notes.update(open.id, { body: e.target.value })}
-          style={{ backgroundColor: open.paper }}
-        />
-
-        <div className="nt-editor__foot">
-          <div className="nt-owner">
-            {TABS.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                aria-pressed={open.owner === t.id}
-                onClick={() => notes.update(open.id, { owner: t.id })}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <NoteEditor
+        note={open}
+        onChange={(patch) => notes.update(open.id, patch)}
+        onClose={() => setOpenId(null)}
+      />
     );
   }
 
@@ -187,6 +164,83 @@ export default function NotesApp() {
           onCancel={() => setPending(null)}
         />
       )}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------- editor */
+
+/**
+ * La nota abierta.
+ *
+ * El texto se lleva en estado propio y sólo sube al servidor cuando se deja de
+ * escribir: mandar un `PATCH` por tecla sería una petición por letra, y además
+ * las respuestas podrían llegar desordenadas y devolver texto viejo al campo.
+ *
+ * El dueño y el cierre sí guardan al momento: son un clic, no una ráfaga.
+ */
+function NoteEditor({
+  note,
+  onChange,
+  onClose,
+}: {
+  note: Note;
+  onChange: (patch: Partial<Note>) => void;
+  onClose: () => void;
+}) {
+  const [draft, setDraft] = useState({ title: note.title, body: note.body });
+  const { push, flush } = useDebouncedSave<Partial<Note>>(onChange);
+
+  function edit(patch: Partial<typeof draft>) {
+    const next = { ...draft, ...patch };
+    setDraft(next);
+    push(patch);
+  }
+
+  return (
+    <div className="nt-editor">
+      <div className="nt-editor__head">
+        <input
+          className="nt-editor__title"
+          value={draft.title}
+          placeholder="Título"
+          onChange={(e) => edit({ title: e.target.value })}
+        />
+        <button
+          type="button"
+          className="nk-btn nk-btn--sm"
+          onClick={() => {
+            // Sin esto, cerrar justo después de teclear perdería lo último.
+            flush();
+            onClose();
+          }}
+        >
+          Guardar
+        </button>
+      </div>
+
+      <textarea
+        className="nt-sheet"
+        value={draft.body}
+        placeholder="Escribe aquí…"
+        onChange={(e) => edit({ body: e.target.value })}
+        style={{ backgroundColor: note.paper }}
+      />
+
+      <div className="nt-editor__foot">
+        <div className="nt-owner">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              aria-pressed={note.owner === t.id}
+              onClick={() => onChange({ owner: t.id })}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

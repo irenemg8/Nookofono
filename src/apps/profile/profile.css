@@ -120,7 +120,12 @@
 }
 
 /* Los datos van sobre una casilla impresa, como las del pasaporte del juego,
-   pero sin aspecto de campo editable: no se pueden cambiar desde aquí. */
+   pero sin aspecto de campo editable: no se pueden cambiar desde aquí.
+
+   El color va fijo y no `var(--nk-text-strong)`: el papel del pasaporte es
+   crema a todas horas, así que un texto que se aclara de noche acaba siendo
+   blanco sobre crema. La tarjeta entera vive fuera del tema, y su tinta
+   también. */
 .pp-field dd {
   margin: 0;
   border-radius: 7px;
@@ -128,7 +133,7 @@
   background: #fffaea;
   font-family: var(--nk-font);
   font-size: 0.92rem;
-  color: var(--nk-text-strong);
+  color: #482016;
   box-shadow: inset 0 1px 3px rgba(160, 138, 92, 0.22);
 }
 
@@ -157,8 +162,15 @@
   border-radius: 40% 40% 30% 30% / 60% 60% 40% 40%;
   font-family: var(--nk-font);
   font-size: 0.95rem;
-  color: var(--nk-text);
+  /* Tinta fija por el mismo motivo que las casillas: el bocadillo es papel. */
+  color: #6b5c40;
   box-shadow: 0 4px 10px var(--nk-shadow);
+}
+
+/* El texto de sugerencia, más flojo que el escrito pero aún legible sobre el
+   papel: es el que se ve cuando todavía no hay lema. */
+.pp-bubble::placeholder {
+  color: #b3a179;
 }
 
 .pp-bubble:focus {
@@ -167,7 +179,7 @@
 
 .pp-count {
   font-size: 0.6rem;
-  color: var(--nk-text-muted);
+  color: #a08a5c;
 }
 
 .pp-foot {
