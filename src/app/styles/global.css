@@ -34,6 +34,13 @@ body {
   margin-inline: auto;
   background: var(--nk-sand);
   overflow: hidden;
+
+  /* Tamaño del icono.
+     Con 6 filas ya no basta con mirar el ancho: en un móvil bajito los iconos
+     se salen por abajo. Así que se toma el menor de los dos límites.
+     Por fila: icono + 7px de hueco + ~15px de etiqueta + 14px entre filas.
+     Fuera de la rejilla se descuentan barra de estado, mar y dock (~406px). */
+  --nk-icon: clamp(38px, min(16vw, calc((100dvh - 406px) / 6)), 70px);
 }
 
 @media (min-width: 480px) {
@@ -271,9 +278,9 @@ body {
   /* `dense` deja que un icono suelto rellene el hueco que un widget 2×2
      no llega a ocupar, en vez de dejar un agujero. */
   grid-auto-flow: row dense;
-  gap: clamp(14px, 3.2vw, 22px) clamp(4px, 1.5vw, 10px);
+  gap: 14px clamp(4px, 1.5vw, 10px);
   align-content: start;
-  padding: clamp(12px, 3vw, 20px) clamp(10px, 3.5vw, 18px) 0;
+  padding: 12px clamp(10px, 3.5vw, 18px) 0;
 }
 
 /* =========================================================================
@@ -302,7 +309,7 @@ body {
 .nk-app__icon {
   display: grid;
   place-items: center;
-  width: clamp(58px, 16vw, 70px);
+  width: var(--nk-icon);
   aspect-ratio: 1;
   border-radius: 24%;
   overflow: hidden;
@@ -381,8 +388,13 @@ body {
 
 .nk-widget__frame {
   position: relative;
-  width: 100%;
+  /* Se ata al alto de dos filas, no al ancho de dos columnas: si no, en móviles
+     estrechos el widget sería más alto que las dos filas que ocupa y empujaría
+     al resto hacia abajo. El 36px es el hueco + etiqueta de una fila. */
+  height: calc(2 * var(--nk-icon) + 36px);
+  width: auto;
   aspect-ratio: 1;
+  max-width: 100%;
   border-radius: 16%;
   overflow: hidden;
   background: var(--nk-surface-sunk);
@@ -433,25 +445,6 @@ body {
 
 /* ---------- Modo edición: temblor estilo iOS ---------- */
 
-.nk-editbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 4px 20px 8px;
-  flex: none;
-}
-
-.nk-editbar__hint {
-  font-size: 0.78rem;
-  color: var(--nk-text-muted);
-}
-
-.nk-btn--sm {
-  font-size: 0.82rem;
-  padding: 0.4em 1.1em;
-}
-
 /* El temblor va sobre el icono o el marco del widget, y no sobre el contenedor,
    porque este lleva el `transform` que dnd-kit necesita para moverlo. Si los
    mezcláramos, la rotación pisaría al arrastre. */
@@ -483,10 +476,10 @@ body {
 
 @keyframes nk-wiggle {
   from {
-    transform: rotate(-2.2deg);
+    transform: rotate(-1.1deg);
   }
   to {
-    transform: rotate(2.2deg);
+    transform: rotate(1.1deg);
   }
 }
 

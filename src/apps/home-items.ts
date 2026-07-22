@@ -4,8 +4,8 @@ import { WIDGET_CELLS, widgets, type WidgetManifest } from "./widgets";
 /** Lo que puede vivir en la rejilla: un icono de app o un widget. */
 export type HomeItem = (MiniAppManifest & { kind: "app" }) | WidgetManifest;
 
-/** Celdas por página: 4 columnas × 3 filas. */
-export const PAGE_CELLS = 12;
+/** Celdas por página: 4 columnas × 6 filas. */
+export const PAGE_CELLS = 24;
 
 export const homeItems: HomeItem[] = [
   ...enabledApps.map((app) => ({ ...app, kind: "app" as const })),

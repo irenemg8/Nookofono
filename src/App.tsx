@@ -284,11 +284,18 @@ function HomeScreen({
     if (target) onOpen(target);
   }
 
+  /** Tocar cualquier hueco que no sea un icono o un widget sale del modo edición. */
+  function handleBackgroundTap(e: React.PointerEvent) {
+    if (!editing) return;
+    if (!(e.target as HTMLElement).closest(".nk-app, .nk-widget")) setEditing(false);
+  }
+
   const grid = (
     <div
       className="nk-pages"
       ref={pagesRef}
       onScroll={handleScroll}
+      onPointerDown={handleBackgroundTap}
       style={homeWallpaper ? { backgroundImage: `url(${homeWallpaper})` } : undefined}
     >
       {pages.map((pageItems, i) => (
@@ -320,15 +327,6 @@ function HomeScreen({
 
   return (
     <>
-      {editing && (
-        <div className="nk-editbar">
-          <span className="nk-editbar__hint">Arrastra los iconos para colocarlos</span>
-          <button type="button" className="nk-btn nk-btn--sm" onClick={() => setEditing(false)}>
-            Hecho
-          </button>
-        </div>
-      )}
-
       {editing ? (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={order} strategy={rectSortingStrategy}>

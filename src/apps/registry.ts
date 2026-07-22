@@ -261,9 +261,6 @@ export const registry: MiniAppManifest[] = [
   },
 ];
 
-/** Iconos por página: 4 columnas × 3 filas, como la referencia. */
-export const PAGE_SIZE = 12;
-
 /**
  * Apps activas en su orden por defecto (por página y, dentro de ella, por orden
  * de declaración). Es el punto de partida; a partir de ahí manda el orden que
