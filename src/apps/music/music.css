@@ -17,7 +17,10 @@
 
 .mu-deck__plate {
   position: relative;
-  width: min(74%, 240px);
+  /* Redondo siempre: se limita también por la altura de la pantalla (42vh) para
+     que en móviles bajitos encoja en vez de deformarse, y aspect-ratio lo
+     mantiene cuadrado. */
+  width: min(74%, 240px, 42vh);
   margin-inline: auto;
   aspect-ratio: 1;
   border-radius: 50%;
@@ -29,7 +32,10 @@
 
 .mu-vinyl {
   width: 100%;
-  height: 100%;
+  /* Con `aspect-ratio` en vez de `height: 100%`: el porcentaje de altura no se
+     resuelve bien cuando la del plato viene de aspect-ratio, y el disco salía
+     ovalado. Atarlo a su propia proporción lo deja redondo pase lo que pase. */
+  aspect-ratio: 1;
   border-radius: 50%;
   display: grid;
   place-items: center;
