@@ -15,13 +15,35 @@ import type { PersonId } from "./use-current-user";
 
 export type Session = { userId: PersonId; displayName: string };
 
+const NAMES: Record<PersonId, string> = { irene: "Irene", vicente: "Vicente" };
+
 /** Mientras se pregunta al servidor no se sabe: ni dentro ni fuera. */
 type State = { status: "checking" } | { status: "in"; session: Session } | { status: "out" };
 
+/**
+ * Bypass de desarrollo.
+ *
+ * Poniendo `VITE_AUTH_BYPASS=irene` (o `vicente`) en un `.env.local` se entra
+ * sin pasar por el TOTP, para ver la interfaz en `localhost` sin tener el
+ * backend levantado. Está atado a `import.meta.env.DEV`, así que en la web
+ * compilada **no existe**: Vite lo elimina del bundle de producción.
+ *
+ * ⚠️ Salta el login, no la base de datos. Las apps que guardan en el servidor
+ * (calendario, notas, tareas…) seguirán diciendo "no se pudo cargar" mientras no
+ * haya un backend contestando; el bypass sirve para revisar maquetación y flujo,
+ * no para tener datos.
+ */
+const BYPASS = import.meta.env.DEV
+  ? (import.meta.env.VITE_AUTH_BYPASS as PersonId | undefined)
+  : undefined;
+
 export function useSession() {
-  const [state, setState] = useState<State>({ status: "checking" });
+  const [state, setState] = useState<State>(() =>
+    BYPASS ? { status: "in", session: { userId: BYPASS, displayName: NAMES[BYPASS] } } : { status: "checking" },
+  );
 
   useEffect(() => {
+    if (BYPASS) return; // en bypass no se pregunta al servidor
     let alive = true;
     fetch("/api/auth/me", { credentials: "include" })
       .then((r) => (r.ok ? r.json() : null))
