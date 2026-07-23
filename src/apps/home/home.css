@@ -1,0 +1,236 @@
+.hm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.hm-new {
+  border: 2px dashed var(--nk-border);
+  width: 100%;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 12px var(--nk-shadow);
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--nk-text);
+  cursor: pointer;
+}
+
+.hm-blank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 0 6px;
+}
+
+/* ---------- Encabezados de sección ---------- */
+
+.hm-head {
+  margin: 4px 0 8px;
+  font-family: var(--nk-font);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.hm-head--todo {
+  color: #d98324;
+}
+
+/* ---------- Lista ---------- */
+
+.hm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hm-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 40px 12px 12px;
+  border-radius: 16px;
+  background: #fbf1e0;
+  box-shadow: 0 5px 14px var(--nk-shadow);
+}
+
+.hm-item--done {
+  background: var(--nk-bg-cream);
+  filter: saturate(0.6);
+}
+
+.hm-item .nk-remove {
+  top: 8px;
+  right: 8px;
+}
+
+/* Casilla redonda de marcar. */
+.hm-check {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2.5px solid var(--nk-leaf);
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.12s, color 0.12s;
+}
+
+.hm-check svg {
+  width: 18px;
+  height: 18px;
+}
+
+.hm-item--done .hm-check {
+  background: var(--nk-nook-green);
+  border-color: var(--nk-nook-green);
+  color: #fff;
+}
+
+.hm-item__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hm-item__title {
+  border: none;
+  background: transparent;
+  padding: 0;
+  width: 100%;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--nk-text-strong);
+}
+
+.hm-item__title:focus {
+  outline: none;
+  border-bottom: 2px solid var(--nk-leaf);
+}
+
+.hm-item--done .hm-item__title {
+  color: var(--nk-text-muted);
+}
+
+.hm-item__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Pastilla de cadencia: se toca para cambiarla. */
+.hm-cadence {
+  border: none;
+  border-radius: 999px;
+  padding: 0.2em 0.7em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+.hm-last {
+  font-size: 0.68rem;
+  color: var(--nk-text-muted);
+}
+
+.hm-hint {
+  margin: 2px 0 0;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--nk-text-muted);
+}
+
+.hm-empty {
+  text-align: center;
+  color: var(--nk-text-muted);
+  font-size: 0.85rem;
+  padding: 20px 0;
+}
+
+/* ---------- Formulario ---------- */
+
+.hm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.hm-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hm-form label > span,
+.hm-form__legend {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.hm-form input {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 0.7em 0.9em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font-body);
+  font-size: 16px;
+  color: var(--nk-text-strong);
+}
+
+.hm-form input:focus {
+  outline: 2px solid var(--nk-leaf);
+}
+
+.hm-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.hm-chip {
+  border: none;
+  border-radius: 999px;
+  padding: 0.45em 0.95em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+.hm-chip[aria-pressed="true"] {
+  background: var(--nk-leaf);
+  color: #fff;
+}
+
+.hm-form__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 2px;
+}

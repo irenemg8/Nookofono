@@ -178,8 +178,7 @@ export const registry: MiniAppManifest[] = [
     path: "/casa",
     enabled: true,
     page: 1,
-    comingSoon: true,
-    teaser: "Vuestra casa: inventario, plantas y tareas del hogar.",
+    teaser: "Las tareas del hogar, con aviso el domingo si algo queda por hacer.",
   },
 
   // ------------------------------------------------------------ Página 2
