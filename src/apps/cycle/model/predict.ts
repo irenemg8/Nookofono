@@ -74,6 +74,41 @@ export function daysBetween(a: DateKey, b: DateKey): number {
 
 export const todayKey = () => toKey(new Date());
 
+/**
+ * De un conjunto de días sueltos de regla a los ciclos.
+ *
+ * Es el modelo de Salud de Apple: se marcan los días concretos de sangrado, y
+ * los días **consecutivos** forman una regla. El primer día de cada tanda es el
+ * inicio del ciclo, y cuántos días seguidos duró es el sangrado. Así, quitar un
+ * día mal marcado es sólo sacarlo del conjunto: los ciclos se recalculan solos.
+ */
+export function cyclesFromDays(days: Iterable<DateKey>): Cycle[] {
+  const sorted = [...new Set(days)].sort();
+  const cycles: Cycle[] = [];
+
+  let runStart: DateKey | null = null;
+  let runLen = 0;
+  let prev: DateKey | null = null;
+
+  const flush = () => {
+    if (runStart) cycles.push({ start: runStart, bleedDays: runLen });
+  };
+
+  for (const day of sorted) {
+    if (prev && daysBetween(prev, day) === 1) {
+      runLen += 1; // sigue la misma regla
+    } else {
+      flush();
+      runStart = day;
+      runLen = 1;
+    }
+    prev = day;
+  }
+  flush();
+
+  return cycles;
+}
+
 export function predict(cycles: Cycle[]): Prediction | null {
   if (cycles.length === 0) return null;
 

@@ -3,14 +3,12 @@ import { notify } from "../../shared/lib/ntfy";
 import { useCurrentUser } from "../../shared/lib/use-current-user";
 import { useRemoteCollection, type Entity } from "../../shared/lib/use-remote-collection";
 import {
-  addDays,
-  daysBetween,
+  cyclesFromDays,
   fromKey,
   phaseOf,
   predict,
   todayKey,
   toKey,
-  type Cycle,
   type DateKey,
   type Phase,
 } from "./model/predict";
@@ -18,10 +16,9 @@ import "./cycle.css";
 
 /* ------------------------------------------------------------------ modelo */
 
-/** Un periodo registrado: cuándo empezó y (al terminar) cuántos días duró. */
-interface Period extends Entity {
-  start: DateKey;
-  bleedDays: number; // 0 mientras sigue abierto
+/** Un día suelto de regla. Marcar = crear; desmarcar = borrar. */
+interface PeriodDay extends Entity {
+  date: DateKey;
 }
 
 /** El diario de un día: síntomas, ánimo, flujo, nota. */
@@ -60,29 +57,54 @@ const MONTHS = [
 
 export default function CycleApp() {
   const me = useCurrentUser();
-  const periods = useRemoteCollection<Period>("/api/cycle/periods");
+  const days = useRemoteCollection<PeriodDay>("/api/cycle/days");
   const logs = useRemoteCollection<DayLog>("/api/cycle/logs");
 
-  const cycles: Cycle[] = useMemo(
-    () =>
-      periods.items
-        .map((p) => ({ start: p.start, bleedDays: p.bleedDays || undefined }))
-        .sort((a, b) => a.start.localeCompare(b.start)),
-    [periods.items],
-  );
-
+  const daySet = useMemo(() => new Set(days.items.map((d) => d.date)), [days.items]);
+  const cycles = useMemo(() => cyclesFromDays(daySet), [daySet]);
   const pred = useMemo(() => predict(cycles), [cycles]);
+
   const today = todayKey();
   const todayPhase = phaseOf(today, cycles, pred);
 
-  if (periods.status === "loading") return <p className="cy-note">Cargando…</p>;
+  async function togglePeriod(date: DateKey) {
+    const existing = days.items.find((d) => d.date === date);
+    if (existing) {
+      await days.remove(existing.id);
+      return;
+    }
+    const created = await days.create({ date });
+    // El aviso a Vicente sólo al marcar HOY como primer día tras una pausa, no
+    // cada vez que se toquetea el calendario.
+    const isNewStart = date === today && !daySet.has(yesterday(today));
+    if (created && isNewStart) {
+      await notify({
+        topic: TOPIC,
+        title: "Belinda",
+        body: "A Irene le ha venido la regla. Modo chocolate y mantita activado.",
+        priority: "high",
+        tags: ["blood", "chocolate_bar"],
+      });
+    }
+  }
 
-  // Vicente ve el estado de Belinda, no el diario íntimo de Irene.
+  if (days.status === "loading") return <p className="cy-note">Cargando…</p>;
+
   if (me === "vicente") {
     return <BelindaView phase={todayPhase} pred={pred} />;
   }
 
-  return <IreneView periods={periods} logs={logs} cycles={cycles} pred={pred} today={today} phase={todayPhase} />;
+  return (
+    <IreneView
+      logs={logs}
+      cycles={cycles}
+      daySet={daySet}
+      pred={pred}
+      today={today}
+      phase={todayPhase}
+      onTogglePeriod={togglePeriod}
+    />
+  );
 }
 
 /* --------------------------------------------------------------- Vicente */
@@ -140,19 +162,21 @@ function BelindaView({ phase, pred }: { phase: Phase; pred: ReturnType<typeof pr
 /* ----------------------------------------------------------------- Irene */
 
 function IreneView({
-  periods,
   logs,
   cycles,
+  daySet,
   pred,
   today,
   phase,
+  onTogglePeriod,
 }: {
-  periods: ReturnType<typeof useRemoteCollection<Period>>;
   logs: ReturnType<typeof useRemoteCollection<DayLog>>;
-  cycles: Cycle[];
+  cycles: ReturnType<typeof cyclesFromDays>;
+  daySet: Set<DateKey>;
   pred: ReturnType<typeof predict>;
   today: DateKey;
   phase: Phase;
+  onTogglePeriod: (d: DateKey) => void;
 }) {
   const [cursor, setCursor] = useState(() => new Date());
   const [openDay, setOpenDay] = useState<DateKey | null>(null);
@@ -160,35 +184,11 @@ function IreneView({
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
 
-  // El periodo abierto (empezado, sin días de sangrado cerrados hoy).
-  const activePeriod = periods.items.find((p) => {
-    if (p.bleedDays > 0) return false;
-    return daysBetween(p.start, today) <= 10; // sigue considerándose en curso
-  });
-
   const logByDate = useMemo(() => {
     const m = new Map<DateKey, DayLog>();
     for (const l of logs.items) m.set(l.date, l);
     return m;
   }, [logs.items]);
-
-  async function startPeriod() {
-    await periods.create({ start: today, bleedDays: 0 });
-    // Que Vicente se entere: modo Belinda de obras.
-    await notify({
-      topic: TOPIC,
-      title: "Belinda",
-      body: "A Irene le ha venido la regla. Modo chocolate y mantita activado.",
-      priority: "high",
-      tags: ["blood", "chocolate_bar"],
-    });
-  }
-
-  async function endPeriod() {
-    if (!activePeriod) return;
-    const days = Math.max(1, daysBetween(activePeriod.start, today) + 1);
-    await periods.update(activePeriod.id, { bleedDays: days });
-  }
 
   return (
     <div className="cy">
@@ -198,32 +198,28 @@ function IreneView({
         <p className="cy-belinda">Belinda al día 🌸</p>
       </div>
 
-      <div className="cy-log">
-        {activePeriod ? (
-          <button type="button" className="nk-btn nk-btn--danger" onClick={endPeriod}>
-            Se acabó la regla
-          </button>
-        ) : (
-          <button type="button" className="nk-btn" onClick={startPeriod}>
-            Hoy me ha venido
-          </button>
-        )}
-        <button type="button" className="nk-btn nk-btn--ghost" onClick={() => setOpenDay(today)}>
-          Anotar hoy
-        </button>
-      </div>
+      <p className="cy-tap-hint">
+        Toca un día para marcar la regla. Tócalo otra vez y se quita.
+      </p>
 
       <Calendar
         year={year}
         month={month}
         cycles={cycles}
+        daySet={daySet}
         pred={pred}
         today={today}
         logByDate={logByDate}
         onPrev={() => setCursor(new Date(year, month - 1, 1))}
         onNext={() => setCursor(new Date(year, month + 1, 1))}
-        onPick={setOpenDay}
+        onTogglePeriod={onTogglePeriod}
       />
+
+      <div className="cy-log">
+        <button type="button" className="nk-btn nk-btn--ghost" onClick={() => setOpenDay(today)}>
+          Anotar hoy
+        </button>
+      </div>
 
       <div className="cy-legend">
         <span><i style={{ background: "#e2504a" }} /> Regla</span>
@@ -244,11 +240,7 @@ function IreneView({
           </div>
           <div className="cy-fact">
             <dt>Ciclo</dt>
-            <dd>
-              {pred.regular
-                ? `${pred.avgLength} días`
-                : `${pred.minLength}–${pred.maxLength} días`}
-            </dd>
+            <dd>{pred.regular ? `${pred.avgLength} días` : `${pred.minLength}–${pred.maxLength} días`}</dd>
           </div>
           <div className="cy-fact">
             <dt>Días fértiles</dt>
@@ -275,18 +267,12 @@ function IreneView({
         <DaySheet
           date={openDay}
           log={logByDate.get(openDay) ?? null}
+          isPeriod={daySet.has(openDay)}
+          onTogglePeriod={() => onTogglePeriod(openDay)}
           onSave={(patch) => {
             const existing = logByDate.get(openDay);
             if (existing) logs.update(existing.id, patch);
-            else
-              logs.create({
-                date: openDay,
-                symptoms: [],
-                moods: [],
-                flow: "",
-                note: "",
-                ...patch,
-              });
+            else logs.create({ date: openDay, symptoms: [], moods: [], flow: "", note: "", ...patch });
           }}
           onClose={() => setOpenDay(null)}
         />
@@ -306,9 +292,8 @@ function Ring({
   pred: ReturnType<typeof predict>;
   today: DateKey;
 }) {
-  // Días hasta la próxima regla, para el número grande del centro.
-  const daysToPeriod = pred ? Math.max(0, daysBetween(today, pred.nextPeriod)) : null;
-  const frac = pred ? 1 - daysToPeriod! / pred.avgLength : 0;
+  const daysToPeriod = pred ? Math.max(0, daysBetweenLocal(today, pred.nextPeriod)) : null;
+  const frac = pred && daysToPeriod !== null ? 1 - daysToPeriod / pred.avgLength : 0;
 
   const color =
     phase === "period" ? "#e2504a" : phase === "ovulation" || phase === "fertile" ? "#6bb86f" : "#e58aa2";
@@ -346,22 +331,24 @@ function Calendar({
   year,
   month,
   cycles,
+  daySet,
   pred,
   today,
   logByDate,
   onPrev,
   onNext,
-  onPick,
+  onTogglePeriod,
 }: {
   year: number;
   month: number;
-  cycles: Cycle[];
+  cycles: ReturnType<typeof cyclesFromDays>;
+  daySet: Set<DateKey>;
   pred: ReturnType<typeof predict>;
   today: DateKey;
   logByDate: Map<DateKey, DayLog>;
   onPrev: () => void;
   onNext: () => void;
-  onPick: (d: DateKey) => void;
+  onTogglePeriod: (d: DateKey) => void;
 }) {
   const first = new Date(year, month, 1);
   const offset = (first.getDay() + 6) % 7;
@@ -391,8 +378,12 @@ function Calendar({
         ))}
         {cells.map((date) => {
           const key = toKey(date);
-          const ph = phaseOf(key, cycles, pred);
+          // La regla ya no se predice: se pinta lo que está marcado. El resto de
+          // fases (fértil, ovulación, prevista) sí son predicción.
+          const marked = daySet.has(key);
+          const ph = marked ? "period" : phaseOf(key, cycles, pred);
           const hasLog = logByDate.has(key);
+          const future = key > today;
           return (
             <button
               key={key}
@@ -405,7 +396,9 @@ function Calendar({
               ]
                 .filter(Boolean)
                 .join(" ")}
-              onClick={() => onPick(key)}
+              // No se marca regla en el futuro: no tiene sentido y descuadra.
+              onClick={() => !future && onTogglePeriod(key)}
+              disabled={future}
             >
               {date.getDate()}
               {hasLog && <span className="cy-day__mark" />}
@@ -422,11 +415,15 @@ function Calendar({
 function DaySheet({
   date,
   log,
+  isPeriod,
+  onTogglePeriod,
   onSave,
   onClose,
 }: {
   date: DateKey;
   log: DayLog | null;
+  isPeriod: boolean;
+  onTogglePeriod: () => void;
   onSave: (patch: Partial<DayLog>) => void;
   onClose: () => void;
 }) {
@@ -455,16 +452,19 @@ function DaySheet({
         </header>
 
         <div className="cy-daysheet">
+          <button
+            type="button"
+            className={`cy-period-flag${isPeriod ? " cy-period-flag--on" : ""}`}
+            onClick={onTogglePeriod}
+          >
+            {isPeriod ? "🩸 Día de regla — tocar para quitar" : "Marcar como día de regla"}
+          </button>
+
           <div className="cy-section">
             <span>Flujo</span>
             <div className="cy-flow">
               {FLOWS.map((f) => (
-                <button
-                  key={f}
-                  type="button"
-                  aria-pressed={flow === f}
-                  onClick={() => setFlow(flow === f ? "" : f)}
-                >
+                <button key={f} type="button" aria-pressed={flow === f} onClick={() => setFlow(flow === f ? "" : f)}>
                   {f}
                 </button>
               ))}
@@ -529,6 +529,14 @@ function DaySheet({
 
 /* ------------------------------------------------------------------ fechas */
 
+function daysBetweenLocal(a: DateKey, b: DateKey): number {
+  return Math.round((fromKey(b).getTime() - fromKey(a).getTime()) / 86_400_000);
+}
+
+function yesterday(k: DateKey): DateKey {
+  return toKey(new Date(fromKey(k).getTime() - 86_400_000));
+}
+
 function prettyDate(key: DateKey): string {
   const d = fromKey(key);
   return `${d.getDate()} de ${MONTHS[d.getMonth()]}`;
@@ -538,7 +546,3 @@ function shortDate(key: DateKey): string {
   const d = fromKey(key);
   return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)}`;
 }
-
-// Se re-exporta para que el linter no marque `addDays` como no usado si algún
-// día se quita del cálculo; mantiene la superficie del módulo estable.
-export { addDays };

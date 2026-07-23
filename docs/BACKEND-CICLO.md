@@ -1,17 +1,19 @@
 # Backend pendiente para «Ciclo»
 
 > Para Vicente. Frontend hecho (`src/apps/cycle/`). **Dos** colecciones:
-> `/api/cycle/periods` (cuándo empieza y cuánto dura cada regla) y
+> `/api/cycle/days` (los días sueltos de regla, estilo Salud de Apple) y
 > `/api/cycle/logs` (el diario diario: flujo, síntomas, ánimo, nota). No he
 > tocado `server/`.
 
 ## Tablas
 
 ```ts
-export const cyclePeriods = pgTable("cycle_periods", {
+// Un registro por DÍA marcado como regla. Marcar = insertar, desmarcar =
+// borrar. Los ciclos se deducen agrupando días consecutivos (lo hace el
+// frontend, en predict.ts), así que aquí no hay nada que calcular.
+export const cycleDays = pgTable("cycle_days", {
   id: uuid("id").primaryKey().defaultRandom(),
-  start: text("start").notNull(),               // 'YYYY-MM-DD'
-  bleedDays: integer("bleed_days").notNull().default(0), // 0 = aún abierta
+  date: text("date").notNull(),                 // 'YYYY-MM-DD'
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -31,7 +33,7 @@ export const cycleLogs = pgTable("cycle_logs", {
 Rutas:
 
 ```ts
-app.route("/api/cycle/periods", periodRoutes);
+app.route("/api/cycle/days", dayRoutes);
 app.route("/api/cycle/logs", logRoutes);
 ```
 
