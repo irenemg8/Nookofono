@@ -27,6 +27,8 @@ interface SpotifyPlayer {
   connect(): Promise<boolean>;
   disconnect(): void;
   addListener(event: string, cb: (payload: never) => void): void;
+  /** Desbloquea el audio del navegador. Debe llamarse desde un gesto del usuario. */
+  activateElement(): Promise<void>;
   togglePlay(): Promise<void>;
   nextTrack(): Promise<void>;
   previousTrack(): Promise<void>;
@@ -195,6 +197,11 @@ export function useSpotifyPlayer(playlistUri: string, enabled = true) {
   }, [call, playlistUri]);
 
   const toggle = useCallback(async () => {
+    // Lo primero, dentro del gesto del clic: desbloquear el audio. Sin esto el
+    // navegador conecta y cambia de canción pero no suena nada — es la causa
+    // más común de "no lo oigo". En iOS es obligatorio.
+    await player.current?.activateElement().catch(() => {});
+
     // Si todavía no hay nada cargado, el primer play pone la lista entera.
     if (!state.track) await playPlaylist();
     else await player.current?.togglePlay();
