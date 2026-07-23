@@ -61,7 +61,7 @@ export default function TalksApp() {
       <button type="button" className="tl-new" onClick={() => setComposing(true)}>
         + Tenemos que hablar de…
       </button>
-
+{/*
       {open.length > 0 && (
         <div className="tl-summary">
           <div>
@@ -73,7 +73,7 @@ export default function TalksApp() {
             <span>fuera de plazo</span>
           </div>
         </div>
-      )}
+      )}*/}
 
       {open.length === 0 && closed.length === 0 ? (
         <p className="tl-empty">No hay nada pendiente de hablar. Bien ahí.</p>

@@ -1,6 +1,35 @@
 import { useCallback, useEffect, useState } from "react";
 
 /**
+ * Modo local de desarrollo.
+ *
+ * Cuando el bypass del login está puesto (`VITE_AUTH_BYPASS`, ver
+ * `use-session.ts`), esta colección guarda en el propio navegador en vez de
+ * hablar con el servidor. Así se prueba todo en `localhost` sin backend ni
+ * Postgres. Como `import.meta.env.DEV` es falso en el build, este ramal
+ * desaparece del bundle de producción.
+ */
+const LOCAL = import.meta.env.DEV && Boolean(import.meta.env.VITE_AUTH_BYPASS);
+
+const localStore = {
+  read<T>(path: string): T[] {
+    try {
+      const raw = JSON.parse(localStorage.getItem(`ipug.local${path}`) ?? "null");
+      return Array.isArray(raw) ? (raw as T[]) : [];
+    } catch {
+      return [];
+    }
+  },
+  write<T>(path: string, items: T[]) {
+    try {
+      localStorage.setItem(`ipug.local${path}`, JSON.stringify(items));
+    } catch {
+      // Cuota llena.
+    }
+  },
+};
+
+/**
  * Colección guardada en el servidor.
  *
  * Es el reemplazo de `useCollection` —que escribía en `localStorage`— y expone
@@ -71,6 +100,12 @@ export function useRemoteCollection<T extends Entity>(
   );
 
   const reload = useCallback(async () => {
+    if (LOCAL) {
+      setItems(localStore.read<T>(path));
+      setStatus("ready");
+      setError(null);
+      return;
+    }
     try {
       const res = await fetch(path, { credentials: "include" });
       if (!res.ok) throw new Error(String(res.status));
@@ -91,6 +126,17 @@ export function useRemoteCollection<T extends Entity>(
 
   const create = useCallback(
     async (data: Omit<T, keyof Entity>) => {
+      if (LOCAL) {
+        const now = Date.now();
+        const item = { ...data, id: crypto.randomUUID(), createdAt: now, updatedAt: now } as T;
+        setItems((prev) => {
+          const next = [item, ...prev];
+          localStore.write(path, next);
+          return next;
+        });
+        return item;
+      }
+
       const body = toApi ? toApi(data as Record<string, unknown>) : data;
 
       try {
@@ -116,6 +162,17 @@ export function useRemoteCollection<T extends Entity>(
 
   const update = useCallback(
     async (id: string, patch: Partial<T>) => {
+      if (LOCAL) {
+        setItems((prev) => {
+          const next = prev.map((item) =>
+            item.id === id ? { ...item, ...patch, updatedAt: Date.now() } : item,
+          );
+          localStore.write(path, next);
+          return next;
+        });
+        return;
+      }
+
       const body = toApi ? toApi(patch as Record<string, unknown>) : patch;
 
       // Se pinta el cambio antes de que conteste el servidor: escribir en un
@@ -163,6 +220,15 @@ export function useRemoteCollection<T extends Entity>(
 
   const remove = useCallback(
     async (id: string) => {
+      if (LOCAL) {
+        setItems((prev) => {
+          const next = prev.filter((item) => item.id !== id);
+          localStore.write(path, next);
+          return next;
+        });
+        return;
+      }
+
       setItems((prev) => prev.filter((item) => item.id !== id));
 
       try {
@@ -179,6 +245,13 @@ export function useRemoteCollection<T extends Entity>(
 
   const reorder = useCallback(
     async (ordered: T[]) => {
+      if (LOCAL) {
+        const next = ordered.map((item, i) => ({ ...item, position: i }) as unknown as T);
+        setItems(next);
+        localStore.write(path, next);
+        return;
+      }
+
       setItems(ordered);
 
       // Sólo viajan los que cambian de sitio. Arrastrar una nota al principio

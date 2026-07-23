@@ -1,0 +1,196 @@
+.calc {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+/* ---------- Selector de modo ---------- */
+
+.calc__modes {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--nk-surface-sunk);
+}
+
+.calc__mode {
+  flex: 1;
+  border: none;
+  border-radius: 999px;
+  padding: 0.55em 0;
+  background: none;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+.calc__mode[aria-pressed="true"] {
+  background: var(--nk-bg-cream);
+  color: var(--nk-text-strong);
+  box-shadow: 0 2px 5px var(--nk-shadow);
+}
+
+/* ---------- Pantalla ---------- */
+
+.calc__screen {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  min-height: 92px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: var(--nk-surface-sunk);
+  box-shadow: inset 0 2px 6px var(--nk-shadow-strong);
+  overflow: hidden;
+}
+
+.calc__expr {
+  width: 100%;
+  text-align: right;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 8vw, 2.3rem);
+  line-height: 1.15;
+  color: var(--nk-text-strong);
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+}
+
+.calc__result {
+  width: 100%;
+  text-align: right;
+  font-family: var(--nk-font);
+  font-size: 1rem;
+  color: var(--nk-text-muted);
+  font-variant-numeric: tabular-nums;
+  min-height: 1.2em;
+  word-break: break-all;
+}
+
+/* ---------- Grados / radianes ---------- */
+
+.calc__sci-head {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.calc__angle {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--nk-surface-sunk);
+}
+
+.calc__angle button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.3em 0.9em;
+  background: none;
+  font-family: var(--nk-font);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+.calc__angle button[aria-pressed="true"] {
+  background: var(--nk-accent-blue);
+  color: #fff;
+}
+
+/* ---------- Teclado científico ---------- */
+
+.calc__sci {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+}
+
+.calc__sci .calc__key {
+  aspect-ratio: auto;
+  min-height: 42px;
+  font-size: 0.9rem;
+}
+
+/* ---------- Teclado principal ---------- */
+
+.calc__pad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+}
+
+.calc__key {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 20px;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1.45rem;
+  cursor: pointer;
+  /* Canto inferior sólido: la tecla se hunde al pulsar, como el resto de la app. */
+  background: var(--nk-bg-cream);
+  color: var(--nk-text-strong);
+  box-shadow: 0 5px 0 var(--nk-border), 0 7px 12px var(--nk-shadow);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.calc__key:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--nk-border), 0 2px 5px var(--nk-shadow);
+}
+
+.calc__key--wide {
+  aspect-ratio: auto;
+  grid-column: span 2;
+}
+
+.calc__key--op {
+  background: var(--nk-leaf);
+  color: #fff;
+  box-shadow: 0 5px 0 var(--nk-leaf-dark), 0 7px 12px var(--nk-shadow);
+}
+
+.calc__key--op:active {
+  box-shadow: 0 1px 0 var(--nk-leaf-dark), 0 2px 5px var(--nk-shadow);
+}
+
+.calc__key--act {
+  background: var(--nk-surface-sunk);
+  color: var(--nk-text);
+  box-shadow: 0 5px 0 #d8cdb2, 0 7px 12px var(--nk-shadow);
+}
+
+.calc__key--act:active {
+  box-shadow: 0 1px 0 #d8cdb2, 0 2px 5px var(--nk-shadow);
+}
+
+.calc__key--fn {
+  background: var(--nk-surface);
+  color: var(--nk-text-strong);
+  box-shadow: 0 4px 0 var(--nk-border), 0 5px 9px var(--nk-shadow);
+}
+
+.calc__key--fn:active {
+  box-shadow: 0 1px 0 var(--nk-border), 0 2px 4px var(--nk-shadow);
+}
+
+.calc__key--eq {
+  background: var(--nk-accent-yellow);
+  color: #fff;
+  box-shadow: 0 5px 0 #c98d03, 0 7px 12px var(--nk-shadow);
+}
+
+.calc__key--eq:active {
+  box-shadow: 0 1px 0 #c98d03, 0 2px 5px var(--nk-shadow);
+}
