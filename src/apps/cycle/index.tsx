@@ -89,7 +89,7 @@ export default function CycleApp() {
 
 function BelindaView({ phase, pred }: { phase: Phase; pred: ReturnType<typeof predict> }) {
   const message: Record<Phase, string> = {
-    period: "Belinda está de obras. Chocolate, mantita y paciencia.",
+    period: "Belinda está muy afectada. Chocolate, mantita y paciencia.",
     fertile: "Belinda anda receptiva… tú sabrás qué hacer con esa info.",
     ovulation: "Día grande de Belinda. Máxima fertilidad.",
     "predicted-period": "A Belinda le toca pronto. Ve preparando el chocolate.",
@@ -115,7 +115,11 @@ function BelindaView({ phase, pred }: { phase: Phase; pred: ReturnType<typeof pr
         <dl className="cy-facts">
           <div className="cy-fact">
             <dt>Próxima regla</dt>
-            <dd>{prettyDate(pred.nextPeriod)}</dd>
+            <dd>
+              {pred.regular
+                ? prettyDate(pred.nextPeriod)
+                : `${shortDate(pred.windowStart)}–${shortDate(pred.windowEnd)}`}
+            </dd>
           </div>
           <div className="cy-fact">
             <dt>Días fértiles</dt>
@@ -127,7 +131,7 @@ function BelindaView({ phase, pred }: { phase: Phase; pred: ReturnType<typeof pr
       )}
 
       <p className="cy-note">
-        Es una estimación, no un método anticonceptivo. Sé bueno con Belinda.
+        Es una estimación de calendario, no un método anticonceptivo. Sé bueno con Belinda.
       </p>
     </div>
   );
@@ -232,11 +236,19 @@ function IreneView({
         <dl className="cy-facts">
           <div className="cy-fact">
             <dt>Próxima regla</dt>
-            <dd>{prettyDate(pred.nextPeriod)}</dd>
+            <dd>
+              {pred.regular
+                ? prettyDate(pred.nextPeriod)
+                : `${shortDate(pred.windowStart)}–${shortDate(pred.windowEnd)}`}
+            </dd>
           </div>
           <div className="cy-fact">
-            <dt>Ciclo medio</dt>
-            <dd>{pred.avgLength} días</dd>
+            <dt>Ciclo</dt>
+            <dd>
+              {pred.regular
+                ? `${pred.avgLength} días`
+                : `${pred.minLength}–${pred.maxLength} días`}
+            </dd>
           </div>
           <div className="cy-fact">
             <dt>Días fértiles</dt>
@@ -252,6 +264,9 @@ function IreneView({
       )}
 
       <p className="cy-note">
+        {pred && !pred.regular
+          ? "Tu ciclo es irregular, así que la regla y los días fértiles se muestran como un rango, no como días fijos. "
+          : ""}
         La ventana fértil es una estimación de calendario, no un método
         anticonceptivo. Cuantas más reglas registres, más afina.
       </p>

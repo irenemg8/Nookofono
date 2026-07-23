@@ -21,7 +21,7 @@ const IRENE_OPTIONS = [
 ];
 
 /** El aviso de Vicente. */
-const VICENTE_MESSAGE = { emoji: "🥒", text: "Cosita está necesitado" };
+const VICENTE_MESSAGE = { emoji: "🍆", text: "Cosita está necesitado" };
 
 export default function ImbecilApp() {
   const me = useCurrentUser();
@@ -84,9 +84,9 @@ export default function ImbecilApp() {
       {tab === "enviar" ? (
         <>
           <section className="im-panel">
-            <p className="im-say">
+          {/*  <p className="im-say">
               {outgoing.emoji} {outgoing.text}
-            </p>
+            </p>*/}
 
             {me === "irene" && (
               <div className="im-picker">
