@@ -37,7 +37,7 @@ const SEED: { title: string; everyWeeks: number }[] = [
   { title: "Fregar el suelo", everyWeeks: 1 },
   { title: "Mantenimiento Roomba", everyWeeks: 1 },
   { title: "Limpieza vitro", everyWeeks: 1 },
-  { title: "Cambiar las sábanas", everyWeeks: 2 },
+  { title: "Cambiar las sábanas", everyWeeks: 1 },
   { title: "Quitar pelos de la cama de Nilo", everyWeeks: 1 },
 ];
 
