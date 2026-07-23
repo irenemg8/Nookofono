@@ -1,0 +1,272 @@
+.xl {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---------- Lista de hojas ---------- */
+
+.xl-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.xl-actions .nk-btn {
+  flex: 1;
+}
+
+.xl-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.xl-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 15px;
+  border: none;
+  border-radius: 16px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 10px var(--nk-shadow);
+  cursor: pointer;
+  text-align: left;
+}
+
+.xl-row__icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 11px;
+  background: var(--nk-leaf);
+  color: #fff;
+  font-family: var(--nk-font);
+  font-weight: 700;
+  font-size: 0.7rem;
+}
+
+.xl-row__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.xl-row__name {
+  font-family: var(--nk-font);
+  font-weight: 600;
+  color: var(--nk-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.xl-row__meta {
+  font-size: 0.72rem;
+  color: var(--nk-text-muted);
+}
+
+.xl-row__x {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-surface-sunk);
+  color: var(--nk-text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.xl-empty {
+  text-align: center;
+  color: var(--nk-text-muted);
+  font-size: 0.85rem;
+  padding: 26px 0;
+}
+
+.xl-note {
+  margin: 0;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--nk-text-muted);
+}
+
+/* ---------- Editor ---------- */
+
+.xl-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+
+.xl-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.xl-bar__name {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: 10px;
+  padding: 0.5em 0.8em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--nk-text-strong);
+}
+
+.xl-bar__btn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-bg-cream);
+  color: var(--nk-text);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--nk-border);
+}
+
+.xl-bar__btn:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+/* Barra de fórmula: celda seleccionada + su contenido crudo. */
+.xl-formula {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.xl-formula__addr {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 42px;
+  height: 40px;
+  padding: 0 8px;
+  border-radius: 10px;
+  background: var(--nk-leaf);
+  color: #fff;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.xl-formula input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: 10px;
+  padding: 0.65em 0.8em;
+  background: var(--nk-bg-cream);
+  font-family: var(--nk-font-body);
+  font-size: 16px;
+  color: var(--nk-text-strong);
+  box-shadow: inset 0 1px 4px var(--nk-shadow);
+}
+
+.xl-formula input:focus {
+  outline: 2px solid var(--nk-leaf);
+}
+
+/* ---------- Rejilla ---------- */
+
+.xl-grid-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border-radius: 14px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 12px var(--nk-shadow);
+}
+
+.xl-grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.xl-grid th,
+.xl-grid td {
+  border-right: 1px solid var(--nk-border);
+  border-bottom: 1px solid var(--nk-border);
+  padding: 0;
+  height: 34px;
+}
+
+/* Cabeceras de fila y columna, pegajosas. */
+.xl-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  min-width: 64px;
+}
+
+.xl-grid tbody th {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  width: 32px;
+  min-width: 32px;
+  text-align: center;
+}
+
+.xl-grid thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+}
+
+.xl-cell {
+  min-width: 64px;
+  max-width: 120px;
+  padding: 0 8px;
+  font-size: 0.82rem;
+  color: var(--nk-text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.xl-cell--num {
+  text-align: right;
+}
+
+.xl-cell--err {
+  color: #c2413c;
+}
+
+.xl-cell--on {
+  outline: 2px solid var(--nk-leaf);
+  outline-offset: -2px;
+  background: rgba(141, 198, 63, 0.12);
+}

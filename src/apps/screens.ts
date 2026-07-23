@@ -52,4 +52,5 @@ export const screens: Record<string, LazyExoticComponent<ComponentType>> = {
   tasks: app(() => import("./tasks")),
   talks: app(() => import("./talks")),
   calculator: app(() => import("./calculator")),
+  sheets: app(() => import("./sheets")),
 };
