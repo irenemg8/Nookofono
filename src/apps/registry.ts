@@ -1,6 +1,7 @@
 import airlinesIcon from "../assets/airlines.webp";
 import archivosIcon from "../assets/archivos.webp";
 import cicloIcon from "../assets/ciclo.webp";
+import imbecilIcon from "../assets/imbecil.webp";
 import tractiveIcon from "../assets/tractive.webp";
 import auxilioIcon from "../assets/auxilio_me_agobio_sobrecarga_salvame_cacahuete.webp";
 import calculatorIcon from "../assets/calculadora.webp";
@@ -276,6 +277,15 @@ export const registry: MiniAppManifest[] = [
     enabled: true,
     page: 2,
     teaser: "El ciclo de Belinda: regla, días fértiles y síntomas.",
+  },
+  {
+    id: "imbecil",
+    title: "Imbécil",
+    iconSrc: imbecilIcon,
+    path: "/imbecil",
+    enabled: true,
+    page: 3,
+    teaser: "Un botón para avisar al otro cuando hace falta atención.",
   },
 ];
 

@@ -1,0 +1,237 @@
+.im {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.im-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--nk-surface-sunk);
+}
+
+.im-tabs button {
+  flex: 1;
+  border: none;
+  border-radius: 999px;
+  padding: 0.55em 0;
+  background: none;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+.im-tabs button[aria-selected="true"] {
+  background: var(--nk-bg-cream);
+  color: var(--nk-text-strong);
+  box-shadow: 0 2px 5px var(--nk-shadow);
+}
+
+/* ---------- Panel ---------- */
+
+.im-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 20px 26px;
+  border-radius: 24px;
+  background: var(--nk-bg-cream);
+  border: 3px solid rgba(224, 218, 202, 0.9);
+  box-shadow: 0 8px 20px var(--nk-shadow-strong);
+}
+
+.im-say {
+  max-width: 30ch;
+  padding: 1.1em 1.4em;
+  text-align: center;
+  background: var(--nk-surface);
+  color: var(--nk-text);
+  border-radius: 40% 40% 30% 30% / 150% 150% 150% 150%;
+  box-shadow: 0 6px 14px var(--nk-shadow);
+  font-family: var(--nk-font);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  animation: nk-blob 1.25s ease-in-out infinite alternate;
+}
+
+.im-btn {
+  display: grid;
+  place-items: center;
+  width: min(56vw, 190px);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 6px solid var(--nk-bg-cream);
+  border-radius: 50%;
+  cursor: pointer;
+  background: radial-gradient(circle at 36% 30%, #7d84c4 0%, #5b62a8 55%, #4a5194 100%);
+  box-shadow:
+    0 9px 0 #3b4179,
+    0 15px 24px rgba(40, 44, 90, 0.32),
+    inset 0 0 0 3px rgba(255, 255, 255, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.im-btn:active {
+  transform: translateY(7px);
+  box-shadow:
+    0 2px 0 #3b4179,
+    0 5px 10px rgba(40, 44, 90, 0.28),
+    inset 0 0 0 3px rgba(255, 255, 255, 0.28);
+}
+
+.im-btn:disabled {
+  cursor: default;
+  filter: saturate(0.5);
+}
+
+.im-btn img {
+  width: 66%;
+  height: 66%;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.im-caption {
+  text-align: center;
+}
+
+.im-caption b {
+  display: block;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--nk-text-strong);
+}
+
+.im-caption span {
+  font-size: 0.78rem;
+  color: var(--nk-text-muted);
+}
+
+.im-error {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #c2413c;
+}
+
+/* Selector de mensaje (solo Irene). */
+.im-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.im-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: var(--nk-surface);
+  font-family: var(--nk-font-body);
+  font-size: 0.9rem;
+  color: var(--nk-text-strong);
+  cursor: pointer;
+  text-align: left;
+}
+
+.im-option[aria-pressed="true"] {
+  background: var(--nk-accent-pink);
+  color: #8a3a52;
+  box-shadow: inset 0 0 0 2px #e58aa2;
+}
+
+.im-option__emoji {
+  font-size: 1.3rem;
+  flex: none;
+}
+
+/* Setup / historial. */
+.im-setup {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--nk-surface-sunk);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--nk-text);
+}
+
+.im-setup h3 {
+  margin: 0 0 4px;
+  font-family: var(--nk-font);
+  font-size: 0.9rem;
+  color: var(--nk-text-strong);
+}
+
+.im-setup code {
+  display: block;
+  margin-top: 6px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: var(--nk-bg-cream);
+  font-size: 0.72rem;
+  word-break: break-all;
+  color: var(--nk-text-strong);
+}
+
+.im-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.im-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 15px;
+  border-radius: 18px;
+  background: var(--nk-bg-cream);
+  border: 2px solid rgba(224, 218, 202, 0.9);
+  box-shadow: 0 5px 12px var(--nk-shadow);
+}
+
+.im-item__emoji {
+  font-size: 1.4rem;
+  flex: none;
+}
+
+.im-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.im-item__text {
+  font-family: var(--nk-font);
+  font-size: 0.9rem;
+  color: var(--nk-text-strong);
+}
+
+.im-item__when {
+  font-size: 0.72rem;
+  color: var(--nk-text-muted);
+}
+
+.im-empty {
+  text-align: center;
+  color: var(--nk-text-muted);
+  font-size: 0.85rem;
+  padding: 26px 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .im-say {
+    animation: none;
+  }
+}
