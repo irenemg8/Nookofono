@@ -78,7 +78,7 @@ export default function AirlinesApp() {
                 <div className="pa-pass__main">
                   <div className="pa-pass__brand">
                     <img src={airlinesIcon} alt="" />
-                    PugPug Airlines · Tarjeta de embarque
+                    Pug Airlines · Tarjeta de embarque
                   </div>
 
                   <div className="pa-route">

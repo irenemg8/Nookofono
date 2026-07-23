@@ -47,12 +47,17 @@
 
 .cal-today {
   /* Los hermanos son círculos de 32px y este es un flex item: sin `flex: none`
-     se encogía hasta cortar la palabra. */
+     se encogía hasta cortar la palabra. Y como el contenedor estira a todos a
+     la misma altura, se centra el texto por dentro para que no quede pegado
+     arriba. */
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   white-space: nowrap;
   border: none;
   border-radius: 999px;
-  padding: 0.5em 2em;
+  padding: 0 1.4em;
   background: var(--nk-leaf);
   color: #fff;
   font-family: var(--nk-font);
