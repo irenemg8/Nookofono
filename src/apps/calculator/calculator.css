@@ -1,8 +1,11 @@
 .calc {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   flex: 1;
+  /* La calculadora ocupa el alto que tenga y reparte: nada de teclas cuadradas
+     que se salgan por abajo. `min-height: 0` deja que el teclado encoja. */
+  min-height: 0;
 }
 
 /* ---------- Selector de modo ---------- */
@@ -37,14 +40,14 @@
 /* ---------- Pantalla ---------- */
 
 .calc__screen {
+  flex: none;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  gap: 4px;
-  min-height: 92px;
-  padding: 16px 18px;
-  border-radius: 20px;
+  gap: 2px;
+  padding: 12px 16px;
+  border-radius: 18px;
   background: var(--nk-surface-sunk);
   box-shadow: inset 0 2px 6px var(--nk-shadow-strong);
   overflow: hidden;
@@ -55,18 +58,22 @@
   text-align: right;
   font-family: var(--nk-font);
   font-weight: 600;
-  font-size: clamp(1.5rem, 8vw, 2.3rem);
-  line-height: 1.15;
+  font-size: clamp(1.4rem, 7vw, 2.1rem);
+  line-height: 1.1;
   color: var(--nk-text-strong);
   font-variant-numeric: tabular-nums;
   word-break: break-all;
+  /* Como mucho dos líneas: una expresión larga no debe empujar el teclado. */
+  max-height: 2.4em;
+  overflow-y: auto;
 }
 
 .calc__result {
+  flex: none;
   width: 100%;
   text-align: right;
   font-family: var(--nk-font);
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--nk-text-muted);
   font-variant-numeric: tabular-nums;
   min-height: 1.2em;
@@ -109,34 +116,42 @@
 /* ---------- Teclado científico ---------- */
 
 .calc__sci {
+  flex: none;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 7px;
+  gap: 6px;
 }
 
 .calc__sci .calc__key {
-  aspect-ratio: auto;
-  min-height: 42px;
-  font-size: 0.9rem;
+  min-height: 0;
+  height: clamp(34px, 7vh, 46px);
+  border-radius: 14px;
+  font-size: 0.88rem;
+  box-shadow: 0 3px 0 var(--nk-border), 0 4px 8px var(--nk-shadow);
 }
 
 /* ---------- Teclado principal ---------- */
 
 .calc__pad {
+  /* Se queda con lo que sobre y reparte en cinco filas iguales: las teclas
+     encogen en vez de desbordar. */
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 9px;
+  grid-template-rows: repeat(5, 1fr);
+  gap: 8px;
 }
 
 .calc__key {
-  aspect-ratio: 1;
+  min-height: 34px;
   display: grid;
   place-items: center;
   border: none;
-  border-radius: 20px;
+  border-radius: 18px;
   font-family: var(--nk-font);
   font-weight: 600;
-  font-size: 1.45rem;
+  font-size: clamp(1.1rem, 5vw, 1.45rem);
   cursor: pointer;
   /* Canto inferior sólido: la tecla se hunde al pulsar, como el resto de la app. */
   background: var(--nk-bg-cream);
@@ -151,7 +166,6 @@
 }
 
 .calc__key--wide {
-  aspect-ratio: auto;
   grid-column: span 2;
 }
 

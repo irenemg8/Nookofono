@@ -136,20 +136,22 @@ export default function CalculatorApp() {
       {mode === "scientific" && (
         <div className="calc__sci-head">
           <div className="calc__angle">
-            <button
-              type="button"
-              aria-pressed={angle === "deg"}
-              onClick={() => setAngle("deg")}
-            >
-              GRA
-            </button>
-            <button
-              type="button"
-              aria-pressed={angle === "rad"}
-              onClick={() => setAngle("rad")}
-            >
-              RAD
-            </button>
+            {(
+              [
+                ["deg", "GRA"],
+                ["rad", "RAD"],
+                ["grad", "GRAD"],
+              ] as [AngleUnit, string][]
+            ).map(([unit, label]) => (
+              <button
+                key={unit}
+                type="button"
+                aria-pressed={angle === unit}
+                onClick={() => setAngle(unit)}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
       )}

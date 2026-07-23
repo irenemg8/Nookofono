@@ -15,7 +15,8 @@
  *   primary := número | constante | '(' expr ')' | función '(' expr ')'
  */
 
-export type AngleUnit = "deg" | "rad";
+/** deg = grados (360), rad = radianes (2π), grad = gradianes (400). */
+export type AngleUnit = "deg" | "rad" | "grad";
 
 interface Token {
   type: "num" | "op" | "lparen" | "rparen" | "func" | "const";
@@ -208,8 +209,10 @@ class Parser {
   }
 
   private applyFunc(name: string, x: number): number {
-    const toRad = (v: number) => (this.angle === "deg" ? (v * Math.PI) / 180 : v);
-    const fromRad = (v: number) => (this.angle === "deg" ? (v * 180) / Math.PI : v);
+    // Cuánto vale una vuelta completa en la unidad elegida.
+    const turn = this.angle === "deg" ? 360 : this.angle === "grad" ? 400 : 2 * Math.PI;
+    const toRad = (v: number) => (v / turn) * 2 * Math.PI;
+    const fromRad = (v: number) => (v / (2 * Math.PI)) * turn;
 
     switch (name) {
       case "sin": return Math.sin(toRad(x));
