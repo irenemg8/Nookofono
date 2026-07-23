@@ -1,9 +1,9 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useRemoteCollection, type Entity } from "../../shared/lib/use-remote-collection";
 import { ConfirmDialog } from "../../shared/ui/ConfirmDialog";
-import { computeGrid } from "./model/formula";
-import { colName, emptySheet, makeAddr, type Sheet } from "./model/grid";
+import { emptySheet, type Sheet } from "./model/grid";
 import { exportFile, importFile } from "./model/xlsx";
+import { SheetEditor } from "./ui/SheetEditor";
 import "./sheets.css";
 
 /** Una hoja guardada. El grid entero va serializado en `data`. */
@@ -193,127 +193,8 @@ function Editor({
   onSave: (sheet: Sheet) => void;
   onClose: () => void;
 }) {
-  const [sheet, setSheet] = useState<Sheet>(() => safeParse(doc.data) ?? emptySheet(doc.name));
-  const [selected, setSelected] = useState("A1");
-  const [draft, setDraft] = useState(sheet.cells["A1"] ?? "");
-  const [downloading, setDownloading] = useState(false);
-
-  // Los valores calculados de todo el grid. Se recomputan al cambiar las celdas.
-  const computed = useMemo(() => computeGrid(sheet.cells), [sheet.cells]);
-
-  function persist(next: Sheet) {
-    setSheet(next);
-    onSave(next);
-  }
-
-  function select(addr: string) {
-    setSelected(addr);
-    setDraft(sheet.cells[addr] ?? "");
-  }
-
-  function commit(value: string) {
-    const cells = { ...sheet.cells };
-    if (value === "") delete cells[selected];
-    else cells[selected] = value;
-    persist({ ...sheet, cells });
-  }
-
-  function addRows() {
-    persist({ ...sheet, rows: sheet.rows + 10 });
-  }
-  function addCols() {
-    persist({ ...sheet, cols: sheet.cols + 4 });
-  }
-
-  return (
-    <div className="xl-editor">
-      <div className="xl-bar">
-        <button type="button" className="xl-bar__btn" onClick={onClose} aria-label="Volver">
-          ‹
-        </button>
-        <input
-          className="xl-bar__name"
-          value={sheet.name}
-          onChange={(e) => persist({ ...sheet, name: e.target.value })}
-        />
-        <button
-          type="button"
-          className="nk-btn nk-btn--sm"
-          onClick={() => setDownloading(true)}
-        >
-          ↓ Descargar
-        </button>
-      </div>
-
-      <div className="xl-formula">
-        <span className="xl-formula__addr">{selected}</span>
-        <input
-          value={draft}
-          placeholder="Valor o fórmula (=SUMA(A1:A5))"
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={() => commit(draft)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              commit(draft);
-              (e.target as HTMLInputElement).blur();
-            }
-          }}
-        />
-      </div>
-
-      <div className="xl-grid-wrap">
-        <table className="xl-grid">
-          <thead>
-            <tr>
-              <th />
-              {Array.from({ length: sheet.cols }, (_, c) => (
-                <th key={c}>{colName(c)}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: sheet.rows }, (_, r) => (
-              <tr key={r}>
-                <th>{r + 1}</th>
-                {Array.from({ length: sheet.cols }, (_, c) => {
-                  const addr = makeAddr(r, c);
-                  const value = computed[addr];
-                  const isNum = value?.num !== null && (sheet.cells[addr] ?? "") !== "";
-                  return (
-                    <td
-                      key={c}
-                      className={[
-                        "xl-cell",
-                        isNum ? "xl-cell--num" : "",
-                        value?.error ? "xl-cell--err" : "",
-                        selected === addr ? "xl-cell--on" : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                      onClick={() => select(addr)}
-                    >
-                      {value?.text ?? ""}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="xl-actions">
-        <button type="button" className="nk-btn nk-btn--ghost" onClick={addRows}>
-          + Filas
-        </button>
-        <button type="button" className="nk-btn nk-btn--ghost" onClick={addCols}>
-          + Columnas
-        </button>
-      </div>
-
-      {downloading && <FormatSheet sheet={sheet} onClose={() => setDownloading(false)} />}
-    </div>
-  );
+  const initial = safeParse(doc.data) ?? emptySheet(doc.name);
+  return <SheetEditor initial={initial} onSave={onSave} onClose={onClose} />;
 }
 
 function safeParse(data: string): Sheet | null {

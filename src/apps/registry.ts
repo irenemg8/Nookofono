@@ -236,8 +236,7 @@ export const registry: MiniAppManifest[] = [
     path: "/archivos",
     enabled: true,
     page: 2,
-    comingSoon: true,
-    teaser: "Documentos importantes a mano.",
+    teaser: "Vuestro Drive: carpetas, ficheros, etiquetas. Alimenta a Valentín.",
   },
   {
     id: "sport",

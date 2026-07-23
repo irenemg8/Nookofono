@@ -1,0 +1,329 @@
+.rg {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---------- Ruta / migas ---------- */
+
+.rg-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  font-family: var(--nk-font);
+  font-size: 0.82rem;
+}
+
+.rg-crumb {
+  border: none;
+  background: none;
+  padding: 3px 6px;
+  border-radius: 8px;
+  color: var(--nk-text-muted);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.rg-crumb--here {
+  color: var(--nk-text-strong);
+  font-weight: 600;
+}
+
+.rg-crumb--drop {
+  background: var(--nk-leaf);
+  color: #fff;
+}
+
+.rg-crumbs__sep {
+  color: var(--nk-text-muted);
+  opacity: 0.6;
+}
+
+/* ---------- Barra de acciones ---------- */
+
+.rg-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.rg-actions .nk-btn {
+  flex: 1;
+}
+
+/* ---------- Filtro por etiquetas ---------- */
+
+.rg-tagbar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.rg-tagbar__chip {
+  flex: none;
+  border: none;
+  border-radius: 999px;
+  padding: 0.35em 0.85em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.rg-tagbar__chip[aria-pressed="true"] {
+  background: var(--nk-accent-blue);
+  color: #fff;
+}
+
+/* ---------- Lista ---------- */
+
+.rg-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rg-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  border-radius: 15px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 10px var(--nk-shadow);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.rg-item--drag {
+  opacity: 0.4;
+}
+
+/* Carpeta resaltada cuando algo se va a soltar dentro. */
+.rg-item--over {
+  outline: 2px solid var(--nk-leaf);
+  outline-offset: 1px;
+  background: rgba(141, 198, 63, 0.12);
+}
+
+.rg-item__icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border-radius: 12px;
+  color: #fff;
+  font-family: var(--nk-font);
+  font-weight: 700;
+  font-size: 0.62rem;
+}
+
+.rg-item__icon--folder { background: var(--nk-accent-yellow); }
+.rg-item__icon--sheet { background: #4fa96b; }
+.rg-item__icon--image { background: #b07cc6; }
+.rg-item__icon--pdf { background: #e2504a; }
+.rg-item__icon--doc { background: #5aa9e6; }
+.rg-item__icon--text { background: #8c8c9e; }
+.rg-item__icon--other { background: #7f8c9e; }
+
+.rg-item__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.rg-item__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rg-item__name {
+  font-family: var(--nk-font);
+  font-weight: 600;
+  color: var(--nk-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rg-item__meta {
+  font-size: 0.7rem;
+  color: var(--nk-text-muted);
+}
+
+.rg-item__tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 3px;
+}
+
+.rg-minitag {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--nk-surface-sunk);
+  font-size: 0.62rem;
+  color: var(--nk-text-muted);
+}
+
+.rg-item__more {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-surface-sunk);
+  color: var(--nk-text-muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.rg-empty {
+  text-align: center;
+  color: var(--nk-text-muted);
+  font-size: 0.85rem;
+  padding: 30px 0;
+}
+
+.rg-note {
+  margin: 0;
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--nk-text-muted);
+}
+
+/* ---------- Menú de acciones de un elemento ---------- */
+
+.rg-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rg-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 12px 8px;
+  border-radius: 12px;
+  font-family: var(--nk-font-body);
+  font-size: 0.95rem;
+  color: var(--nk-text-strong);
+  cursor: pointer;
+  text-align: left;
+}
+
+.rg-menu button:active {
+  background: var(--nk-surface-sunk);
+}
+
+.rg-menu button.rg-menu--danger {
+  color: #c2413c;
+}
+
+/* ---------- Etiquetas (editor) ---------- */
+
+.rg-tags-edit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.rg-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.35em 0.4em 0.35em 0.8em;
+  border-radius: 999px;
+  background: var(--nk-accent-blue);
+  color: #fff;
+  font-family: var(--nk-font);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.rg-tag button {
+  border: none;
+  background: rgba(255, 255, 255, 0.35);
+  color: #fff;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.rg-tag-add {
+  display: flex;
+  gap: 8px;
+}
+
+.rg-tag-add input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6em 1em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font-body);
+  font-size: 16px;
+  color: var(--nk-text-strong);
+}
+
+.rg-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.rg-suggest button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.35em 0.85em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-size: 0.72rem;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+/* ---------- Renombrar ---------- */
+
+.rg-rename input {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 0.7em 0.9em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font-body);
+  font-size: 16px;
+  color: var(--nk-text-strong);
+  margin-bottom: 12px;
+}
+
+.rg-rename input:focus {
+  outline: 2px solid var(--nk-leaf);
+}
