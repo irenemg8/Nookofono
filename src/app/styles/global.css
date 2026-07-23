@@ -1018,22 +1018,21 @@ body {
 }
 
 .nk-dock {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  justify-items: center;
+  /* Flex con reparto uniforme: si hay menos de cuatro apps, las que queden se
+     reparten todo el ancho en vez de dejar un hueco. */
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
   gap: 10px;
+  min-height: 84px;
   background: var(--nk-sea-deep);
   padding: 14px clamp(10px, 3.5vw, 18px) calc(14px + var(--sab));
   transition: background 0.2s ease;
 }
 
-/* En modo edición se marcan los cuatro huecos, para que se vea dónde soltar. */
+/* En modo edición se aclara para que se vea que es zona donde soltar. */
 .nk-dock--editing {
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.09) 0 calc(25% - 1px),
-    transparent calc(25% - 1px) 25%
-  );
+  background-color: color-mix(in srgb, var(--nk-sea-deep) 88%, #fff);
 }
 
 .nk-dock--over {
