@@ -15,8 +15,14 @@
  *   primary := número | constante | '(' expr ')' | función '(' expr ')'
  */
 
-/** deg = grados (360), rad = radianes (2π), grad = gradianes (400). */
-export type AngleUnit = "deg" | "rad" | "grad";
+/**
+ * El modo del selector superior.
+ *
+ * `deg`/`rad` son unidades de ángulo para la trigonometría. `hex` no es un
+ * ángulo, sino cómo se enseña el resultado: en base 16. En hex la trigonometría
+ * usa radianes, que es lo natural cuando no hay unidad de grados elegida.
+ */
+export type AngleUnit = "deg" | "rad" | "hex";
 
 interface Token {
   type: "num" | "op" | "lparen" | "rparen" | "func" | "const";
@@ -209,8 +215,10 @@ class Parser {
   }
 
   private applyFunc(name: string, x: number): number {
-    // Cuánto vale una vuelta completa en la unidad elegida.
-    const turn = this.angle === "deg" ? 360 : this.angle === "grad" ? 400 : 2 * Math.PI;
+    // Cuánto vale una vuelta completa en la unidad elegida. En hex se calcula
+    // en radianes; el hex sólo afecta a cómo se muestra el resultado, no a la
+    // trigonometría.
+    const turn = this.angle === "deg" ? 360 : 2 * Math.PI;
     const toRad = (v: number) => (v / turn) * 2 * Math.PI;
     const fromRad = (v: number) => (v / (2 * Math.PI)) * turn;
 
@@ -246,4 +254,22 @@ export function formatResult(n: number): string {
     return rounded.toExponential(8).replace(/\.?0+e/, "e").replace(".", ",");
   }
   return String(rounded).replace(".", ",");
+}
+
+/**
+ * El resultado en hexadecimal.
+ *
+ * El hex sólo tiene sentido con enteros, así que se redondea. La parte decimal
+ * se muestra aparte en decimal, porque `0x1A,8` no lo entiende nadie.
+ */
+export function formatHex(n: number): string {
+  if (!Number.isFinite(n)) return "Error";
+  const whole = Math.trunc(n);
+  const hex = (whole < 0 ? "-0x" : "0x") + Math.abs(whole).toString(16).toUpperCase();
+  const frac = n - whole;
+  return frac === 0 ? hex : `${hex} (${formatResult(n)})`;
+}
+
+export function present(n: number, mode: AngleUnit): string {
+  return mode === "hex" ? formatHex(n) : formatResult(n);
 }

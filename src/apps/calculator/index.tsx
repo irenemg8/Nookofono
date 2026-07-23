@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { evaluate, formatResult, type AngleUnit } from "./model/evaluate";
+import { evaluate, present, type AngleUnit } from "./model/evaluate";
 import "./calculator.css";
 
 type Mode = "simple" | "scientific";
@@ -56,6 +56,8 @@ export default function CalculatorApp() {
   const [result, setResult] = useState("");
   /** Al pulsar `=`, el siguiente dígito empieza un cálculo nuevo. */
   const [justEvaluated, setJustEvaluated] = useState(false);
+  /** El resultado como número, para poder seguir calculando sobre él. */
+  const [lastValue, setLastValue] = useState(0);
 
   // Vista previa del resultado mientras se escribe, sin llegar a fijarlo.
   const preview = livePreview(expr, angle);
@@ -71,9 +73,10 @@ export default function CalculatorApp() {
     const text = key.insert ?? key.label;
 
     // Tras un `=`, teclear un número arranca de cero, pero teclear un operador
-    // sigue calculando sobre el resultado anterior.
+    // sigue calculando sobre el resultado anterior. Se parte del valor numérico,
+    // no del texto: en hex el texto es "0x1A", que no se puede volver a teclear.
     if (justEvaluated) {
-      setExpr(key.kind === "op" ? result.replace(",", ".") + text : text);
+      setExpr(key.kind === "op" ? String(lastValue) + text : text);
       setJustEvaluated(false);
       setResult("");
       return;
@@ -86,7 +89,8 @@ export default function CalculatorApp() {
     if (!expr) return;
     try {
       const value = evaluate(expr, angle);
-      setResult(formatResult(value));
+      setResult(present(value, angle));
+      setLastValue(value);
       setJustEvaluated(true);
     } catch (err) {
       setResult(err instanceof Error ? err.message : "Error");
@@ -138,9 +142,9 @@ export default function CalculatorApp() {
           <div className="calc__angle">
             {(
               [
-                ["deg", "GRA"],
+                ["deg", "DEG"],
                 ["rad", "RAD"],
-                ["grad", "GRAD"],
+                ["hex", "HEX"],
               ] as [AngleUnit, string][]
             ).map(([unit, label]) => (
               <button
@@ -191,7 +195,7 @@ export default function CalculatorApp() {
 function livePreview(expr: string, angle: AngleUnit): string | null {
   if (!expr || /[+\-×÷*/^(]$/.test(expr)) return null;
   try {
-    return formatResult(evaluate(expr, angle));
+    return present(evaluate(expr, angle), angle);
   } catch {
     return null;
   }
