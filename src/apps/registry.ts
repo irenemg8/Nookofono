@@ -1,5 +1,6 @@
 import airlinesIcon from "../assets/airlines.webp";
 import archivosIcon from "../assets/archivos.webp";
+import tractiveIcon from "../assets/tractive.webp";
 import auxilioIcon from "../assets/auxilio_me_agobio_sobrecarga_salvame_cacahuete.webp";
 import calculatorIcon from "../assets/calculadora.webp";
 import calendarIcon from "../assets/calendario.webp";
@@ -257,6 +258,15 @@ export const registry: MiniAppManifest[] = [
     page: 2,
     comingSoon: true,
     teaser: "Temas pendientes de hablar con calma.",
+  },
+  {
+    id: "tractive",
+    title: "Tractive",
+    iconSrc: tractiveIcon,
+    path: "/tractive",
+    enabled: true,
+    page: 2,
+    teaser: "Cuando Irene busca a Vicente, le avisa al momento.",
   },
 ];
 
