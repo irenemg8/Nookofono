@@ -1,3 +1,4 @@
+import { computeGrid } from "./formula";
 import { colName, makeAddr, type Sheet } from "./grid";
 
 /**
@@ -18,6 +19,8 @@ export async function importFile(file: File): Promise<Sheet> {
   const range = XLSX.utils.decode_range(ws["!ref"] ?? "A1");
 
   const cells: Record<string, string> = {};
+  /** Para las celdas de fórmula, lo que Excel ya tenía calculado. */
+  const cachedValue: Record<string, string> = {};
   let maxRow = 0;
   let maxCol = 0;
 
@@ -25,14 +28,25 @@ export async function importFile(file: File): Promise<Sheet> {
     for (let c = range.s.c; c <= range.e.c; c++) {
       const cell = ws[XLSX.utils.encode_cell({ r, c })];
       if (!cell) continue;
+      const addr = makeAddr(r, c);
       // Se conserva la fórmula si la hay (`.f`), si no el valor mostrado.
       const raw = cell.f ? `=${cell.f}` : String(cell.w ?? cell.v ?? "");
       if (raw !== "") {
-        cells[makeAddr(r, c)] = raw;
+        cells[addr] = raw;
+        if (cell.f) cachedValue[addr] = String(cell.w ?? cell.v ?? "");
         maxRow = Math.max(maxRow, r);
         maxCol = Math.max(maxCol, c);
       }
     }
+  }
+
+  // Las fórmulas que nuestro motor no entiende (SI, BUSCARV, referencias con
+  // `$`, otras hojas…) darían #ERROR. Para esas se deja el valor que Excel
+  // ya había calculado, congelado: mejor un número correcto pero estático que
+  // un error. Las que sí entiende se quedan vivas y se recalculan al editar.
+  const computed = computeGrid(cells);
+  for (const addr of Object.keys(cachedValue)) {
+    if (computed[addr]?.error) cells[addr] = cachedValue[addr];
   }
 
   return {

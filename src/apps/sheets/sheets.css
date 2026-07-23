@@ -57,6 +57,11 @@
 .xl-row__body {
   flex: 1;
   min-width: 0;
+  /* El título arriba y la línea de celdas·fecha debajo: sin columna, ambos
+     spans caían en la misma línea. */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .xl-row__name {
