@@ -8,7 +8,7 @@ import "./tractive.css";
 const TOPIC = "ipug-tractive-5e8b2c1a9f74";
 
 /** El aviso que le llega a Vicente. */
-const MESSAGE = "Pug pug, el Tractive me dice que te has ido lejos, vuelve pug";
+const MESSAGE = "Pug pug, el Tractive me dice que te has ido lejos, vuelve Pug";
 
 interface Ping extends Entity {
   text: string;
@@ -92,7 +92,7 @@ function Sender() {
             </button>
 
             <div className="tr-caption">
-              <b>{sending ? "Avisando…" : cooldown > 0 ? "Aviso enviado" : "¿Dónde está Vicente?"}</b>
+              <b>{sending ? "Avisando…" : cooldown > 0 ? "Aviso enviado" : "¿Dónde está Pug Pug?"}</b>
               <span>
                 {cooldown > 0 ? `Puedes repetir en ${cooldown} s` : "Le llega el aviso al momento"}
               </span>

@@ -197,8 +197,7 @@ export const registry: MiniAppManifest[] = [
     path: "/incidencias",
     enabled: true,
     page: 2,
-    comingSoon: true,
-    teaser: "Averías y reparaciones domésticas pendientes.",
+    teaser: "Averías y reparaciones domésticas, con plazo y aviso.",
   },
   {
     id: "calculator",
