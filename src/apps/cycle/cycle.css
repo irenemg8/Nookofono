@@ -1,0 +1,333 @@
+.cy {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ---------- Anillo de estado ---------- */
+
+.cy-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 20px;
+  border-radius: 24px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 8px 20px var(--nk-shadow);
+}
+
+.cy-ring {
+  position: relative;
+  width: min(58vw, 190px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+
+.cy-ring svg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.cy-ring__center {
+  text-align: center;
+  line-height: 1.1;
+}
+
+.cy-ring__big {
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 2.6rem;
+  color: var(--nk-text-strong);
+}
+
+.cy-ring__label {
+  font-size: 0.78rem;
+  color: var(--nk-text-muted);
+}
+
+.cy-phase {
+  margin-top: 8px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.cy-phase--period { background: #e2504a; }
+.cy-phase--fertile { background: #6bb86f; }
+.cy-phase--ovulation { background: #4fa96b; }
+.cy-phase--predicted-period { background: #e58aa2; }
+.cy-phase--none { background: var(--nk-text-muted); }
+
+.cy-belinda {
+  margin: 6px 0 0;
+  font-size: 0.72rem;
+  color: var(--nk-text-muted);
+  text-align: center;
+}
+
+/* ---------- Botón de acción principal ---------- */
+
+.cy-log {
+  display: flex;
+  gap: 8px;
+}
+
+.cy-log .nk-btn {
+  flex: 1;
+}
+
+/* ---------- Calendario ---------- */
+
+.cy-cal {
+  padding: 12px 10px;
+  border-radius: 20px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 6px 16px var(--nk-shadow);
+}
+
+.cy-cal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px 8px;
+}
+
+.cy-cal__title {
+  margin: 0;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--nk-text-strong);
+  text-transform: capitalize;
+}
+
+.cy-cal__nav {
+  display: flex;
+  gap: 6px;
+}
+
+.cy-cal__nav button {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-surface-sunk);
+  color: var(--nk-text);
+  cursor: pointer;
+}
+
+.cy-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.cy-weekday {
+  text-align: center;
+  padding-bottom: 4px;
+  font-family: var(--nk-font);
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+}
+
+.cy-day {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  font-family: var(--nk-font);
+  font-size: 0.8rem;
+  color: var(--nk-text-strong);
+  cursor: pointer;
+}
+
+.cy-day--out { opacity: 0.3; }
+.cy-day--today { outline: 2px solid var(--nk-leaf); outline-offset: -2px; }
+
+.cy-day--period { background: #e2504a; color: #fff; }
+.cy-day--fertile { background: #cdeecd; }
+.cy-day--ovulation { background: #6bb86f; color: #fff; }
+.cy-day--predicted-period {
+  background: repeating-linear-gradient(45deg, #f6d3dd 0 4px, #fbe6ec 4px 8px);
+  color: #b05772;
+}
+
+/* Punto si ese día tiene síntomas anotados. */
+.cy-day__mark {
+  position: absolute;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--nk-accent-yellow);
+}
+
+/* ---------- Leyenda ---------- */
+
+.cy-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  font-size: 0.68rem;
+  color: var(--nk-text-muted);
+}
+
+.cy-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cy-legend i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* ---------- Predicción ---------- */
+
+.cy-facts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.cy-fact {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 10px var(--nk-shadow);
+}
+
+.cy-fact dt {
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.cy-fact dd {
+  margin: 2px 0 0;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--nk-text-strong);
+}
+
+.cy-note {
+  margin: 0;
+  text-align: center;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: var(--nk-text-muted);
+}
+
+/* ---------- Hoja del día ---------- */
+
+.cy-daysheet h3 {
+  margin: 0 0 4px;
+  font-family: var(--nk-font);
+  font-size: 1rem;
+  color: var(--nk-text-strong);
+  text-transform: capitalize;
+}
+
+.cy-section {
+  margin-top: 14px;
+}
+
+.cy-section > span {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.cy-symptoms,
+.cy-moods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.cy-tag {
+  border: none;
+  border-radius: 999px;
+  padding: 0.45em 0.9em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+.cy-tag[aria-pressed="true"] {
+  background: var(--nk-accent-pink);
+  color: #8a3a52;
+}
+
+.cy-flow {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.cy-flow button {
+  flex: 1;
+  border: none;
+  border-radius: 12px;
+  padding: 0.6em 0;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+.cy-flow button[aria-pressed="true"] {
+  background: #e2504a;
+  color: #fff;
+}
+
+.cy-note-input {
+  width: 100%;
+  margin-top: 6px;
+  border: none;
+  border-radius: 12px;
+  padding: 0.7em 0.9em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font-body);
+  font-size: 16px;
+  color: var(--nk-text-strong);
+  resize: none;
+}
+
+.cy-note-input:focus {
+  outline: 2px solid var(--nk-leaf);
+}
+
+.cy-period-toggle {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.cy-period-toggle .nk-btn {
+  flex: 1;
+}

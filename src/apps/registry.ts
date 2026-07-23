@@ -1,5 +1,6 @@
 import airlinesIcon from "../assets/airlines.webp";
 import archivosIcon from "../assets/archivos.webp";
+import cicloIcon from "../assets/ciclo.webp";
 import tractiveIcon from "../assets/tractive.webp";
 import auxilioIcon from "../assets/auxilio_me_agobio_sobrecarga_salvame_cacahuete.webp";
 import calculatorIcon from "../assets/calculadora.webp";
@@ -266,6 +267,15 @@ export const registry: MiniAppManifest[] = [
     enabled: true,
     page: 2,
     teaser: "Cuando Irene busca a Vicente, le avisa al momento.",
+  },
+  {
+    id: "cycle",
+    title: "Ciclo",
+    iconSrc: cicloIcon,
+    path: "/ciclo",
+    enabled: true,
+    page: 2,
+    teaser: "El ciclo de Belinda: regla, días fértiles y síntomas.",
   },
 ];
 

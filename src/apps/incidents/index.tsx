@@ -70,6 +70,7 @@ export default function IncidentsApp() {
         + Algo que arreglar…
       </button>
 
+{/*
       {open.length > 0 && (
         <div className="in-summary">
           <div>
@@ -85,7 +86,7 @@ export default function IncidentsApp() {
             <span>fuera de plazo</span>
           </div>
         </div>
-      )}
+      )}*/}
 
       {open.length === 0 && closed.length === 0 ? (
         <p className="in-empty">Nada roto por ahora. Toca madera.</p>
