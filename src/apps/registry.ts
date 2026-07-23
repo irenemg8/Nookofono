@@ -1,6 +1,7 @@
 import airlinesIcon from "../assets/airlines.webp";
 import archivosIcon from "../assets/archivos.webp";
 import cicloIcon from "../assets/ciclo.webp";
+import docsIcon from "../assets/docs.webp";
 import imbecilIcon from "../assets/imbecil.webp";
 import tractiveIcon from "../assets/tractive.webp";
 import auxilioIcon from "../assets/auxilio_me_agobio_sobrecarga_salvame_cacahuete.webp";
@@ -286,6 +287,15 @@ export const registry: MiniAppManifest[] = [
     enabled: true,
     page: 3,
     teaser: "Un botón para avisar al otro cuando hace falta atención.",
+  },
+  {
+    id: "docs",
+    title: "Docs",
+    iconSrc: docsIcon,
+    path: "/docs",
+    enabled: true,
+    page: 3,
+    teaser: "Documentos de texto de RAG-Pugtín: ver, editar y descargar.",
   },
 ];
 

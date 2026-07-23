@@ -17,8 +17,10 @@ import { ConfirmDialog } from "../../shared/ui/ConfirmDialog";
 import { importFile } from "../sheets/model/xlsx";
 import { emptySheet, type Sheet } from "../sheets/model/grid";
 import { SheetEditor } from "../sheets/ui/SheetEditor";
+import { exportDocBlob, exportDocxBlob, importDocx } from "../docs/model/docx";
+import { DocEditor } from "../docs/ui/DocEditor";
 import { exportSheetBlob } from "./model/save-sheet";
-import { humanSize, isSheet, kindOf, type FileItem, type Folder } from "./model/types";
+import { humanSize, isDoc, isSheet, kindOf, type FileItem, type Folder } from "./model/types";
 import { FileGlyph, FolderGlyph } from "./ui/glyphs";
 import "./files.css";
 
@@ -33,6 +35,7 @@ export default function FilesApp() {
   const [tag, setTag] = useState<string | null>(null);
   const [menuItem, setMenuItem] = useState<{ kind: "folder" | "file"; id: string } | null>(null);
   const [editingSheet, setEditingSheet] = useState<{ file: FileItem; sheet: Sheet } | null>(null);
+  const [editingDoc, setEditingDoc] = useState<{ file: FileItem; html: string } | null>(null);
   const uploadRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
@@ -83,8 +86,8 @@ export default function FilesApp() {
   }
 
   async function openFile(file: FileItem) {
-    // Un Excel se abre en el editor; el resto se descargan (o se previsualizan
-    // en el futuro). Editar y guardar sólo tiene sentido con hojas.
+    // Excel y Word se abren en su editor; el resto se descargan. Es el mismo
+    // fichero que se ve desde las apps Excel/Docs.
     if (isSheet(file)) {
       const blob = await getBlob(file.id);
       const sheet = blob
@@ -93,8 +96,23 @@ export default function FilesApp() {
       setEditingSheet({ file, sheet });
       return;
     }
+    if (isDoc(file)) {
+      const blob = await getBlob(file.id);
+      const html = blob
+        ? await importDocx(new File([blob], file.name, { type: file.mime })).catch(() => "<p></p>")
+        : "<p></p>";
+      setEditingDoc({ file, html });
+      return;
+    }
     const blob = await getBlob(file.id);
     if (blob) download(blob, file.name);
+  }
+
+  async function saveDoc(html: string, name: string) {
+    if (!editingDoc) return;
+    const blob = await exportDocxBlob(html).catch(() => exportDocBlob(html));
+    await putBlob(editingDoc.file.id, blob);
+    await files.update(editingDoc.file.id, { size: blob.size, name, mime: blob.type });
   }
 
   async function saveSheet(sheet: Sheet) {
@@ -142,6 +160,17 @@ export default function FilesApp() {
         initial={editingSheet.sheet}
         onSave={saveSheet}
         onClose={() => setEditingSheet(null)}
+      />
+    );
+  }
+
+  if (editingDoc) {
+    return (
+      <DocEditor
+        initialHtml={editingDoc.html}
+        initialName={editingDoc.file.name}
+        onSave={saveDoc}
+        onClose={() => setEditingDoc(null)}
       />
     );
   }

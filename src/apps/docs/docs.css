@@ -1,0 +1,265 @@
+.dc {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.dc-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.dc-actions .nk-btn {
+  flex: 1;
+}
+
+.dc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dc-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 15px;
+  border: none;
+  border-radius: 16px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 10px var(--nk-shadow);
+  cursor: pointer;
+  text-align: left;
+}
+
+.dc-row__icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 11px;
+  background: #5aa9e6;
+  color: #fff;
+  font-family: var(--nk-font);
+  font-weight: 700;
+  font-size: 0.62rem;
+}
+
+.dc-row__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dc-row__name {
+  font-family: var(--nk-font);
+  font-weight: 600;
+  color: var(--nk-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dc-row__meta {
+  font-size: 0.72rem;
+  color: var(--nk-text-muted);
+}
+
+.dc-row__act,
+.dc-row__x {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-surface-sunk);
+  color: var(--nk-text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dc-row__act { color: #4a86c4; font-weight: 700; }
+
+.dc-empty {
+  text-align: center;
+  color: var(--nk-text-muted);
+  font-size: 0.85rem;
+  padding: 26px 0;
+}
+
+.dc-note {
+  margin: 0;
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--nk-text-muted);
+}
+
+/* ---------- Editor ---------- */
+
+.dc-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+
+.dc-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dc-bar__btn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-bg-cream);
+  color: var(--nk-text);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--nk-border);
+}
+
+.dc-bar__name {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: 10px;
+  padding: 0.5em 0.8em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--nk-text-strong);
+}
+
+.dc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--nk-surface-sunk);
+  overflow-x: auto;
+}
+
+.dc-toolbar button {
+  flex: none;
+  min-width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 9px;
+  background: var(--nk-bg-cream);
+  color: var(--nk-text-strong);
+  font-family: var(--nk-font);
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 2px 0 var(--nk-border);
+}
+
+.dc-toolbar button:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.dc-toolbar__sep {
+  width: 1px;
+  height: 22px;
+  background: var(--nk-border);
+  margin: 0 2px;
+}
+
+/* La hoja de escritura. */
+.dc-page {
+  flex: 1;
+  min-height: 300px;
+  overflow-y: auto;
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--nk-border), 0 6px 16px var(--nk-shadow);
+  font-family: var(--nk-font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #2c2c33;
+}
+
+.dc-page:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--nk-leaf), 0 6px 16px var(--nk-shadow);
+}
+
+.dc-page h1 {
+  font-family: var(--nk-font);
+  font-size: 1.5rem;
+  margin: 0.4em 0 0.3em;
+}
+
+.dc-page h2 {
+  font-family: var(--nk-font);
+  font-size: 1.2rem;
+  margin: 0.4em 0 0.3em;
+}
+
+.dc-page p {
+  margin: 0 0 0.6em;
+}
+
+.dc-page ul,
+.dc-page ol {
+  margin: 0 0 0.6em;
+  padding-left: 1.4em;
+}
+
+/* ---------- Selector de formato ---------- */
+
+.dc-formats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dc-format {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border: none;
+  border-radius: 16px;
+  background: var(--nk-surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.dc-format__ext {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 40px;
+  border-radius: 10px;
+  background: #5aa9e6;
+  color: #fff;
+  font-family: var(--nk-font);
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+.dc-format__desc {
+  font-size: 0.82rem;
+  color: var(--nk-text);
+}

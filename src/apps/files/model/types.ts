@@ -49,6 +49,10 @@ export function isSheet(file: { name: string; mime: string }): boolean {
   return kindOf(file) === "sheet";
 }
 
+export function isDoc(file: { name: string; mime: string }): boolean {
+  return kindOf(file) === "doc";
+}
+
 /** "1,4 MB" a partir de los bytes. */
 export function humanSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
