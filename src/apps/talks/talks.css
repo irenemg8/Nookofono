@@ -1,0 +1,306 @@
+.tl {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ---------- Añadir ---------- */
+
+.tl-new {
+  border: none;
+  width: 100%;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 12px var(--nk-shadow);
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--nk-text);
+  cursor: pointer;
+  border: 2px dashed var(--nk-border);
+}
+
+.tl-summary {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px;
+  border-radius: 18px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 12px var(--nk-shadow);
+  text-align: center;
+}
+
+.tl-summary b {
+  display: block;
+  font-family: var(--nk-font);
+  font-size: 1.4rem;
+  color: var(--nk-text-strong);
+}
+
+.tl-summary span {
+  font-size: 0.7rem;
+  color: var(--nk-text-muted);
+}
+
+/* ---------- Tarjeta (estilo tarjeta de embarque) ---------- */
+
+.tl-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tl-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 92px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f3ecfa;
+  box-shadow: 0 6px 16px var(--nk-shadow);
+}
+
+.tl-card--done {
+  filter: saturate(0.5);
+}
+
+.tl-card .nk-remove {
+  top: 8px;
+  right: 8px;
+}
+
+.tl-card__main {
+  padding: 13px 15px;
+  background: #f3ecfa;
+  background-image: radial-gradient(circle at 18% 22%, rgba(140, 108, 200, 0.09) 0 9px, transparent 9px);
+  background-size: 46px 46px;
+}
+
+.tl-card__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6a4b9c;
+}
+
+.tl-card__from {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.tl-card__title {
+  margin: 8px 0 0;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  color: var(--nk-text-strong);
+}
+
+.tl-card__desc {
+  margin: 5px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--nk-text);
+  white-space: pre-wrap;
+}
+
+.tl-card__foot {
+  margin-top: 10px;
+  font-size: 0.68rem;
+  color: #7a689c;
+}
+
+/* Talón derecho con el plazo, separado por la perforación. */
+.tl-card__stub {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 6px;
+  text-align: center;
+  background: #e7dcf6;
+  border-left: 3px dashed #c4b1e4;
+}
+
+.tl-card__stub::before,
+.tl-card__stub::after {
+  content: "";
+  position: absolute;
+  left: -9px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--nk-sand);
+}
+
+.tl-card__stub::before {
+  top: -8px;
+}
+.tl-card__stub::after {
+  bottom: -8px;
+}
+
+/* Cuenta atrás del plazo de 48 h. */
+.tl-clock {
+  font-family: var(--nk-font);
+  line-height: 1.05;
+}
+
+.tl-clock__n {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #5b3f8f;
+}
+
+.tl-clock__u {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a76b0;
+}
+
+/* Menos de 6 h: el plazo aprieta. */
+.tl-card--soon .tl-clock__n {
+  color: #d98324;
+}
+
+.tl-check {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  color: #c4b1e4;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 5px var(--nk-shadow);
+}
+
+/* Sello diagonal cuando ya está hablado o cuando venció el plazo. */
+.tl-stamp {
+  position: absolute;
+  top: 46%;
+  left: 22%;
+  transform: rotate(-14deg);
+  padding: 5px 12px;
+  border: 3px double currentColor;
+  border-radius: 6px;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.tl-stamp--done {
+  color: var(--nk-nook-green);
+}
+
+.tl-stamp--expired {
+  color: #c2413c;
+}
+
+.tl-empty {
+  text-align: center;
+  color: var(--nk-text-muted);
+  font-size: 0.85rem;
+  padding: 26px 0;
+}
+
+/* ---------- Formulario ---------- */
+
+.tl-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tl-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tl-form label > span {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.tl-form input,
+.tl-form textarea {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 0.7em 0.9em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font-body);
+  font-size: 16px;
+  color: var(--nk-text-strong);
+  resize: none;
+}
+
+.tl-form input:focus,
+.tl-form textarea:focus {
+  outline: 2px solid var(--nk-leaf);
+}
+
+.tl-chips {
+  display: flex;
+  gap: 6px;
+}
+
+.tl-chip {
+  border: none;
+  border-radius: 999px;
+  padding: 0.45em 0.95em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+.tl-chip[aria-pressed="true"] {
+  background: var(--nk-leaf);
+  color: #fff;
+}
+
+.tl-chip--irene[aria-pressed="true"] {
+  background: #e86a92;
+}
+.tl-chip--vicente[aria-pressed="true"] {
+  background: #5aa9e6;
+}
+
+.tl-form__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 2px;
+}
+
+.tl-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--nk-text-muted);
+}
