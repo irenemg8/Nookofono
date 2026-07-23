@@ -44,11 +44,20 @@ const SEED: { title: string; everyWeeks: number }[] = [
 /** ¿Toca hacerla? Sí si nunca se hizo o si su cadencia ya venció. */
 function isPending(c: Chore, now: number): boolean {
   if (!c.lastDoneAt) return true;
+  if (c.everyWeeks <= 0) return false; // puntual: una vez hecha, hecha para siempre
   return now - c.lastDoneAt >= c.everyWeeks * WEEK;
 }
 
 const CADENCE_LABEL = (w: number) =>
-  w <= 1 ? "cada semana" : w === 2 ? "cada 2 sem" : w === 4 ? "cada mes" : `cada ${w} sem`;
+  w <= 0
+    ? "una vez"
+    : w === 1
+      ? "cada semana"
+      : w === 2
+        ? "cada 2 sem"
+        : w === 4
+          ? "cada mes"
+          : `cada ${w} sem`;
 
 /** «hoy», «ayer», «hace 3 días», «hace 2 sem». */
 function ago(ts: number, now: number): string {
@@ -230,9 +239,10 @@ function ChoreRow({
     push(v);
   }
 
-  // La cadencia cicla al tocarla: semanal → 2 sem → mensual → semanal.
+  // La cadencia cicla al tocarla: una vez → semanal → 2 sem → mensual → una vez.
   function cycleCadence() {
-    const next = chore.everyWeeks <= 1 ? 2 : chore.everyWeeks === 2 ? 4 : 1;
+    const next =
+      chore.everyWeeks <= 0 ? 1 : chore.everyWeeks === 1 ? 2 : chore.everyWeeks === 2 ? 4 : 0;
     onCadence(next);
   }
 
@@ -291,12 +301,14 @@ function ChoreForm({
   onSave: (title: string, everyWeeks: number) => void;
 }) {
   const [title, setTitle] = useState("");
+  /** De siempre = se repite; puntual = una sola vez. */
+  const [recurring, setRecurring] = useState(true);
   const [everyWeeks, setEveryWeeks] = useState(1);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
-    onSave(title.trim(), everyWeeks);
+    onSave(title.trim(), recurring ? everyWeeks : 0);
   }
 
   return (
@@ -321,21 +333,45 @@ function ChoreForm({
           </label>
 
           <div>
-            <span className="hm-form__legend">Cada cuánto toca</span>
+            <span className="hm-form__legend">¿Cómo es?</span>
             <div className="hm-chips">
-              {[1, 2, 4].map((w) => (
-                <button
-                  key={w}
-                  type="button"
-                  className="hm-chip"
-                  aria-pressed={everyWeeks === w}
-                  onClick={() => setEveryWeeks(w)}
-                >
-                  {CADENCE_LABEL(w)}
-                </button>
-              ))}
+              <button
+                type="button"
+                className="hm-chip"
+                aria-pressed={recurring}
+                onClick={() => setRecurring(true)}
+              >
+                De siempre
+              </button>
+              <button
+                type="button"
+                className="hm-chip"
+                aria-pressed={!recurring}
+                onClick={() => setRecurring(false)}
+              >
+                Puntual (una vez)
+              </button>
             </div>
           </div>
+
+          {recurring && (
+            <div>
+              <span className="hm-form__legend">Cada cuánto toca</span>
+              <div className="hm-chips">
+                {[1, 2, 4].map((w) => (
+                  <button
+                    key={w}
+                    type="button"
+                    className="hm-chip"
+                    aria-pressed={everyWeeks === w}
+                    onClick={() => setEveryWeeks(w)}
+                  >
+                    {CADENCE_LABEL(w)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="hm-form__actions">
             <button type="button" className="nk-btn nk-btn--ghost" onClick={onClose}>

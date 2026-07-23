@@ -13,7 +13,7 @@ export const chores = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     title: text("title").notNull(),
-    everyWeeks: integer("every_weeks").notNull().default(1), // cada cuántas semanas toca
+    everyWeeks: integer("every_weeks").notNull().default(1), // cada cuántas semanas toca; 0 = puntual (una vez)
     lastDoneAt: timestamp("last_done_at"),                    // null = nunca
     lastDoneBy: text("last_done_by").notNull().default(""),   // ''|'irene'|'vicente'
     position: integer("position").notNull().default(0),
@@ -31,7 +31,7 @@ export const chores = pgTable(
 ```ts
 const choreCreate = z.object({
   title: z.string().min(1).max(200),
-  everyWeeks: z.number().int().min(1).max(52).default(1),
+  everyWeeks: z.number().int().min(0).max(52).default(1), // 0 = puntual (una vez)
   lastDoneAt: z.number().int().nullable().default(null),
   lastDoneBy: z.enum(["", "irene", "vicente"]).default(""),
   position: z.number().int().default(0),
@@ -61,7 +61,7 @@ Cada domingo a las 21:00 (Europe/Madrid):
   now = ahora (epoch ms)
   pendientes = SELECT * FROM chores
                WHERE last_done_at IS NULL
-                  OR (now - last_done_at) >= every_weeks * 7 * 86400000
+                  OR (every_weeks > 0 AND (now - last_done_at) >= every_weeks * 7 * 86400000)
   si pendientes no está vacío:
     POST https://ntfy.sh/ipug-casa-4b8f1e6d3a29
       Title: "Tareas de casa"
