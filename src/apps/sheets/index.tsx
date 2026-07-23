@@ -17,6 +17,8 @@ export default function SheetsApp() {
   const docs = useRemoteCollection<SheetDoc>("/api/sheets");
   const [openId, setOpenId] = useState<string | null>(null);
   const [pending, setPending] = useState<SheetDoc | null>(null);
+  /** La hoja para la que se está eligiendo formato de descarga. */
+  const [downloading, setDownloading] = useState<Sheet | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const openDoc = docs.items.find((d) => d.id === openId) ?? null;
@@ -77,7 +79,14 @@ export default function SheetsApp() {
             const filled = sheet ? Object.keys(sheet.cells).length : 0;
             return (
               <li key={d.id}>
-                <button type="button" className="xl-row" onClick={() => setOpenId(d.id)}>
+                {/* Fila clicable como div para no anidar botones dentro de otro. */}
+                <div
+                  className="xl-row"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setOpenId(d.id)}
+                  onKeyDown={(e) => e.key === "Enter" && setOpenId(d.id)}
+                >
                   <span className="xl-row__icon">XLS</span>
                   <span className="xl-row__body">
                     <span className="xl-row__name">{d.name}</span>
@@ -86,6 +95,19 @@ export default function SheetsApp() {
                       {new Date(d.updatedAt).toLocaleDateString("es-ES")}
                     </span>
                   </span>
+
+                  <button
+                    type="button"
+                    className="xl-row__act"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (sheet) setDownloading(sheet);
+                    }}
+                    aria-label="Descargar hoja"
+                    title="Descargar"
+                  >
+                    ↓
+                  </button>
                   <button
                     type="button"
                     className="xl-row__x"
@@ -97,7 +119,7 @@ export default function SheetsApp() {
                   >
                     ×
                   </button>
-                </button>
+                </div>
               </li>
             );
           })}
@@ -120,6 +142,42 @@ export default function SheetsApp() {
           onCancel={() => setPending(null)}
         />
       )}
+
+      {downloading && (
+        <FormatSheet sheet={downloading} onClose={() => setDownloading(null)} />
+      )}
+    </div>
+  );
+}
+
+/** Hoja inferior para elegir en qué formato se descarga. */
+function FormatSheet({ sheet, onClose }: { sheet: Sheet; onClose: () => void }) {
+  function pick(format: "xlsx" | "csv") {
+    exportFile(sheet, format);
+    onClose();
+  }
+
+  return (
+    <div className="nk-sheet" onPointerDown={onClose}>
+      <div className="nk-sheet__panel" onPointerDown={(e) => e.stopPropagation()}>
+        <header className="nk-sheet__head">
+          <h2>Descargar «{sheet.name}»</h2>
+          <button type="button" className="nk-sheet__close" onClick={onClose} aria-label="Cerrar">
+            ×
+          </button>
+        </header>
+
+        <div className="xl-formats">
+          <button type="button" className="xl-format" onClick={() => pick("xlsx")}>
+            <span className="xl-format__ext">XLSX</span>
+            <span className="xl-format__desc">Excel, con las fórmulas que entiende</span>
+          </button>
+          <button type="button" className="xl-format" onClick={() => pick("csv")}>
+            <span className="xl-format__ext">CSV</span>
+            <span className="xl-format__desc">Texto plano, para abrir en cualquier sitio</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -138,6 +196,7 @@ function Editor({
   const [sheet, setSheet] = useState<Sheet>(() => safeParse(doc.data) ?? emptySheet(doc.name));
   const [selected, setSelected] = useState("A1");
   const [draft, setDraft] = useState(sheet.cells["A1"] ?? "");
+  const [downloading, setDownloading] = useState(false);
 
   // Los valores calculados de todo el grid. Se recomputan al cambiar las celdas.
   const computed = useMemo(() => computeGrid(sheet.cells), [sheet.cells]);
@@ -179,12 +238,10 @@ function Editor({
         />
         <button
           type="button"
-          className="xl-bar__btn"
-          onClick={() => exportFile(sheet, "xlsx")}
-          aria-label="Descargar xlsx"
-          title="Descargar .xlsx"
+          className="nk-btn nk-btn--sm"
+          onClick={() => setDownloading(true)}
         >
-          ↓
+          ↓ Descargar
         </button>
       </div>
 
@@ -253,6 +310,8 @@ function Editor({
           + Columnas
         </button>
       </div>
+
+      {downloading && <FormatSheet sheet={sheet} onClose={() => setDownloading(false)} />}
     </div>
   );
 }

@@ -78,10 +78,11 @@
   color: var(--nk-text-muted);
 }
 
+.xl-row__act,
 .xl-row__x {
   flex: none;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border: none;
   border-radius: 50%;
   background: var(--nk-surface-sunk);
@@ -89,6 +90,50 @@
   font-size: 1rem;
   line-height: 1;
   cursor: pointer;
+}
+
+.xl-row__act {
+  color: var(--nk-nook-green);
+  font-weight: 700;
+}
+
+/* ---------- Selector de formato ---------- */
+
+.xl-formats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.xl-format {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border: none;
+  border-radius: 16px;
+  background: var(--nk-surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.xl-format__ext {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--nk-leaf);
+  color: #fff;
+  font-family: var(--nk-font);
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+.xl-format__desc {
+  font-size: 0.82rem;
+  color: var(--nk-text);
 }
 
 .xl-empty {
