@@ -18,6 +18,7 @@ import { buildHomeItems, isWidget, paginate, type HomeItem } from "./apps/home-i
 import { appsById, type MiniAppManifest } from "./apps/registry";
 import { screens } from "./apps/screens";
 import { consumeRedirect } from "./apps/music/model/spotify-auth";
+import { SpotifyPlayerProvider } from "./apps/music/model/player-context";
 import {
   WIDGET_CATALOG,
   WIDGET_SIZE_LABEL,
@@ -689,24 +690,28 @@ export default function App() {
 
   return (
     <CurrentUserContext.Provider value={session.session.userId}>
-      <main
-        className={`nk-phone${locked ? " nk-phone--locked" : ""}`}
-        data-theme={phase}
-        style={homeWallpaper ? { backgroundImage: `url(${homeWallpaper})` } : undefined}
-      >
-        {locked ? (
-          <LockScreen onUnlock={() => setLocked(false)} phase={phase} />
-        ) : (
-          <>
-            <StatusBar />
-            {open ? (
-              <AppView app={open} onBack={() => setOpen(null)} />
-            ) : (
-              <HomeScreen onOpen={setOpen} />
-            )}
-          </>
-        )}
-      </main>
+      {/* El reproductor vive aquí, por encima de la navegación, para que la
+          música no se corte al salir de la app de Spotify. */}
+      <SpotifyPlayerProvider>
+        <main
+          className={`nk-phone${locked ? " nk-phone--locked" : ""}`}
+          data-theme={phase}
+          style={homeWallpaper ? { backgroundImage: `url(${homeWallpaper})` } : undefined}
+        >
+          {locked ? (
+            <LockScreen onUnlock={() => setLocked(false)} phase={phase} />
+          ) : (
+            <>
+              <StatusBar />
+              {open ? (
+                <AppView app={open} onBack={() => setOpen(null)} />
+              ) : (
+                <HomeScreen onOpen={setOpen} />
+              )}
+            </>
+          )}
+        </main>
+      </SpotifyPlayerProvider>
     </CurrentUserContext.Provider>
   );
 }

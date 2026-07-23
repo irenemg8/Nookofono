@@ -58,7 +58,7 @@ declare global {
  * Si el SDK no puede arrancar, `failed` explica por qué y la pantalla cae al
  * reproductor incrustado, que funciona siempre.
  */
-export function useSpotifyPlayer(playlistUri: string) {
+export function useSpotifyPlayer(playlistUri: string, enabled = true) {
   const player = useRef<SpotifyPlayer | null>(null);
   const deviceId = useRef<string | null>(null);
   const [state, setState] = useState<PlayerState>({
@@ -72,6 +72,11 @@ export function useSpotifyPlayer(playlistUri: string) {
   });
 
   useEffect(() => {
+    // No se toca el SDK hasta que alguien abre Música. A partir de ahí, como
+    // este hook vive en un proveedor que no se desmonta, el reproductor no se
+    // desconecta al salir de la pantalla: la música sigue sonando.
+    if (!enabled) return;
+
     let cancelled = false;
 
     function build() {
@@ -155,7 +160,7 @@ export function useSpotifyPlayer(playlistUri: string) {
       player.current?.disconnect();
       player.current = null;
     };
-  }, []);
+  }, [enabled]);
 
   // El SDK sólo avisa al cambiar de estado, así que entre canción y canción la
   // posición se quedaría congelada. Se avanza en local mientras suena.

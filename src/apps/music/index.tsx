@@ -1,13 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { PLAYLIST_URI, PLAYLIST_URL, useSpotifyPlayerContext } from "./model/player-context";
 import { hasSession, isConfigured, login, logout, redirectUri } from "./model/spotify-auth";
 import { usePlaylistInfo, useSpotifyEmbed } from "./model/use-spotify-embed";
-import { useSpotifyPlayer } from "./model/use-spotify-player";
 import "./music.css";
-
-/** La lista compartida de Irene y Vicente. */
-const PLAYLIST_ID = "7MoqMt8vUbuC16bGHyUdPl";
-const PLAYLIST_URL = `https://open.spotify.com/playlist/${PLAYLIST_ID}`;
-const PLAYLIST_URI = `spotify:playlist:${PLAYLIST_ID}`;
 
 export default function MusicApp() {
   const info = usePlaylistInfo(PLAYLIST_URL);
@@ -41,7 +36,13 @@ function Player({
   info: { title: string; cover: string } | null;
   onLogout: () => void;
 }) {
-  const { state, toggle, next, previous, seek, setShuffle } = useSpotifyPlayer(PLAYLIST_URI);
+  const { state, toggle, next, previous, seek, setShuffle, activate } = useSpotifyPlayerContext();
+
+  // Abrir Música es lo que enciende el reproductor la primera vez. A partir de
+  // ahí vive en la raíz y no se apaga al salir.
+  useEffect(() => {
+    activate();
+  }, [activate]);
 
   // Si el SDK no arranca (plan sólo móvil, navegador sin DRM…), el reproductor
   // incrustado sigue funcionando y no se pierde la música.
