@@ -3,7 +3,10 @@ import archivosIcon from "../assets/archivos.webp";
 import cicloIcon from "../assets/ciclo.webp";
 import docsIcon from "../assets/docs.webp";
 import imbecilIcon from "../assets/imbecil.webp";
+import menuIcon from "../assets/menu.webp";
+import recipesIcon from "../assets/recetario.webp";
 import tractiveIcon from "../assets/tractive.webp";
+import wishlistIcon from "../assets/wishlist.webp";
 import auxilioIcon from "../assets/auxilio_me_agobio_sobrecarga_salvame_cacahuete.webp";
 import calculatorIcon from "../assets/calculadora.webp";
 import calendarIcon from "../assets/calendario.webp";
@@ -293,6 +296,33 @@ export const registry: MiniAppManifest[] = [
     enabled: true,
     page: 3,
     teaser: "Documentos de texto de RAG-Pugtín: ver, editar y descargar.",
+  },
+  {
+    id: "recipes",
+    title: "Recetario",
+    iconSrc: recipesIcon,
+    path: "/recetario",
+    enabled: true,
+    page: 3,
+    teaser: "Vuestras recetas, con ingredientes, tiempo y etiquetas.",
+  },
+  {
+    id: "menu",
+    title: "Menú",
+    iconSrc: menuIcon,
+    path: "/menu",
+    enabled: true,
+    page: 3,
+    teaser: "El menú de la semana: desayunos, comidas y cenas del recetario.",
+  },
+  {
+    id: "wishlist",
+    title: "Wishlist",
+    iconSrc: wishlistIcon,
+    path: "/wishlist",
+    enabled: true,
+    page: 3,
+    teaser: "Pelis y series que queréis ver, para ir tachando.",
   },
 ];
 

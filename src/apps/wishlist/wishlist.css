@@ -1,0 +1,216 @@
+.wl {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wl-legend {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.wl-empty {
+  text-align: center;
+  color: var(--nk-text-muted);
+  font-size: 0.85rem;
+  padding: 18px 0;
+}
+
+.wl-new {
+  border: 2px dashed var(--nk-border);
+  width: 100%;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 12px var(--nk-shadow);
+  font-family: var(--nk-font);
+  font-weight: 600;
+  color: var(--nk-text);
+  cursor: pointer;
+}
+
+.wl-filters,
+.wl-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wl-chip {
+  border: none;
+  border-radius: 999px;
+  padding: 0.45em 0.95em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+.wl-chip[aria-pressed="true"] {
+  background: var(--nk-leaf);
+  color: #fff;
+}
+
+.wl-chip--irene[aria-pressed="true"] { background: #e86a92; }
+.wl-chip--vicente[aria-pressed="true"] { background: #5aa9e6; }
+
+.wl-head {
+  margin: 4px 0 8px;
+  font-family: var(--nk-font);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.wl-head--seen {
+  color: var(--nk-nook-green);
+}
+
+/* ---------- Tarjetas ---------- */
+
+.wl-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wl-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 40px 12px 12px;
+  border-radius: 14px;
+  background: #fbf1e0;
+  box-shadow: 0 4px 10px var(--nk-shadow);
+}
+
+.wl-item--seen {
+  background: var(--nk-bg-cream);
+  filter: saturate(0.6);
+}
+
+.wl-check {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2.5px solid var(--nk-leaf);
+  background: transparent;
+  color: transparent;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wl-item--seen .wl-check {
+  background: var(--nk-nook-green);
+  border-color: var(--nk-nook-green);
+  color: #fff;
+}
+
+.wl-emoji {
+  font-size: 1.3rem;
+  line-height: 1.2;
+}
+
+.wl-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.wl-title {
+  font-family: var(--nk-font);
+  color: var(--nk-text-strong);
+}
+
+.wl-item--seen .wl-title {
+  text-decoration: line-through;
+  color: var(--nk-text-muted);
+}
+
+.wl-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  color: var(--nk-text-muted);
+}
+
+.wl-who {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.wl-who__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.wl-note {
+  margin: 5px 0 0;
+  font-size: 0.82rem;
+  color: var(--nk-text);
+  white-space: pre-wrap;
+}
+
+.wl-item .nk-remove {
+  top: 8px;
+  right: 8px;
+}
+
+/* ---------- Formulario ---------- */
+
+.wl-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wl-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wl-form input,
+.wl-form textarea {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 0.7em 0.9em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font-body);
+  font-size: 16px;
+  color: var(--nk-text-strong);
+  resize: none;
+}
+
+.wl-form input:focus,
+.wl-form textarea:focus {
+  outline: 2px solid var(--nk-leaf);
+}
+
+.wl-form__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.wl-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--nk-text-muted);
+}

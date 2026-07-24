@@ -1,0 +1,219 @@
+.mn {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mn-empty {
+  text-align: center;
+  color: var(--nk-text-muted);
+  font-size: 0.85rem;
+  padding: 20px 0;
+}
+
+/* ---------- Navegación de semana ---------- */
+
+.mn-weeknav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 3px 10px var(--nk-shadow);
+}
+
+.mn-nav {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-surface-sunk);
+  font-size: 1.3rem;
+  color: var(--nk-text-strong);
+  cursor: pointer;
+}
+
+.mn-weeknav__label {
+  text-align: center;
+  line-height: 1.1;
+}
+
+.mn-weeknav__label strong {
+  display: block;
+  font-family: var(--nk-font);
+  color: var(--nk-text-strong);
+}
+
+.mn-weeknav__label span {
+  font-size: 0.7rem;
+  color: var(--nk-text-muted);
+  text-transform: capitalize;
+}
+
+.mn-shopbtn {
+  align-self: center;
+}
+
+/* ---------- Días ---------- */
+
+.mn-days {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mn-day {
+  padding: 10px 12px 12px;
+  border-radius: 16px;
+  background: #fbf1e0;
+  box-shadow: 0 4px 12px var(--nk-shadow);
+}
+
+.mn-day--today {
+  outline: 2px solid var(--nk-leaf);
+}
+
+.mn-day__head {
+  margin: 0 0 8px;
+  font-family: var(--nk-font);
+  font-size: 0.9rem;
+  color: var(--nk-text-strong);
+}
+
+.mn-meals {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mn-slot {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.mn-slot__label {
+  flex: none;
+  width: 72px;
+  padding-top: 5px;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.mn-slot__items {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-height: 30px;
+}
+
+.mn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.3em 0.3em 0.3em 0.7em;
+  border-radius: 999px;
+  background: var(--nk-leaf);
+  color: #fff;
+  font-family: var(--nk-font);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.mn-pill__x {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  color: #fff;
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mn-add {
+  width: 30px;
+  height: 30px;
+  border: 2px dashed var(--nk-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--nk-text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* ---------- Selector de receta ---------- */
+
+.mn-search {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 0.7em 0.9em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font-body);
+  font-size: 16px;
+  color: var(--nk-text-strong);
+  margin-bottom: 10px;
+}
+
+.mn-search:focus {
+  outline: 2px solid var(--nk-leaf);
+}
+
+.mn-picklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.mn-pick {
+  width: 100%;
+  text-align: left;
+  border: none;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-weight: 600;
+  color: var(--nk-text-strong);
+  cursor: pointer;
+}
+
+/* ---------- Compra de la semana ---------- */
+
+.mn-shop__note {
+  margin: 0 0 8px;
+  font-size: 0.75rem;
+  color: var(--nk-text-muted);
+}
+
+.mn-shop {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.mn-shop li {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--nk-surface-sunk);
+  font-size: 0.88rem;
+  color: var(--nk-text);
+}

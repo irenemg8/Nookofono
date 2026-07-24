@@ -1,0 +1,237 @@
+.rc {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rc-legend {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.rc-empty {
+  text-align: center;
+  color: var(--nk-text-muted);
+  font-size: 0.85rem;
+  padding: 26px 0;
+}
+
+.rc-new {
+  border: 2px dashed var(--nk-border);
+  width: 100%;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 12px var(--nk-shadow);
+  font-family: var(--nk-font);
+  font-weight: 600;
+  color: var(--nk-text);
+  cursor: pointer;
+}
+
+.rc-search,
+.rc-form input,
+.rc-form textarea,
+.rc-addtag input {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 0.7em 0.9em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font-body);
+  font-size: 16px;
+  color: var(--nk-text-strong);
+  resize: none;
+}
+
+.rc-search:focus,
+.rc-form input:focus,
+.rc-form textarea:focus,
+.rc-addtag input:focus {
+  outline: 2px solid var(--nk-leaf);
+}
+
+/* ---------- Filtros ---------- */
+
+.rc-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rc-chip {
+  border: none;
+  border-radius: 999px;
+  padding: 0.4em 0.85em;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+.rc-chip[aria-pressed="true"] {
+  background: var(--nk-leaf);
+  color: #fff;
+}
+
+.rc-chip--tag[aria-pressed="true"] {
+  background: #e0a03c;
+}
+
+/* ---------- Lista de recetas ---------- */
+
+.rc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rc-card {
+  width: 100%;
+  text-align: left;
+  border: none;
+  padding: 14px;
+  border-radius: 16px;
+  background: #fbf1e0;
+  box-shadow: 0 5px 14px var(--nk-shadow);
+  cursor: pointer;
+}
+
+.rc-card__title {
+  font-family: var(--nk-font);
+  font-size: 1.05rem;
+  color: var(--nk-text-strong);
+}
+
+.rc-card__meta {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+  font-size: 0.74rem;
+  color: var(--nk-text-muted);
+}
+
+.rc-time {
+  font-weight: 600;
+}
+
+.rc-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.rc-tag {
+  border-radius: 999px;
+  padding: 0.15em 0.6em;
+  background: var(--nk-surface-sunk);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+}
+
+/* ---------- Vista de receta ---------- */
+
+.rc-view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rc-view__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rc-view__acts {
+  display: flex;
+  gap: 6px;
+}
+
+.rc-view__title {
+  margin: 0;
+  font-family: var(--nk-font);
+  font-size: 1.5rem;
+  color: var(--nk-text-strong);
+}
+
+.rc-view__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--nk-text-muted);
+}
+
+.rc-view__sec h3 {
+  margin: 0 0 6px;
+  font-family: var(--nk-font);
+  font-size: 0.9rem;
+  color: var(--nk-text-strong);
+}
+
+.rc-ingr {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.9rem;
+  color: var(--nk-text);
+}
+
+.rc-steps {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--nk-text);
+  white-space: pre-wrap;
+}
+
+/* ---------- Editor ---------- */
+
+.rc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rc-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rc-addtag {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.rc-addtag input {
+  flex: 1;
+}
+
+.rc-form__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
