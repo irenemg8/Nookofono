@@ -628,6 +628,37 @@ body {
   box-shadow: 0 1px 0 #b13a35, 0 2px 4px var(--nk-shadow);
 }
 
+/* Rueda de configurar, en la esquina de arriba a la izquierda del widget de
+   fotos (la de quitar va en la de la derecha, no se pisan). */
+.nk-config {
+  position: absolute;
+  top: -7px;
+  left: -7px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-bg-cream);
+  color: var(--nk-text);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--nk-border), 0 4px 8px var(--nk-shadow-strong);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.nk-config svg {
+  width: 15px;
+  height: 15px;
+}
+
+.nk-config:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--nk-border), 0 2px 4px var(--nk-shadow);
+}
+
 /* Botón de añadir widget, arriba a la derecha en modo edición. */
 .nk-add {
   position: absolute;

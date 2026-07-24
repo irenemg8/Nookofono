@@ -228,8 +228,7 @@ export const registry: MiniAppManifest[] = [
     path: "/fotos",
     enabled: true,
     page: 2,
-    comingSoon: true,
-    teaser: "Vuestra galería compartida.",
+    teaser: "Vuestra galería compartida: subir, ver y descargar.",
   },
   {
     id: "files",

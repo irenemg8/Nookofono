@@ -11,6 +11,21 @@
  */
 export type WidgetSize = "2x2" | "4x2" | "4x4";
 
+/**
+ * Ajustes del widget de Fotos.
+ *
+ * Cubre los tres casos con dos campos:
+ *  - **una foto fija** → `ids` con un solo id (no rota, dé igual el intervalo).
+ *  - **al azar de toda la galería** → `ids` vacío + un intervalo.
+ *  - **una selección** → varios `ids` + un intervalo.
+ */
+export interface PhotoWidgetConfig {
+  /** Fotos elegidas por id. Vacío = todas las de la galería. */
+  ids: string[];
+  /** Segundos entre cambio de foto. 0 = fija. */
+  intervalSec: number;
+}
+
 export interface WidgetInstance {
   kind: "widget";
   /** Identificador único de esta instancia; puede haber varios de la misma app. */
@@ -19,6 +34,8 @@ export interface WidgetInstance {
   appId: string;
   size: WidgetSize;
   page: number;
+  /** Sólo para el widget de Fotos. Ausente = al azar de toda la galería. */
+  photo?: PhotoWidgetConfig;
 }
 
 /** Columnas y filas que ocupa cada tamaño en la rejilla de 4 columnas. */

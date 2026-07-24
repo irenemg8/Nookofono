@@ -3,6 +3,7 @@ import { appsById } from "../../apps/registry";
 import {
   DEFAULT_WIDGETS,
   WIDGET_SPAN,
+  type PhotoWidgetConfig,
   type WidgetInstance,
   type WidgetSize,
 } from "../../apps/widgets";
@@ -44,7 +45,15 @@ export function useWidgets() {
     });
   }, []);
 
-  return { widgets, add, remove };
+  const configure = useCallback((id: string, photo: PhotoWidgetConfig) => {
+    setWidgets((prev) => {
+      const next = prev.map((w) => (w.id === id ? { ...w, photo } : w));
+      write(next);
+      return next;
+    });
+  }, []);
+
+  return { widgets, add, remove, configure };
 }
 
 /** Descarta widgets cuya app ya no existe o cuyo tamaño se ha retirado. */

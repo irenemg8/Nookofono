@@ -41,6 +41,7 @@ function app(loader: () => Promise<{ default: ComponentType }>) {
  */
 export const screens: Record<string, LazyExoticComponent<ComponentType>> = {
   weather: app(() => import("./weather")),
+  photos: app(() => import("./photos")),
   notes: app(() => import("./notes")),
   profile: app(() => import("./profile")),
   nilo: app(() => import("./nilo")),

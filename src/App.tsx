@@ -22,9 +22,11 @@ import { SpotifyPlayerProvider } from "./apps/music/model/player-context";
 import {
   WIDGET_CATALOG,
   WIDGET_SIZE_LABEL,
+  type PhotoWidgetConfig,
   type WidgetInstance,
   type WidgetSize,
 } from "./apps/widgets";
+import { WidgetPhotoSheet } from "./apps/photos/WidgetPhotoSheet";
 import { useAppOrder } from "./shared/lib/use-app-order";
 import { useDock } from "./shared/lib/use-dock";
 import { useLongPress } from "./shared/lib/use-long-press";
@@ -34,7 +36,7 @@ import { ErrorBoundary } from "./shared/ui/ErrorBoundary";
 import { useBattery } from "./shared/lib/use-battery";
 import { useClock } from "./shared/lib/use-clock";
 import { CurrentUserContext } from "./shared/lib/use-current-user";
-import { usePhotos, useRotatingPhoto } from "./shared/lib/use-photos";
+import { usePhotoLibrary, useWidgetPhoto } from "./shared/lib/use-photo-library";
 import { useSession } from "./shared/lib/use-session";
 import { useTimeOfDay } from "./shared/lib/use-time-of-day";
 import { wallpapers } from "./app/wallpapers";
@@ -183,19 +185,19 @@ function AppIcon({
 
 /** Contenido del widget. Hoy sólo Fotos tiene datos reales detrás. */
 function WidgetFrame({ widget, seed }: { widget: WidgetInstance; seed: number }) {
-  const photos = usePhotos();
-  const photo = useRotatingPhoto(photos, seed);
-  const app = appsById.get(widget.appId);
   const isPhotos = widget.appId === "photos";
+  const lib = usePhotoLibrary();
+  const photo = useWidgetPhoto(isPhotos ? lib.refs : [], widget.photo, seed);
+  const app = appsById.get(widget.appId);
 
   return (
     <div className={`nk-widget__frame nk-widget__frame--${widget.size}`}>
       {isPhotos && photo ? (
-        <img src={photo} alt="" loading="lazy" decoding="async" draggable={false} />
+        <img src={photo.url} alt="" loading="lazy" decoding="async" draggable={false} />
       ) : isPhotos ? (
         <div className="nk-widget__empty">
           <strong>Sin fotos</strong>
-          <span>Deja imágenes en src/assets/photos/</span>
+          <span>Sube alguna en la app Fotos</span>
         </div>
       ) : (
         <div className="nk-widget__empty">
@@ -274,10 +276,12 @@ function SortableItem({
   item,
   index,
   onRemove,
+  onConfigure,
 }: {
   item: HomeItem;
   index: number;
   onRemove: (id: string) => void;
+  onConfigure: (widget: WidgetInstance) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
@@ -316,6 +320,35 @@ function SortableItem({
           label={`Quitar widget de ${app?.title}`}
           onRemove={() => onRemove(item.id)}
         />
+      )}
+
+      {/* Los de Fotos, además, se configuran (foto fija / azar / selección). */}
+      {widget && item.appId === "photos" && (
+        <button
+          type="button"
+          className="nk-config"
+          aria-label="Configurar widget de fotos"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            onConfigure(item);
+          }}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"
+              stroke="currentColor"
+              strokeWidth="2"
+              fill="none"
+            />
+            <path
+              d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
       )}
     </div>
   );
@@ -383,6 +416,7 @@ function HomeScreen({ onOpen }: { onOpen: (a: MiniAppManifest) => void }) {
   const [editing, setEditing] = useState(false);
   const [picking, setPicking] = useState(false);
   const [pendingRemove, setPendingRemove] = useState<WidgetInstance | null>(null);
+  const [configuring, setConfiguring] = useState<WidgetInstance | null>(null);
   const pagesRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(0);
 
@@ -469,7 +503,13 @@ function HomeScreen({ onOpen }: { onOpen: (a: MiniAppManifest) => void }) {
             const index = items.indexOf(item);
             if (editing)
               return (
-                <SortableItem key={item.id} item={item} index={index} onRemove={askRemove} />
+                <SortableItem
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  onRemove={askRemove}
+                  onConfigure={setConfiguring}
+                />
               );
             return isWidget(item) ? (
               <Widget
@@ -540,6 +580,14 @@ function HomeScreen({ onOpen }: { onOpen: (a: MiniAppManifest) => void }) {
       )}
 
       {picking && <WidgetPicker onAdd={addWidget} onClose={() => setPicking(false)} />}
+
+      {configuring && (
+        <WidgetPhotoSheet
+          initial={configuring.photo}
+          onSave={(config: PhotoWidgetConfig) => widgets.configure(configuring.id, config)}
+          onClose={() => setConfiguring(null)}
+        />
+      )}
 
       {pendingRemove && (
         <ConfirmDialog

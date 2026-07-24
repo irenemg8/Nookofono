@@ -1,0 +1,167 @@
+.ph {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ph-actions {
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------- Cuadrícula ---------- */
+
+.ph-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.ph-cell {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--nk-surface-sunk);
+  box-shadow: 0 3px 8px var(--nk-shadow);
+  cursor: pointer;
+}
+
+.ph-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ph-empty {
+  text-align: center;
+  color: var(--nk-text-muted);
+  font-size: 0.85rem;
+  padding: 26px 0;
+}
+
+/* ---------- Visor a pantalla completa ---------- */
+
+.ph-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px;
+  background: rgba(20, 14, 8, 0.86);
+  backdrop-filter: blur(3px);
+}
+
+.ph-viewer img {
+  max-width: 100%;
+  max-height: 72vh;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  object-fit: contain;
+}
+
+.ph-viewer__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* ---------- Configurar el widget de fotos ---------- */
+
+.pw {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pw-chips,
+.pw-interval .pw-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pw-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--nk-text-muted);
+}
+
+.pw-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  max-height: 38vh;
+  overflow-y: auto;
+}
+
+.pw-cell {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--nk-surface-sunk);
+  cursor: pointer;
+}
+
+.pw-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pw-cell--on {
+  border-color: var(--nk-leaf);
+}
+
+.pw-cell--on img {
+  filter: brightness(0.82);
+}
+
+.pw-tick {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--nk-nook-green);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.pw-interval {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pw-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 2px;
+}
