@@ -28,13 +28,27 @@
 
 | # | Bloque | Estado | Criterio de aceptación |
 |---|---|---|---|
-| A | Tablas nuevas en schema.ts + migración | ⬜ | `db:generate` limpio, `db:migrate` aplica |
-| B | Rutas CRUD (tasks, incidents, talks, chores, cycle_days/logs, photos, folders, files) + registro | ⬜ | `GET /api/tasks` etc. responden 200 con sesión |
-| C | Blob store en disco (`/api/files/:id/blob` PUT/GET/DELETE) | ⬜ | Subir una foto y volver a bajarla byte a byte |
-| D | RAG recuperable: pgvector + extracción texto + chunks + embeddings | ⬜ | Subir un .txt genera chunks con embedding |
-| E | `/api/valentin/chat` recupera trozos (generación = 503) | ⬜ | Devuelve trozos relevantes; 503 en generación |
-| F | Crons ntfy (Casa dom 21:00, Por hablar 20:00) | ⬜ | Cron programado, dispara ntfy con pendientes |
-| G | Deploy a producción (VPS, Docker, Caddy) | ⬜ | `https://ipug.vrlabs.es` sirve las apps con backend |
+| A | Tablas nuevas en schema.ts + migración | ✅ | 10 tablas + pgvector aplicadas en prod (migración 0001) |
+| B | Rutas CRUD (tasks, incidents, talks, chores, cycle_days/logs, photos, folders, files) + registro | ✅ | Probados 200 en local con sesión; 401 en prod sin sesión |
+| C | Blob store en disco (`/api/files/:id/blob` PUT/GET/DELETE) | ✅ | Roundtrip byte a byte OK; borrar foto borra blob |
+| D | RAG recuperable: pgvector + extracción texto + chunks + embeddings | ✅ | .txt genera chunk con embedding; recuperación semántica OK |
+| E | `/api/valentin/chat` recupera trozos (generación = 503) | ✅ | Recupera trozo relevante + 503 MODEL_UNAVAILABLE |
+| F | Crons ntfy (Casa dom 21:00, Por hablar 20:00) | ✅ | Programados al arrancar (log confirma) |
+| G | Deploy a producción (VPS, Docker, Caddy) | ✅ | `https://ipug.vrlabs.es` 200 + TLS válido; endpoints 401 |
+
+## Estado final (2026-07-24)
+
+Desplegado en producción (commit `3b3da86`, VPS IONOS 217.160.193.130).
+`ipug-db` migrado a `pgvector/pgvector:pg17`, `ipug-app` reconstruido y healthy.
+
+**Pendiente (fuera del alcance acordado):**
+- **Generación del modelo de Valentín**: `/api/valentin/chat` recupera pero
+  devuelve 503. Se enchufa cuando exista el modelo fine-tuneado de Irene.
+- **`BACKEND-DEPORTE.md`**: 9º spec que Irene añadió mientras yo implementaba
+  (app Deporte, commit `f1e9345`). NO implementado en esta tanda. Mismo patrón
+  CRUD que los demás; queda para la siguiente.
+- Los avisos ntfy requieren que los dos móviles estén suscritos a los temas
+  `ipug-porhablar-3d7a1f9c6b2e` y `ipug-casa-4b8f1e6d3a29`.
 
 ## Notas de contrato verificadas contra el frontend
 
