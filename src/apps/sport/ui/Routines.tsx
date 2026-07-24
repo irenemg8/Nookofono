@@ -170,39 +170,42 @@ function RoutineEditor({
               placeholder="Sentadillas"
               onChange={(e) => setRow(i, { name: e.target.value })}
             />
-            <div className="sp-exrow__kind">
-              <button
-                type="button"
-                className={`sp-toggle${r.kind === "reps" ? " sp-toggle--on" : ""}`}
-                onClick={() => setRow(i, { kind: "reps" })}
-              >
-                reps
-              </button>
-              <button
-                type="button"
-                className={`sp-toggle${r.kind === "time" ? " sp-toggle--on" : ""}`}
-                onClick={() => setRow(i, { kind: "time" })}
-              >
-                seg
-              </button>
+            <div className="sp-exrow__ctrls">
+              <div className="sp-exrow__kind">
+                <button
+                  type="button"
+                  className={`sp-toggle${r.kind === "reps" ? " sp-toggle--on" : ""}`}
+                  onClick={() => setRow(i, { kind: "reps" })}
+                >
+                  reps
+                </button>
+                <button
+                  type="button"
+                  className={`sp-toggle${r.kind === "time" ? " sp-toggle--on" : ""}`}
+                  onClick={() => setRow(i, { kind: "time" })}
+                >
+                  seg
+                </button>
+              </div>
+              <input
+                className="sp-exrow__amt"
+                type="number"
+                min={1}
+                value={r.amount}
+                onChange={(e) => setRow(i, { amount: Math.max(1, Number(e.target.value) || 1) })}
+              />
+              <span className="sp-exrow__unit">{r.kind === "reps" ? "reps" : "seg"}</span>
+              {rows.length > 1 && (
+                <button
+                  type="button"
+                  className="sp-exrow__x"
+                  onClick={() => removeRow(i)}
+                  aria-label="Quitar ejercicio"
+                >
+                  ×
+                </button>
+              )}
             </div>
-            <input
-              className="sp-exrow__amt"
-              type="number"
-              min={1}
-              value={r.amount}
-              onChange={(e) => setRow(i, { amount: Math.max(1, Number(e.target.value) || 1) })}
-            />
-            {rows.length > 1 && (
-              <button
-                type="button"
-                className="sp-exrow__x"
-                onClick={() => removeRow(i)}
-                aria-label="Quitar ejercicio"
-              >
-                ×
-              </button>
-            )}
           </li>
         ))}
       </ul>

@@ -484,27 +484,35 @@
 
 .sp-exrow {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 14px;
+  background: #fbf1e0;
+  box-shadow: 0 3px 8px var(--nk-shadow);
 }
 
 .sp-exrow__name {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
+}
+
+.sp-exrow__ctrls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .sp-exrow__kind {
   display: flex;
-  gap: 2px;
   flex: none;
 }
 
 .sp-toggle {
   border: none;
-  padding: 0.4em 0.6em;
+  padding: 0.5em 0.9em;
   background: var(--nk-surface-sunk);
   font-family: var(--nk-font);
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 600;
   color: var(--nk-text-muted);
   cursor: pointer;
@@ -519,20 +527,26 @@
 }
 
 .sp-exrow__amt {
-  width: 58px;
+  width: 64px;
   flex: none;
   text-align: center;
 }
 
+.sp-exrow__unit {
+  font-size: 0.74rem;
+  color: var(--nk-text-muted);
+}
+
 .sp-exrow__x {
   flex: none;
-  width: 26px;
-  height: 26px;
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
   border: none;
   border-radius: 50%;
   background: var(--nk-surface-sunk);
   color: var(--nk-text-muted);
-  font-size: 1rem;
+  font-size: 1.1rem;
   cursor: pointer;
 }
 

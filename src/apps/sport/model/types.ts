@@ -53,7 +53,6 @@ export const PRESET_SPORTS: { name: string; emoji: string }[] = [
   { name: "Caminar", emoji: "🚶" },
   { name: "Correr", emoji: "🏃" },
   { name: "Gym", emoji: "🏋️" },
-  { name: "Bici", emoji: "🚴" },
 ];
 
 /** Emojis para elegir al crear un deporte nuevo. */
