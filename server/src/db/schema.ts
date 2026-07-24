@@ -24,6 +24,7 @@ import {
   boolean,
   doublePrecision,
   index,
+  bigint,
   integer,
   jsonb,
   pgTable,
@@ -33,6 +34,7 @@ import {
   timestamp,
   uniqueIndex,
   uuid,
+  vector,
 } from "drizzle-orm/pg-core";
 
 /** Marcas de tiempo que llevan todas las tablas de contenido. */
@@ -397,4 +399,186 @@ export const media = pgTable(
     createdAt: stamps.createdAt,
   },
   (t) => [uniqueIndex("idx_media_thumb").on(t.thumbKey)],
+);
+
+/* ------------------------------------------------------------------ Tareas */
+
+/**
+ * La lista de la compra de tareas sueltas: Notas sin título ni cuerpo, con un
+ * texto y un tachado. El `owner` es la pestaña ('shared'|'irene'|'vicente').
+ */
+export const tasks = pgTable(
+  "tasks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    text: text("text").notNull().default(""),
+    done: boolean("done").notNull().default(false),
+    owner: text("owner").notNull().default("shared"),
+    position: integer("position").notNull().default(0),
+    ...stamps,
+  },
+  (t) => [index("idx_tasks_owner").on(t.owner, t.position)],
+);
+
+/* ------------------------------------------------------------- Incidencias */
+
+/**
+ * Partes de incidencia de la casa. `dueDays` es el plazo visual (lo cuenta el
+ * frontend desde `createdAt`); `doneAt` va en epoch ms —0 mientras no está
+ * hecha— porque el frontend lo trata como número sin conversión.
+ */
+export const incidents = pgTable(
+  "incidents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    description: text("description").notNull().default(""),
+    priority: text("priority").notNull().default("media"), // 'baja'|'media'|'alta'
+    assignee: text("assignee").notNull().default("both"), // 'irene'|'vicente'|'both'
+    dueDays: integer("due_days").notNull().default(0), // 0 = sin plazo
+    done: boolean("done").notNull().default(false),
+    doneAt: bigint("done_at", { mode: "number" }), // epoch ms; null = sin hacer
+    ...stamps,
+  },
+  (t) => [index("idx_incidents_done").on(t.done, t.createdAt)],
+);
+
+/* -------------------------------------------------------------- Por hablar */
+
+/**
+ * Temas que la pareja se apunta para hablar. `talkedAt` va en epoch ms (null =
+ * sin hablar) por el mismo motivo que `doneAt` de incidencias: el frontend lo
+ * consume como número.
+ */
+export const talks = pgTable(
+  "talks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    description: text("description").notNull().default(""),
+    raisedBy: text("raised_by").notNull().default("both"), // 'irene'|'vicente'|'both'
+    done: boolean("done").notNull().default(false),
+    talkedAt: bigint("talked_at", { mode: "number" }), // epoch ms; null = sin hablar
+    ...stamps,
+  },
+  (t) => [index("idx_talks_done").on(t.done, t.createdAt)],
+);
+
+/* -------------------------------------------------------------------- Casa */
+
+/**
+ * Tareas del hogar recurrentes. `everyWeeks` es la cadencia (0 = puntual, una
+ * vez); `lastDoneAt` va en epoch ms (null/0 = nunca) porque el frontend calcula
+ * si toca comparando con `Date.now()`. El cron del domingo lee esta misma regla.
+ */
+export const chores = pgTable(
+  "chores",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    everyWeeks: integer("every_weeks").notNull().default(1),
+    lastDoneAt: bigint("last_done_at", { mode: "number" }), // epoch ms; null = nunca
+    lastDoneBy: text("last_done_by").notNull().default(""), // ''|'irene'|'vicente'
+    position: integer("position").notNull().default(0),
+    ...stamps,
+  },
+  (t) => [index("idx_chores_position").on(t.position)],
+);
+
+/* ------------------------------------------------------------------- Ciclo */
+
+/**
+ * Un registro por DÍA marcado como regla, estilo Salud de Apple. Marcar =
+ * insertar, desmarcar = borrar. Los ciclos se deducen agrupando días
+ * consecutivos en el frontend (`predict.ts`), así que aquí no hay nada que
+ * calcular.
+ */
+export const cycleDays = pgTable("cycle_days", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  date: text("date").notNull(), // 'YYYY-MM-DD'
+  ...stamps,
+});
+
+/**
+ * El diario diario del ciclo. `symptoms` y `moods` son arrays de strings en
+ * jsonb; Drizzle los devuelve ya parseados, así que el frontend los recibe como
+ * `string[]` sin mapper.
+ */
+export const cycleLogs = pgTable("cycle_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  date: text("date").notNull(), // 'YYYY-MM-DD'
+  symptoms: jsonb("symptoms").notNull().default([]), // string[]
+  moods: jsonb("moods").notNull().default([]), // string[]
+  flow: text("flow").notNull().default(""), // ''|'ligero'|'medio'|'fuerte'
+  note: text("note").notNull().default(""),
+  ...stamps,
+});
+
+/* ------------------------------------------------------------------- Fotos */
+
+/**
+ * Metadatos de la galería. El binario NO va aquí: se sube al almacén de blobs
+ * (`/api/files/:id/blob`) usando el `id` de esta fila como clave, igual que los
+ * ficheros de RAG-Pugtín.
+ */
+export const photos = pgTable(
+  "photos",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    mime: text("mime").notNull().default("image/*"),
+    uploadedBy: text("uploaded_by").notNull().default(""), // ''|'irene'|'vicente'
+    position: integer("position").notNull().default(0),
+    ...stamps,
+  },
+  (t) => [index("idx_photos_position").on(t.position)],
+);
+
+/* --------------------------------------------------------------- RAG-Pugtín */
+
+/**
+ * Carpetas del explorador de archivos. `parentId` vacío = raíz.
+ */
+export const folders = pgTable("folders", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  parentId: text("parent_id").notNull().default(""), // "" = raíz
+  createdBy: text("created_by").notNull().default(""), // 'irene'|'vicente'
+  ...stamps,
+});
+
+/**
+ * Metadatos de los ficheros. El contenido va al almacén de blobs por el `id`.
+ * `tags` es un array de strings en jsonb. Al borrar un fichero caen sus trozos
+ * de RAG por el `onDelete: cascade` de `fileChunks`, y hay que borrar su blob.
+ */
+export const files = pgTable("files", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  folderId: text("folder_id").notNull().default(""), // "" = raíz
+  mime: text("mime").notNull().default(""),
+  size: integer("size").notNull().default(0),
+  tags: jsonb("tags").notNull().default([]), // string[]
+  uploadedBy: text("uploaded_by").notNull().default(""),
+  ...stamps,
+});
+
+/**
+ * Trozos de texto de cada fichero para el RAG de Valentín. El texto se extrae y
+ * trocea al subir; el `embedding` es un vector de 384 dimensiones
+ * (all-MiniLM-L6-v2, embeddings locales). pgvector debe estar instalado
+ * (`CREATE EXTENSION vector`). Los trozos caen con su fichero por el cascade.
+ */
+export const fileChunks = pgTable(
+  "file_chunks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    fileId: uuid("file_id")
+      .notNull()
+      .references(() => files.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    embedding: vector("embedding", { dimensions: 384 }),
+    createdAt: stamps.createdAt,
+  },
+  (t) => [index("idx_file_chunks_file").on(t.fileId)],
 );

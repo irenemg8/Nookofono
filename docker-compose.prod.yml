@@ -12,7 +12,9 @@
 #     accidental en producción es una base abierta; mejor que el arranque falle.
 services:
   ipug-db:
-    image: postgres:17-alpine
+    # pgvector/pgvector en vez de postgres a secas: RAG-Pugtín guarda embeddings
+    # (columna `vector`) y la extensión `vector` sólo viene en esta imagen.
+    image: pgvector/pgvector:pg17
     container_name: ipug-db
     restart: unless-stopped
     environment:
@@ -51,6 +53,15 @@ services:
       RATE_LIMIT_AUTH_MAX: ${RATE_LIMIT_AUTH_MAX:-5}
       RATE_LIMIT_AUTH_WINDOW_S: ${RATE_LIMIT_AUTH_WINDOW_S:-900}
       STATIC_ROOT: ./public
+      # Dónde van los binarios de fotos y ficheros (RAG-Pugtín). Volumen aparte
+      # del código para que sobreviva a los despliegues.
+      BLOB_ROOT: /data/blobs
+      # Caché del modelo de embeddings (all-MiniLM-L6-v2). Sin esto se
+      # redescarga en cada arranque del contenedor.
+      TRANSFORMERS_CACHE: /data/models
+    volumes:
+      - ipug-blobs:/data/blobs
+      - ipug-models:/data/models
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8011/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 10s
@@ -61,6 +72,8 @@ services:
 
 volumes:
   ipug-pgdata:
+  ipug-blobs:
+  ipug-models:
 
 networks:
   # La crea la pila de Caddy; aquí sólo nos enganchamos.

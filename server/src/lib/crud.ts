@@ -31,6 +31,13 @@ export interface CrudOptions<TCreate, TUpdate> {
   filters?: Record<string, PgColumn>;
   /** Rellena campos derivados del servidor (quién lo creó, etc.). */
   withContext?: (personId: string) => Record<string, unknown>;
+  /**
+   * Se ejecuta DESPUÉS de borrar la fila, con su id. Para efectos que la tabla
+   * no cubre: borrar el blob de una foto o de un fichero, por ejemplo. Si
+   * lanza, el DELETE responde 500 (la fila ya está borrada, pero avisamos de
+   * que el efecto secundario falló en vez de fingir éxito).
+   */
+  onDelete?: (id: string) => Promise<void>;
 }
 
 /**
@@ -131,6 +138,9 @@ export function crudRoutes<TCreate, TUpdate>(
     if (deleted.length === 0) {
       return c.json({ error: { code: "NOT_FOUND", message: "No existe" } }, 404);
     }
+
+    if (opts.onDelete) await opts.onDelete(c.req.param("id"));
+
     return c.body(null, 204);
   });
 

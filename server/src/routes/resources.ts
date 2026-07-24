@@ -9,15 +9,25 @@
 import { z } from "zod";
 
 import { crudRoutes } from "../lib/crud.js";
+import { deleteBlob } from "../lib/blobs.js";
 import {
   accounts,
   alerts,
   calendarEvents,
+  chores,
+  cycleDays,
+  cycleLogs,
   destinations,
   expenses,
+  files,
+  folders,
+  incidents,
   notes,
+  photos,
   shoppingItems,
   shoppingLists,
+  talks,
+  tasks,
   vaccines,
   walks,
   weightEntries,
@@ -213,4 +223,152 @@ export const expensesRoutes = crudRoutes(expenses, {
   update: expenseCreate.partial(),
   orderBy: expenses.occurredAt,
   withContext: (personId) => ({ paidBy: personId }),
+});
+
+/* ------------------------------------------------------------------ Tareas */
+
+const taskCreate = z.object({
+  text: z.string().max(500).default(""),
+  done: z.boolean().default(false),
+  owner: owner.default("shared"),
+  position: z.number().int().default(0),
+});
+
+export const taskRoutes = crudRoutes(tasks, {
+  create: taskCreate,
+  update: taskCreate.partial(),
+  orderBy: tasks.position,
+  direction: "asc",
+  filters: { owner: tasks.owner },
+});
+
+/* ------------------------------------------------------------- Incidencias */
+
+const incidentCreate = z.object({
+  title: z.string().min(1, "La incidencia necesita un título").max(200),
+  description: z.string().max(2000).default(""),
+  priority: z.enum(["baja", "media", "alta"]).default("media"),
+  assignee: who.default("both"),
+  dueDays: z.number().int().min(0).max(365).default(0),
+  done: z.boolean().default(false),
+  // Epoch ms; 0 llega como 0 y se guarda como 0 (el frontend nunca manda null).
+  doneAt: z.number().int().nullable().default(null),
+});
+
+export const incidentRoutes = crudRoutes(incidents, {
+  create: incidentCreate,
+  update: incidentCreate.partial(),
+  orderBy: incidents.createdAt,
+});
+
+/* -------------------------------------------------------------- Por hablar */
+
+const talkCreate = z.object({
+  title: z.string().min(1, "El tema necesita un título").max(200),
+  description: z.string().max(2000).default(""),
+  raisedBy: who.default("both"),
+  done: z.boolean().default(false),
+  talkedAt: z.number().int().nullable().default(null),
+});
+
+export const talkRoutes = crudRoutes(talks, {
+  create: talkCreate,
+  update: talkCreate.partial(),
+  orderBy: talks.createdAt,
+});
+
+/* -------------------------------------------------------------------- Casa */
+
+const choreCreate = z.object({
+  title: z.string().min(1, "La tarea necesita un título").max(200),
+  everyWeeks: z.number().int().min(0).max(52).default(1), // 0 = puntual
+  lastDoneAt: z.number().int().nullable().default(null),
+  lastDoneBy: z.enum(["", "irene", "vicente"]).default(""),
+  position: z.number().int().default(0),
+});
+
+export const choreRoutes = crudRoutes(chores, {
+  create: choreCreate,
+  update: choreCreate.partial(),
+  orderBy: chores.position,
+  direction: "asc",
+});
+
+/* ------------------------------------------------------------------- Ciclo */
+
+const cycleDayCreate = z.object({
+  date: isoDate,
+});
+
+export const cycleDayRoutes = crudRoutes(cycleDays, {
+  create: cycleDayCreate,
+  update: cycleDayCreate.partial(),
+  orderBy: cycleDays.date,
+  direction: "asc",
+});
+
+const cycleLogCreate = z.object({
+  date: isoDate,
+  symptoms: z.array(z.string().max(60)).max(40).default([]),
+  moods: z.array(z.string().max(60)).max(40).default([]),
+  flow: z.enum(["", "ligero", "medio", "fuerte"]).default(""),
+  note: z.string().max(2000).default(""),
+});
+
+export const cycleLogRoutes = crudRoutes(cycleLogs, {
+  create: cycleLogCreate,
+  update: cycleLogCreate.partial(),
+  orderBy: cycleLogs.date,
+  direction: "asc",
+});
+
+/* ------------------------------------------------------------------- Fotos */
+
+const photoCreate = z.object({
+  name: z.string().min(1).max(300),
+  mime: z.string().max(100).default("image/*"),
+  uploadedBy: z.enum(["", "irene", "vicente"]).default(""),
+  position: z.number().int().default(0),
+});
+
+export const photoRoutes = crudRoutes(photos, {
+  create: photoCreate,
+  update: photoCreate.partial(),
+  orderBy: photos.position,
+  direction: "asc",
+  // Borrar la foto borra su binario; si no, el blob quedaría huérfano en disco.
+  onDelete: (id) => deleteBlob(id),
+});
+
+/* --------------------------------------------------------------- RAG-Pugtín */
+
+const folderCreate = z.object({
+  name: z.string().min(1).max(200),
+  parentId: z.string().max(64).default(""),
+  createdBy: z.enum(["", "irene", "vicente"]).default(""),
+});
+
+export const folderRoutes = crudRoutes(folders, {
+  create: folderCreate,
+  update: folderCreate.partial(),
+  orderBy: folders.createdAt,
+});
+
+const fileCreate = z.object({
+  name: z.string().min(1).max(300),
+  folderId: z.string().max(64).default(""),
+  mime: z.string().max(200).default(""),
+  size: z.number().int().min(0).default(0),
+  tags: z.array(z.string().max(60)).max(40).default([]),
+  uploadedBy: z.enum(["", "irene", "vicente"]).default(""),
+});
+
+export const fileRoutes = crudRoutes(files, {
+  create: fileCreate,
+  update: fileCreate.partial(),
+  orderBy: files.createdAt,
+  filters: { folderId: files.folderId },
+  // Borrar el fichero borra su binario; sus trozos de RAG caen solos por el
+  // `onDelete: cascade` de `file_chunks`.
+  onDelete: (id) => deleteBlob(id),
 });

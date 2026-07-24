@@ -11,20 +11,32 @@ import { Hono } from "hono";
 import { secureHeaders } from "hono/secure-headers";
 
 import { requireAuth, type AuthVars } from "./auth/middleware.js";
+import { startCrons } from "./lib/cron.js";
 import { pool } from "./db/client.js";
 import authRoutes from "./routes/auth.js";
+import blobRoutes from "./routes/blob.js";
 import preferencesRoutes from "./routes/preferences.js";
 import profileRoutes from "./routes/profile.js";
 import stepsRoutes from "./routes/steps.js";
+import valentinRoutes from "./routes/valentin.js";
 import {
   accountsRoutes,
   alertsRoutes,
   calendarRoutes,
+  choreRoutes,
+  cycleDayRoutes,
+  cycleLogRoutes,
   destinationsRoutes,
   expensesRoutes,
+  fileRoutes,
+  folderRoutes,
+  incidentRoutes,
   notesRoutes,
+  photoRoutes,
   shoppingItemRoutes,
   shoppingListRoutes,
+  talkRoutes,
+  taskRoutes,
   vaccinesRoutes,
   walksRoutes,
   weightsRoutes,
@@ -68,6 +80,22 @@ app.route("/api/expenses", expensesRoutes);
 app.route("/api/preferences", preferencesRoutes);
 app.route("/api/profile", profileRoutes);
 
+// Las apps de esta tanda (Tareas, Incidencias, Por hablar, Casa, Ciclo, Fotos,
+// RAG-Pugtín/Archivos). El almacén de blobs se monta en la MISMA base que el
+// CRUD de ficheros: `/api/files/:id/blob` (subir/ver/borrar el binario) convive
+// con `/api/files` (metadatos) porque las rutas no colisionan.
+app.route("/api/tasks", taskRoutes);
+app.route("/api/incidents", incidentRoutes);
+app.route("/api/talks", talkRoutes);
+app.route("/api/casa", choreRoutes);
+app.route("/api/cycle/days", cycleDayRoutes);
+app.route("/api/cycle/logs", cycleLogRoutes);
+app.route("/api/photos", photoRoutes);
+app.route("/api/folders", folderRoutes);
+app.route("/api/files", blobRoutes);
+app.route("/api/files", fileRoutes);
+app.route("/api/valentin", valentinRoutes);
+
 // Cualquier ruta de API que no exista devuelve JSON, no el index.html: si no,
 // un fallo de escritura en una URL se manifestaría como "la app no carga".
 app.all("/api/*", (c) =>
@@ -89,6 +117,10 @@ const port = Number(process.env.PORT ?? 8011);
 const server = serve({ fetch: app.fetch, port }, (info) => {
   console.log(`iPug API escuchando en el puerto ${info.port}`);
 });
+
+// Recordatorios de servidor (Por hablar a las 20:00, Casa los domingos a las
+// 21:00). Se programan tras arrancar para no retrasar el healthcheck.
+startCrons();
 
 /**
  * Apagado limpio: sin esto, Docker manda SIGTERM, el proceso muere de golpe y

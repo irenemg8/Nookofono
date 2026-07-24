@@ -39,6 +39,12 @@ COPY --from=frontend /app/dist ./public
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
 
+# Los volúmenes de binarios y de la caché del modelo se montan en /data. Se crea
+# aquí con el owner `node` para que el proceso (que no es root) pueda escribir:
+# un volumen recién creado pertenece a root y, sin esto, guardar una foto o
+# descargar el modelo de embeddings fallaría con EACCES.
+RUN mkdir -p /data/blobs /data/models && chown -R node:node /data
+
 # Node corre como root por defecto; la imagen oficial ya trae el usuario `node`.
 USER node
 

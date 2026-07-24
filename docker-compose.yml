@@ -8,7 +8,9 @@
 # base desde el portátil durante el desarrollo. En el VPS conviene quitarlo.
 services:
   ipug-db:
-    image: postgres:17-alpine
+    # pgvector/pgvector en vez de postgres a secas: RAG-Pugtín guarda embeddings
+    # (columna `vector`) y la extensión `vector` sólo viene en esta imagen.
+    image: pgvector/pgvector:pg17
     container_name: ipug-db
     restart: unless-stopped
     environment:
