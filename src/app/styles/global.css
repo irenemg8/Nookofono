@@ -561,6 +561,25 @@ body {
   display: block;
 }
 
+/* Capas del fundido entre fotos: apiladas una sobre otra. */
+.nk-photofade__layer {
+  position: absolute;
+  inset: 0;
+}
+
+.nk-photofade__in {
+  animation: nk-photofade 0.9s ease;
+}
+
+@keyframes nk-photofade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nk-photofade__in { animation: none; }
+}
+
 .nk-widget__frame--4x2 { border-radius: 8%; }
 
 .nk-widget__frame--4x4 {

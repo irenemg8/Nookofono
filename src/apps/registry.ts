@@ -246,8 +246,7 @@ export const registry: MiniAppManifest[] = [
     path: "/deporte",
     enabled: true,
     page: 2,
-    comingSoon: true,
-    teaser: "Entrenamientos y rachas, cada uno los suyos.",
+    teaser: "Cronómetro, rutinas y historial; cada uno el suyo.",
   },
   {
     id: "talks",

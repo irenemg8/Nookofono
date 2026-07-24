@@ -183,6 +183,36 @@ function AppIcon({
 
 /* ------------------------------------------------------------------ widgets */
 
+/**
+ * Cambia de foto con un fundido suave en vez de un corte seco.
+ *
+ * Mantiene apiladas la foto saliente y la entrante; la nueva aparece encima con
+ * una animación de opacidad. Al terminar el ciclo, la vieja se cae de la pila.
+ */
+function PhotoFade({ url }: { url: string }) {
+  const [stack, setStack] = useState<string[]>([url]);
+
+  useEffect(() => {
+    setStack((prev) => (prev[prev.length - 1] === url ? prev : [...prev, url].slice(-2)));
+  }, [url]);
+
+  return (
+    <>
+      {stack.map((u, i) => (
+        <img
+          key={`${i}-${u}`}
+          className={`nk-photofade__layer${i === stack.length - 1 ? " nk-photofade__in" : ""}`}
+          src={u}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+        />
+      ))}
+    </>
+  );
+}
+
 /** Contenido del widget. Hoy sólo Fotos tiene datos reales detrás. */
 function WidgetFrame({ widget, seed }: { widget: WidgetInstance; seed: number }) {
   const isPhotos = widget.appId === "photos";
@@ -193,7 +223,7 @@ function WidgetFrame({ widget, seed }: { widget: WidgetInstance; seed: number })
   return (
     <div className={`nk-widget__frame nk-widget__frame--${widget.size}`}>
       {isPhotos && photo ? (
-        <img src={photo.url} alt="" loading="lazy" decoding="async" draggable={false} />
+        <PhotoFade url={photo.url} />
       ) : isPhotos ? (
         <div className="nk-widget__empty">
           <strong>Sin fotos</strong>
