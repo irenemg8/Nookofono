@@ -24,9 +24,12 @@ interface WeightEntry extends Entity {
 
 interface Walk extends Entity {
   startedAt: number;
+  endedAt: number;
   durationSec: number;
   steps: number;
   distanceM: number;
+  /** 'estimate' (acelerómetro con pantalla encendida) | 'shortcut' (pasos reales del iPhone). */
+  stepsSource: "estimate" | "shortcut";
 }
 
 type Tab = "ficha" | "vacunas" | "peso" | "paseos";
@@ -40,11 +43,18 @@ const TABS: Tab[] = ["ficha", "vacunas", "peso", "paseos"];
  */
 const WALK_MAPPER = {
   fromApi: (row: Record<string, unknown>) =>
-    ({ ...toEntity(row), startedAt: msFrom(row.startedAt) }) as unknown as Walk,
+    ({
+      ...toEntity(row),
+      startedAt: msFrom(row.startedAt),
+      endedAt: msFrom(row.endedAt),
+    }) as unknown as Walk,
   toApi: (data: Record<string, unknown>) => ({
     ...data,
     ...(data.startedAt !== undefined
       ? { startedAt: new Date(data.startedAt as number).toISOString() }
+      : {}),
+    ...(data.endedAt !== undefined
+      ? { endedAt: new Date(data.endedAt as number).toISOString() }
       : {}),
   }),
 };
@@ -298,9 +308,13 @@ function Walks({ store }: { store: ReturnType<typeof useRemoteCollection<Walk>> 
     if (r.durationSec >= 10) {
       store.create({
         startedAt: r.startedAt,
+        endedAt: r.endedAt,
         durationSec: r.durationSec,
         steps: r.steps,
         distanceM: r.distanceM,
+        // Estimación por acelerómetro; el Atajo de iOS puede sustituirla luego
+        // por los pasos reales del iPhone (pasa a 'shortcut').
+        stepsSource: "estimate",
       });
     }
   }
@@ -334,7 +348,7 @@ function Walks({ store }: { store: ReturnType<typeof useRemoteCollection<Walk>> 
           <p className="pug-walk__warn">
             {live.stepsProblem
               ? `${live.stepsProblem}: solo se medirá la distancia.`
-              : "Mantén la pantalla encendida y el móvil encima: los pasos se estiman con el acelerómetro."}
+              : "Con la pantalla encendida los pasos se estiman aquí; con el móvil bloqueado, el Atajo de iOS trae luego los pasos reales del iPhone."}
           </p>
         )}
       </div>
@@ -356,7 +370,10 @@ function Walks({ store }: { store: ReturnType<typeof useRemoteCollection<Walk>> 
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
-                  {w.steps > 0 && ` · ~${w.steps} pasos`}
+                  {w.steps > 0 &&
+                    (w.stepsSource === "shortcut"
+                      ? ` · ${w.steps} pasos`
+                      : ` · ~${w.steps} pasos`)}
                 </div>
               </div>
               <button type="button" className="pug-x" onClick={() => store.remove(w.id)} aria-label="Quitar">

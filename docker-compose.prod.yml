@@ -48,6 +48,10 @@ services:
       PORT: "8011"
       DATABASE_URL: postgres://${POSTGRES_USER:-ipug}:${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD}@ipug-db:5432/${POSTGRES_DB:-ipug}
       JWT_SECRET: ${JWT_SECRET:?falta JWT_SECRET}
+      # Token del Atajo de iOS que publica pasos (diarios y de cada paseo de
+      # Nilo). Sin él, /api/steps y /api/steps/walk responden 503. Opcional: si
+      # no se define, esas rutas quedan deshabilitadas sin romper el resto.
+      STEPS_TOKEN: ${STEPS_TOKEN:-}
       SESSION_TTL_DAYS: ${SESSION_TTL_DAYS:-30}
       TOTP_WINDOW: ${TOTP_WINDOW:-1}
       RATE_LIMIT_AUTH_MAX: ${RATE_LIMIT_AUTH_MAX:-5}
