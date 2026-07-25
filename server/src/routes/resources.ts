@@ -21,16 +21,24 @@ import {
   expenses,
   files,
   folders,
+  imbecilPings,
   incidents,
+  mealPlan,
   notes,
   photos,
+  recipes,
   shoppingItems,
   shoppingLists,
+  sportRoutines,
+  sportSessions,
+  sportSports,
   talks,
   tasks,
+  tractivePings,
   vaccines,
   walks,
   weightEntries,
+  wishlist,
 } from "../db/schema.js";
 
 const who = z.enum(["irene", "vicente", "both"]);
@@ -371,4 +379,139 @@ export const fileRoutes = crudRoutes(files, {
   // Borrar el fichero borra su binario; sus trozos de RAG caen solos por el
   // `onDelete: cascade` de `file_chunks`.
   onDelete: (id) => deleteBlob(id),
+});
+
+/* -------------------------------------------------------------- Recetario */
+
+const recipeCreate = z.object({
+  title: z.string().min(1, "La receta necesita un título").max(200),
+  ingredients: z.array(z.string().max(200)).default([]),
+  timeMin: z.number().int().min(0).max(6000).default(0),
+  tags: z.array(z.string().max(40)).default([]),
+  steps: z.string().max(10_000).default(""),
+  position: z.number().int().default(0),
+});
+
+export const recipeRoutes = crudRoutes(recipes, {
+  create: recipeCreate,
+  update: recipeCreate.partial(),
+  orderBy: recipes.position,
+  direction: "asc",
+});
+
+/* ----------------------------------------------------------- Menú semanal */
+
+const mealCreate = z.object({
+  date: isoDate,
+  meal: z.enum(["desayuno", "comida", "cena"]),
+  // Referencia suelta a la receta (no es UUID validado: si la receta se borra,
+  // la entrada del menú sigue viva con su `title` congelado).
+  recipeId: z.string().min(1),
+  title: z.string().min(1).max(200),
+});
+
+export const mealRoutes = crudRoutes(mealPlan, {
+  create: mealCreate,
+  update: mealCreate.partial(),
+  orderBy: mealPlan.date,
+  direction: "asc",
+});
+
+/* ---------------------------------------------------------------- Wishlist */
+
+const wishCreate = z.object({
+  title: z.string().min(1, "Necesita un título").max(200),
+  kind: z.enum(["peli", "serie"]).default("peli"),
+  who: who.default("both"),
+  note: z.string().max(2000).default(""),
+  seen: z.boolean().default(false),
+  // Epoch ms; 0 llega como 0 (el frontend manda 0, no null, mientras está por
+  // ver). Igual que `talkedAt` de «Por hablar».
+  seenAt: z.number().int().nullable().default(null),
+  position: z.number().int().default(0),
+});
+
+export const wishRoutes = crudRoutes(wishlist, {
+  create: wishCreate,
+  update: wishCreate.partial(),
+  orderBy: wishlist.createdAt,
+});
+
+/* ----------------------------------------------------------------- Deporte */
+
+const sportSportCreate = z.object({
+  name: z.string().min(1).max(60),
+  emoji: z.string().max(8).default("🏅"),
+  position: z.number().int().default(0),
+});
+
+export const sportSportRoutes = crudRoutes(sportSports, {
+  create: sportSportCreate,
+  update: sportSportCreate.partial(),
+  orderBy: sportSports.position,
+  direction: "asc",
+});
+
+const sportSessionCreate = z.object({
+  user: z.enum(["irene", "vicente"]),
+  sport: z.string().min(1).max(60),
+  emoji: z.string().max(8).default("🏅"),
+  durationSec: z.number().int().min(0),
+  note: z.string().max(2000).default(""),
+  doneAt: z.number().int(), // epoch ms; el frontend siempre lo manda
+});
+
+export const sportSessionRoutes = crudRoutes(sportSessions, {
+  create: sportSessionCreate,
+  update: sportSessionCreate.partial(),
+  orderBy: sportSessions.doneAt,
+  filters: { user: sportSessions.user },
+});
+
+const exercise = z.object({
+  name: z.string().min(1).max(120),
+  kind: z.enum(["reps", "time"]),
+  amount: z.number().int().min(1),
+});
+
+const sportRoutineCreate = z.object({
+  user: z.enum(["irene", "vicente"]),
+  name: z.string().min(1).max(120),
+  exercises: z.array(exercise).default([]),
+});
+
+export const sportRoutineRoutes = crudRoutes(sportRoutines, {
+  create: sportRoutineCreate,
+  update: sportRoutineCreate.partial(),
+  orderBy: sportRoutines.updatedAt,
+  filters: { user: sportRoutines.user },
+});
+
+/* ------------------------------------------------------- Imbécil / Tractive */
+
+// El aviso push lo manda el frontend por ntfy; estas dos colecciones son sólo
+// el historial. Sin filtros ni contexto: se listan enteras, más recientes
+// primero (el `crudRoutes` ordena por id desc por defecto, pero fijamos
+// `createdAt` para que el orden sea el temporal real).
+
+const imbecilCreate = z.object({
+  from: who,
+  text: z.string().min(1).max(500),
+  emoji: z.string().max(8).default(""),
+});
+
+export const imbecilRoutes = crudRoutes(imbecilPings, {
+  create: imbecilCreate,
+  update: imbecilCreate.partial(),
+  orderBy: imbecilPings.createdAt,
+});
+
+const tractiveCreate = z.object({
+  text: z.string().min(1).max(500),
+});
+
+export const tractiveRoutes = crudRoutes(tractivePings, {
+  create: tractiveCreate,
+  update: tractiveCreate.partial(),
+  orderBy: tractivePings.createdAt,
 });

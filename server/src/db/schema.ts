@@ -582,3 +582,155 @@ export const fileChunks = pgTable(
   },
   (t) => [index("idx_file_chunks_file").on(t.fileId)],
 );
+
+/* --------------------------------------------------------------- Recetario */
+
+/**
+ * Recetas del recetario. Es la dueña de las recetas; el Menú semanal sólo
+ * guarda referencias sueltas (ver `mealPlan`). `ingredients` y `tags` son
+ * arrays de strings en jsonb. Compartida entre Irene y Vicente.
+ */
+export const recipes = pgTable(
+  "recipes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    ingredients: jsonb("ingredients").notNull().default([]), // string[]
+    timeMin: integer("time_min").notNull().default(0),
+    tags: jsonb("tags").notNull().default([]), // string[]
+    steps: text("steps").notNull().default(""),
+    position: integer("position").notNull().default(0),
+    ...stamps,
+  },
+  (t) => [index("idx_recipes_position").on(t.position)],
+);
+
+/**
+ * Menú semanal: una fila por casilla (día + comida) con una **referencia
+ * suelta** a la receta (`recipeId` no es FK) más una copia congelada del
+ * `title`. Así, borrar la receta no vacía el menú y quitar la comida no borra
+ * la receta. La "compra de la semana" la calcula el frontend.
+ */
+export const mealPlan = pgTable(
+  "meal_plan",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    date: text("date").notNull(), // 'YYYY-MM-DD'
+    meal: text("meal").notNull(), // 'desayuno' | 'comida' | 'cena'
+    recipeId: text("recipe_id").notNull(),
+    title: text("title").notNull(), // copia del título de la receta
+    ...stamps,
+  },
+  (t) => [index("idx_meal_plan_date").on(t.date)],
+);
+
+/* ---------------------------------------------------------------- Wishlist */
+
+/**
+ * Pelis y series que la pareja quiere ver. `seenAt` va en epoch ms (0 = por
+ * ver) por el mismo motivo que `talkedAt` de «Por hablar»: el frontend lo
+ * consume como número (ordena las vistas por `seenAt` desc) sin mapper. Por eso
+ * es `bigint`, no `timestamp`, pese a lo que decía el spec. Compartida.
+ */
+export const wishlist = pgTable(
+  "wishlist",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    kind: text("kind").notNull().default("peli"), // 'peli' | 'serie'
+    who: text("who").notNull().default("both"), // 'irene'|'vicente'|'both'
+    note: text("note").notNull().default(""),
+    seen: boolean("seen").notNull().default(false),
+    seenAt: bigint("seen_at", { mode: "number" }), // epoch ms; 0/null = por ver
+    position: integer("position").notNull().default(0),
+    ...stamps,
+  },
+  (t) => [index("idx_wishlist_seen").on(t.seen, t.createdAt)],
+);
+
+/* ----------------------------------------------------------------- Deporte */
+
+/**
+ * Catálogo de deportes, compartido. El frontend lo auto-siembra la primera vez
+ * que está vacío, así que aquí no hay seed.
+ */
+export const sportSports = pgTable(
+  "sport_sports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    emoji: text("emoji").notNull().default("🏅"),
+    position: integer("position").notNull().default(0),
+    ...stamps,
+  },
+  (t) => [index("idx_sport_sports_position").on(t.position)],
+);
+
+/**
+ * Sesiones cronometradas, por persona (`user`). `sport` es el nombre congelado
+ * (no FK). `doneAt` va en epoch ms (mismo motivo que `talkedAt`): el frontend
+ * ordena por él y lo manda como `Date.now()`. Por eso `bigint`, no `timestamp`.
+ */
+export const sportSessions = pgTable(
+  "sport_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    user: text("user").notNull(), // 'irene' | 'vicente'
+    sport: text("sport").notNull(), // nombre congelado
+    emoji: text("emoji").notNull().default("🏅"),
+    durationSec: integer("duration_sec").notNull().default(0),
+    note: text("note").notNull().default(""),
+    doneAt: bigint("done_at", { mode: "number" }).notNull(), // epoch ms
+    ...stamps,
+  },
+  (t) => [index("idx_sport_sessions_user").on(t.user, t.doneAt)],
+);
+
+/**
+ * Rutinas de ejercicios, por persona. `exercises` es un array jsonb de
+ * `{ name, kind: 'reps'|'time', amount }`.
+ */
+export const sportRoutines = pgTable(
+  "sport_routines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    user: text("user").notNull(), // 'irene' | 'vicente'
+    name: text("name").notNull(),
+    exercises: jsonb("exercises").notNull().default([]),
+    ...stamps,
+  },
+  (t) => [index("idx_sport_routines_user").on(t.user)],
+);
+
+/* ------------------------------------------------------- Imbécil / Tractive */
+
+/**
+ * Historial de avisos de «Imbécil» (botón de "ven aquí" en los dos sentidos).
+ * El aviso push real lo manda el frontend por ntfy.sh; esta tabla es sólo el
+ * log para ver el historial. Compartida.
+ */
+export const imbecilPings = pgTable(
+  "imbecil_pings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    from: text("from").notNull(), // 'irene' | 'vicente'
+    text: text("text").notNull(),
+    emoji: text("emoji").notNull().default(""),
+    ...stamps,
+  },
+  (t) => [index("idx_imbecil_pings_created").on(t.createdAt)],
+);
+
+/**
+ * Historial de avisos de «Tractive» (Irene avisa, Vicente recibe). Igual que
+ * Imbécil pero más simple: sólo `text`. El push va por ntfy desde el cliente.
+ */
+export const tractivePings = pgTable(
+  "tractive_pings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    text: text("text").notNull(),
+    ...stamps,
+  },
+  (t) => [index("idx_tractive_pings_created").on(t.createdAt)],
+);

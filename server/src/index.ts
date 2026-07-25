@@ -30,16 +30,24 @@ import {
   expensesRoutes,
   fileRoutes,
   folderRoutes,
+  imbecilRoutes,
   incidentRoutes,
+  mealRoutes,
   notesRoutes,
   photoRoutes,
+  recipeRoutes,
   shoppingItemRoutes,
   shoppingListRoutes,
+  sportRoutineRoutes,
+  sportSessionRoutes,
+  sportSportRoutes,
   talkRoutes,
   taskRoutes,
+  tractiveRoutes,
   vaccinesRoutes,
   walksRoutes,
   weightsRoutes,
+  wishRoutes,
 } from "./routes/resources.js";
 
 // Sin secreto de firma cualquiera podría fabricarse una sesión. Se comprueba al
@@ -95,6 +103,18 @@ app.route("/api/folders", folderRoutes);
 app.route("/api/files", blobRoutes);
 app.route("/api/files", fileRoutes);
 app.route("/api/valentin", valentinRoutes);
+
+// Tanda de Irene: Recetario, Menú semanal, Wishlist; y las dos apps de avisos
+// (Imbécil, Tractive) que sólo guardan historial —el push va por ntfy desde el
+// cliente— y Deporte (catálogo compartido + sesiones y rutinas por persona).
+app.route("/api/recipes", recipeRoutes);
+app.route("/api/mealplan", mealRoutes);
+app.route("/api/wishlist", wishRoutes);
+app.route("/api/sport/sports", sportSportRoutes);
+app.route("/api/sport/sessions", sportSessionRoutes);
+app.route("/api/sport/routines", sportRoutineRoutes);
+app.route("/api/imbecil", imbecilRoutes);
+app.route("/api/tractive", tractiveRoutes);
 
 // Cualquier ruta de API que no exista devuelve JSON, no el index.html: si no,
 // un fallo de escritura en una URL se manifestaría como "la app no carga".

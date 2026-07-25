@@ -15,6 +15,13 @@
       "when": 1784888246792,
       "tag": "0001_equal_medusa",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784998459677,
+      "tag": "0002_silly_thanos",
+      "breakpoints": true
     }
   ]
 }
