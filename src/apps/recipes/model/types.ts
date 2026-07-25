@@ -7,10 +7,32 @@ import type { Entity } from "../../../shared/lib/use-remote-collection";
  * sólo guarda referencias a ellas (id + título), así que quitar una comida del
  * menú no borra la receta, y al revés.
  */
+/**
+ * Un ingrediente de una receta.
+ *
+ * `text` es lo que se lee y escribe ("200 g de lentejas"). `productId` es el id
+ * del producto de Mercadona al que apunta, si se ha enlazado: eso permite
+ * añadirlo al carrito de la app Compra desde el Menú. Es opcional —un
+ * ingrediente puede ser solo texto— y `null` significa "sin enlazar".
+ */
+export interface Ingredient {
+  text: string;
+  productId?: string | null;
+}
+
+/**
+ * Normaliza un ingrediente venga como venga: las recetas viejas lo guardaban
+ * como string suelto, las nuevas como objeto. Así el resto del código trabaja
+ * siempre con la forma de objeto sin preocuparse de la transición.
+ */
+export function toIngredient(raw: string | Ingredient): Ingredient {
+  return typeof raw === "string" ? { text: raw, productId: null } : raw;
+}
+
 export interface Recipe extends Entity {
   title: string;
-  /** Un ingrediente por línea. */
-  ingredients: string[];
+  /** Ingredientes; cada uno con su texto y, opcional, el producto de Mercadona. */
+  ingredients: Ingredient[];
   /** Tiempo total en minutos. 0 = sin indicar. */
   timeMin: number;
   /** Etiquetas: utensilio (horno, sartén…) y lo que sea (rápido, vegetariano…). */

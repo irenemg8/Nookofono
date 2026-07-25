@@ -383,9 +383,25 @@ export const fileRoutes = crudRoutes(files, {
 
 /* -------------------------------------------------------------- Recetario */
 
+/**
+ * Un ingrediente es texto (`text`) y, opcionalmente, el producto de Mercadona al
+ * que apunta (`productId`), para poder añadirlo al carrito desde el Menú. Se
+ * acepta también un string suelto —la forma vieja— y se normaliza a objeto, así
+ * las recetas anteriores siguen validando y el frontend recibe siempre objetos.
+ */
+const ingredient = z
+  .union([
+    z.string().max(200),
+    z.object({
+      text: z.string().min(1).max(200),
+      productId: z.string().max(64).nullish(),
+    }),
+  ])
+  .transform((v) => (typeof v === "string" ? { text: v, productId: null } : v));
+
 const recipeCreate = z.object({
   title: z.string().min(1, "La receta necesita un título").max(200),
-  ingredients: z.array(z.string().max(200)).default([]),
+  ingredients: z.array(ingredient).default([]),
   timeMin: z.number().int().min(0).max(6000).default(0),
   tags: z.array(z.string().max(40)).default([]),
   steps: z.string().max(10_000).default(""),

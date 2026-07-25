@@ -219,6 +219,58 @@
   gap: 4px;
 }
 
+/* ---------- Editor de ingredientes ---------- */
+
+.rc-ingr-edit {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rc-ingr-edit__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.5em 0.7em;
+  border-radius: 12px;
+  background: var(--nk-surface-sunk);
+}
+
+.rc-ingr-edit__text {
+  flex: 1;
+  font-size: 0.88rem;
+  color: var(--nk-text-strong);
+}
+
+.rc-ingr-edit__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  border-radius: 999px;
+  padding: 0.3em 0.7em;
+  background: #fff;
+  font-family: var(--nk-font);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.rc-ingr-edit__link svg {
+  width: 12px;
+  height: 12px;
+}
+
+.rc-ingr-edit__link--on {
+  background: var(--nk-leaf);
+  color: #fff;
+}
+
 .rc-addtag {
   display: flex;
   gap: 6px;

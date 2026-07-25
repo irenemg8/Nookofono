@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useRemoteCollection, type Entity } from "../../shared/lib/use-remote-collection";
-import type { Recipe } from "../recipes/model/types";
+import { toIngredient, type Recipe } from "../recipes/model/types";
 import "./menu.css";
 
 /**
@@ -102,7 +102,23 @@ export default function MenuApp() {
       </div>
 
       <button type="button" className="nk-btn nk-btn--ghost mn-shopbtn" onClick={() => setShopping(true)}>
-        🛒 Compra de la semana
+        <svg
+          className="mn-shopbtn__icon"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="8" cy="21" r="1" />
+          <circle cx="19" cy="21" r="1" />
+          <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+        </svg>
+        Compra de la semana
       </button>
 
       <div className="mn-days">
@@ -229,6 +245,11 @@ function RecipePicker({
 
 /* ------------------------------------------------------ lista de la compra */
 
+interface ShopLine {
+  text: string;
+  productId: string | null;
+}
+
 function ShoppingSheet({
   entries,
   recipes,
@@ -238,22 +259,60 @@ function ShoppingSheet({
   recipes: Recipe[];
   onClose: () => void;
 }) {
-  // Junta los ingredientes de todas las recetas planificadas esta semana.
-  const byId = new Map(recipes.map((r) => [r.id, r]));
-  const seen = new Set<string>();
-  const lines: string[] = [];
-  for (const e of entries) {
-    const recipe = byId.get(e.recipeId);
-    if (!recipe) continue;
-    for (const ing of recipe.ingredients) {
-      const key = ing.trim().toLowerCase();
-      if (key && !seen.has(key)) {
-        seen.add(key);
-        lines.push(ing.trim());
+  // Junta los ingredientes de todas las recetas planificadas esta semana, sin
+  // repetir. Cada uno conserva su enlace a producto de Mercadona (si lo tiene),
+  // que es lo que permite meterlo en el carrito de la app Compra.
+  const lines = useMemo<ShopLine[]>(() => {
+    const byId = new Map(recipes.map((r) => [r.id, r]));
+    const seen = new Set<string>();
+    const out: ShopLine[] = [];
+    for (const e of entries) {
+      const recipe = byId.get(e.recipeId);
+      if (!recipe) continue;
+      for (const raw of recipe.ingredients) {
+        const ing = toIngredient(raw);
+        const text = ing.text.trim();
+        const key = text.toLowerCase();
+        if (key && !seen.has(key)) {
+          seen.add(key);
+          out.push({ text, productId: ing.productId ?? null });
+        }
       }
     }
+    return out.sort((a, b) => a.text.localeCompare(b.text));
+  }, [entries, recipes]);
+
+  // Ids ya añadidos en esta sesión del panel, para no añadir dos veces y dar
+  // feedback ("Añadido"). El carrito real es la fuente de verdad; esto es sólo
+  // el estado de los botones mientras el panel está abierto.
+  const [added, setAdded] = useState<Set<string>>(new Set());
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const linkable = lines.filter((l) => l.productId);
+  const pending = linkable.filter((l) => !added.has(l.productId!));
+
+  async function addToCart(productId: string) {
+    try {
+      const res = await fetch("/api/mercadona/cart", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, quantity: 1 }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      setAdded((prev) => new Set(prev).add(productId));
+      setError(null);
+    } catch {
+      setError("No se pudo añadir al carrito. Comprueba la conexión.");
+    }
   }
-  lines.sort((a, b) => a.localeCompare(b));
+
+  async function addAll() {
+    setBusy(true);
+    for (const l of pending) await addToCart(l.productId!);
+    setBusy(false);
+  }
 
   return (
     <div className="nk-sheet" onPointerDown={onClose}>
@@ -272,12 +331,45 @@ function ShoppingSheet({
         ) : (
           <>
             <p className="mn-shop__note">
-              Ingredientes de las recetas planificadas, sin repetir. Repasa cantidades a ojo.
+              Ingredientes de las recetas de esta semana. Los que están enlazados a un producto de
+              Mercadona se pueden añadir al carrito de la app Compra.
             </p>
+
+            {linkable.length > 0 && (
+              <button
+                type="button"
+                className="nk-btn mn-shop__all"
+                onClick={addAll}
+                disabled={busy || pending.length === 0}
+              >
+                {pending.length === 0
+                  ? "Todo en el carrito"
+                  : `Añadir todo al carrito (${pending.length})`}
+              </button>
+            )}
+            {error && <p className="mn-shop__err">{error}</p>}
+
             <ul className="mn-shop">
-              {lines.map((l, i) => (
-                <li key={i}>{l}</li>
-              ))}
+              {lines.map((l, i) => {
+                const inCart = l.productId ? added.has(l.productId) : false;
+                return (
+                  <li key={i} className="mn-shop__row">
+                    <span className={l.productId ? "" : "mn-shop__free"}>{l.text}</span>
+                    {l.productId ? (
+                      <button
+                        type="button"
+                        className="nk-btn nk-btn--ghost mn-shop__add"
+                        onClick={() => addToCart(l.productId!)}
+                        disabled={inCart}
+                      >
+                        {inCart ? "Añadido" : "+ Carrito"}
+                      </button>
+                    ) : (
+                      <span className="mn-shop__note-tag">solo texto</span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </>
         )}

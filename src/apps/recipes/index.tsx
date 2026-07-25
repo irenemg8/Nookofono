@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRemoteCollection } from "../../shared/lib/use-remote-collection";
 import { ConfirmDialog } from "../../shared/ui/ConfirmDialog";
 import {
@@ -6,9 +6,27 @@ import {
   OTHER_TAGS,
   TIME_STEPS,
   timeLabel,
+  toIngredient,
+  type Ingredient,
   type Recipe,
 } from "./model/types";
 import "./recipes.css";
+
+/** Producto del catálogo de Mercadona, tal como lo devuelve el backend. */
+interface Product {
+  id: string;
+  name: string;
+  packaging: string;
+  thumbnail: string;
+  priceCents: number;
+}
+
+async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, { credentials: "include", ...init });
+  if (!res.ok) throw new Error("request failed");
+  if (res.status === 204) return undefined as T;
+  return res.json();
+}
 
 export default function RecipesApp() {
   const recipes = useRemoteCollection<Recipe>("/api/recipes");
@@ -35,7 +53,8 @@ export default function RecipesApp() {
         if (maxTime > 0 && (r.timeMin === 0 || r.timeMin > maxTime)) return false;
         if (tags.length && !tags.every((t) => r.tags.includes(t))) return false;
         if (q) {
-          const hay = (r.title + " " + r.ingredients.join(" ")).toLowerCase();
+          const ingredientsText = r.ingredients.map((ing) => toIngredient(ing).text).join(" ");
+          const hay = (r.title + " " + ingredientsText).toLowerCase();
           if (!hay.includes(q)) return false;
         }
         return true;
@@ -219,7 +238,7 @@ function RecipeView({
           <h3>Ingredientes</h3>
           <ul className="rc-ingr">
             {recipe.ingredients.map((ing, i) => (
-              <li key={i}>{ing}</li>
+              <li key={i}>{toIngredient(ing).text}</li>
             ))}
           </ul>
         </section>
@@ -239,7 +258,7 @@ function RecipeView({
 
 interface RecipeDraft {
   title: string;
-  ingredients: string[];
+  ingredients: Ingredient[];
   timeMin: number;
   tags: string[];
   steps: string;
@@ -255,11 +274,37 @@ function RecipeForm({
   onSave: (data: RecipeDraft) => void;
 }) {
   const [title, setTitle] = useState(initial?.title ?? "");
-  const [ingredients, setIngredients] = useState(initial?.ingredients.join("\n") ?? "");
+  const [ingredients, setIngredients] = useState<Ingredient[]>(
+    (initial?.ingredients ?? []).map(toIngredient)
+  );
+  const [newIngredient, setNewIngredient] = useState("");
+  const [linkingIndex, setLinkingIndex] = useState<number | null>(null);
   const [timeMin, setTimeMin] = useState(initial?.timeMin ?? 0);
   const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
   const [steps, setSteps] = useState(initial?.steps ?? "");
   const [customTag, setCustomTag] = useState("");
+
+  function addIngredient() {
+    const text = newIngredient.trim();
+    if (!text) return;
+    setIngredients((prev) => [...prev, { text, productId: null }]);
+    setNewIngredient("");
+  }
+
+  function removeIngredient(index: number) {
+    setIngredients((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function linkIngredient(index: number, product: Product) {
+    setIngredients((prev) =>
+      prev.map((ing, i) => (i === index ? { text: product.name, productId: product.id } : ing))
+    );
+    setLinkingIndex(null);
+  }
+
+  function unlinkIngredient(index: number) {
+    setIngredients((prev) => prev.map((ing, i) => (i === index ? { ...ing, productId: null } : ing)));
+  }
 
   function toggleTag(t: string) {
     const tag = t.trim().toLowerCase();
@@ -277,10 +322,7 @@ function RecipeForm({
     if (!title.trim()) return;
     onSave({
       title: title.trim(),
-      ingredients: ingredients
-        .split("\n")
-        .map((s) => s.trim())
-        .filter(Boolean),
+      ingredients,
       timeMin: Math.max(0, timeMin),
       tags,
       steps: steps.trim(),
@@ -302,15 +344,62 @@ function RecipeForm({
         />
       </label>
 
-      <label>
-        <span className="rc-legend">Ingredientes (uno por línea)</span>
-        <textarea
-          rows={5}
-          value={ingredients}
-          placeholder={"200 g de lentejas\n1 cebolla\n2 zanahorias\n…"}
-          onChange={(e) => setIngredients(e.target.value)}
-        />
-      </label>
+      <div>
+        <span className="rc-legend">Ingredientes</span>
+
+        {ingredients.length > 0 && (
+          <ul className="rc-ingr-edit">
+            {ingredients.map((ing, i) => (
+              <li key={i} className="rc-ingr-edit__row">
+                <span className="rc-ingr-edit__text">{ing.text}</span>
+                {ing.productId ? (
+                  <button
+                    type="button"
+                    className="rc-ingr-edit__link rc-ingr-edit__link--on"
+                    onClick={() => unlinkIngredient(i)}
+                    title="Producto de Mercadona enlazado. Pulsa para desenlazar."
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    </svg>
+                    Mercadona
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="rc-ingr-edit__link"
+                    onClick={() => setLinkingIndex(i)}
+                  >
+                    Enlazar producto
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="nk-remove"
+                  aria-label={`Quitar ${ing.text}`}
+                  onClick={() => removeIngredient(i)}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 8l8 8M16 8l-8 8" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="rc-addtag">
+          <input
+            value={newIngredient}
+            placeholder="200 g de lentejas…"
+            onChange={(e) => setNewIngredient(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addIngredient())}
+          />
+          <button type="button" className="nk-btn nk-btn--ghost" onClick={addIngredient}>
+            Añadir
+          </button>
+        </div>
+      </div>
 
       <label>
         <span className="rc-legend">Tiempo (minutos)</span>
@@ -368,6 +457,109 @@ function RecipeForm({
         <button type="button" className="nk-btn" onClick={submit}>
           Guardar receta
         </button>
+      </div>
+
+      {linkingIndex !== null && (
+        <ProductPicker
+          onClose={() => setLinkingIndex(null)}
+          onPick={(product) => linkIngredient(linkingIndex, product)}
+        />
+      )}
+    </div>
+  );
+}
+
+/* --------------------------------------------------- buscador de productos */
+
+function ProductPicker({
+  onClose,
+  onPick,
+}: {
+  onClose: () => void;
+  onPick: (product: Product) => void;
+}) {
+  const [favorites, setFavorites] = useState<Product[] | null>(null);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Product[] | null>(null);
+  const [searching, setSearching] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    fetchJSON<Product[]>("/api/mercadona/products")
+      .then(setFavorites)
+      .catch(() => setFavorites([]));
+  }, []);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    const q = query.trim();
+    if (!q) {
+      setResults(null);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    debounceRef.current = setTimeout(() => {
+      fetchJSON<Product[]>(`/api/mercadona/products?q=${encodeURIComponent(q)}`)
+        .then((data) => {
+          setResults(data);
+          setSearching(false);
+        })
+        .catch(() => {
+          setResults([]);
+          setSearching(false);
+        });
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query]);
+
+  const list = query.trim() ? results : favorites;
+
+  return (
+    <div className="nk-sheet" onPointerDown={onClose}>
+      <div className="nk-sheet__panel" onPointerDown={(e) => e.stopPropagation()}>
+        <header className="nk-sheet__head">
+          <h2>Enlazar producto</h2>
+          <button type="button" className="nk-sheet__close" onClick={onClose} aria-label="Cerrar">
+            ×
+          </button>
+        </header>
+
+        <input
+          className="sh-search"
+          value={query}
+          placeholder="Buscar en el catálogo…"
+          onChange={(e) => setQuery(e.target.value)}
+        />
+
+        {list === null ? (
+          <p className="sh-empty">Cargando…</p>
+        ) : searching ? (
+          <p className="sh-empty">Buscando…</p>
+        ) : list.length === 0 ? (
+          <p className="sh-empty">
+            {query.trim() ? "Sin resultados para esa búsqueda." : "Aún no hay favoritos guardados."}
+          </p>
+        ) : (
+          <ul className="nk-sheet__list sh-panel-list">
+            {list.map((product) => (
+              <li key={product.id} className="sh-panel-item">
+                <img className="sh-thumb sh-thumb--sm" src={product.thumbnail} alt="" loading="lazy" />
+                <div className="sh-body">
+                  <strong className="sh-title">{product.name}</strong>
+                  <div className="sh-meta">
+                    <span>{product.packaging}</span>
+                  </div>
+                </div>
+                <button type="button" className="nk-btn nk-btn--sm" onClick={() => onPick(product)}>
+                  Elegir
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
