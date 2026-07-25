@@ -206,6 +206,30 @@
   flex: none;
 }
 
+.sh-summary__acts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.sh-summary__minor {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.sh-share {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #25d366;
+  color: #fff;
+}
+.sh-share svg {
+  flex-shrink: 0;
+}
+
 /* ---------- Panel de añadir ---------- */
 
 .sh-search {

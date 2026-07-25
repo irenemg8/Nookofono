@@ -55,7 +55,7 @@
   position: relative;
   border-radius: 16px;
   overflow: hidden;
-  background: #fbf1e0;
+  background: var(--nk-bg-cream);
   box-shadow: 0 6px 16px var(--nk-shadow);
 }
 

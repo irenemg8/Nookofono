@@ -67,7 +67,7 @@
 .mn-day {
   padding: 10px 12px 12px;
   border-radius: 16px;
-  background: #fbf1e0;
+  background: var(--nk-bg-cream);
   box-shadow: 0 4px 12px var(--nk-shadow);
 }
 

@@ -60,7 +60,7 @@
   gap: 12px;
   padding: 12px 40px 12px 12px;
   border-radius: 16px;
-  background: #fbf1e0;
+  background: var(--nk-bg-cream);
   box-shadow: 0 5px 14px var(--nk-shadow);
 }
 

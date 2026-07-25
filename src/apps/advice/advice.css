@@ -215,7 +215,7 @@
   padding: 0.2em 0.9em;
   border-radius: 30% / 100% 100% 120% 120%;
   background: #dd8530;
-  color: var(--nk-bg-cream);
+  color: #fff;
   font-family: var(--nk-font);
   font-weight: 600;
   font-size: 0.66rem;

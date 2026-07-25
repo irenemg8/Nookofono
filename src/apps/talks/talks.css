@@ -104,14 +104,14 @@
   font-weight: 600;
   font-size: 1.1rem;
   line-height: 1.2;
-  color: var(--nk-text-strong);
+  color: #482058;
 }
 
 .tl-card__desc {
   margin: 5px 0 0;
   font-size: 0.85rem;
   line-height: 1.4;
-  color: var(--nk-text);
+  color: #4a3a68;
   white-space: pre-wrap;
 }
 

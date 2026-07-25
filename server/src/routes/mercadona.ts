@@ -182,6 +182,15 @@ app.post("/cart/clear-checked", async (c) => {
   return c.json({ removed: deleted.length });
 });
 
+/**
+ * Vacía el carrito entero: el botón «vaciar la lista». Borra todas las líneas,
+ * marcadas o no. Devuelve cuántas quitó.
+ */
+app.post("/cart/clear-all", async (c) => {
+  const deleted = await db.delete(mercadonaCart).returning({ id: mercadonaCart.id });
+  return c.json({ removed: deleted.length });
+});
+
 /* ------------------------------------------------------------ refresco precio */
 
 /**

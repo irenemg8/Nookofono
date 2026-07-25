@@ -320,3 +320,7 @@
   outline-offset: -2px;
   background: rgba(141, 198, 63, 0.12);
 }
+
+[data-theme="night"] .xl-cell--err {
+  color: #ff8a80;
+}

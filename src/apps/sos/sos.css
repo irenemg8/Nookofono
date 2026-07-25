@@ -267,3 +267,7 @@
     animation: none;
   }
 }
+
+[data-theme="night"] .sos-error {
+  color: #ef7a74;
+}

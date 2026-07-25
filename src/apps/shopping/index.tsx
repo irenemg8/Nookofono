@@ -45,6 +45,7 @@ export default function ShoppingApp() {
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [adding, setAdding] = useState(false);
   const [pending, setPending] = useState<CartLine | null>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
 
   async function loadCart() {
     try {
@@ -90,6 +91,26 @@ export default function ShoppingApp() {
     loadCart();
   }
 
+  async function clearAll() {
+    await fetchJSON<{ removed: number }>("/api/mercadona/cart/clear-all", { method: "POST" });
+    setConfirmClear(false);
+    loadCart();
+  }
+
+  /**
+   * Comparte la lista por WhatsApp: arma un texto con cada producto (cantidad,
+   * nombre y precio) más el total, y abre WhatsApp con ese mensaje. `wa.me` sin
+   * número abre el selector de contacto, así que sirve para mandárselo al otro.
+   */
+  function shareWhatsApp(lines: CartLine[], totalCents: number) {
+    if (lines.length === 0) return;
+    const rows = lines.map(
+      (l) => `• ${l.quantity > 1 ? `${l.quantity}× ` : ""}${l.name} — ${euros(l.priceCents * l.quantity)}`,
+    );
+    const text = `Lista de la compra\n${rows.join("\n")}\n\nTotal aprox.: ${euros(totalCents)}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+  }
+
   if (status === "loading") return <p className="sh-empty">Cargando…</p>;
   if (status === "error" || !cart) return <p className="sh-empty">No se pudo cargar. Comprueba la conexión.</p>;
 
@@ -126,10 +147,33 @@ export default function ShoppingApp() {
           <span>Total aproximado</span>
           <strong>{euros(total)}</strong>
         </div>
-        {hasChecked && (
-          <button type="button" className="nk-btn nk-btn--ghost sh-clear" onClick={clearChecked}>
-            Quitar lo cogido
-          </button>
+        {ordered.length > 0 && (
+          <div className="sh-summary__acts">
+            <button
+              type="button"
+              className="nk-btn sh-share"
+              onClick={() => shareWhatsApp(ordered, total)}
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.16c-.24.68-1.4 1.3-1.94 1.35-.5.05-1.13.07-1.83-.11-.42-.13-.96-.31-1.65-.61-2.9-1.25-4.8-4.17-4.94-4.36-.15-.19-1.18-1.57-1.18-3s.75-2.13 1.02-2.42c.27-.29.58-.36.78-.36l.56.01c.18 0 .42-.07.66.5.24.59.83 2.02.9 2.17.07.14.12.32.02.51-.09.19-.14.31-.27.48-.14.16-.29.36-.41.48-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.69-.8.87-1.08.18-.28.36-.23.6-.14.24.09 1.55.73 1.82.86.27.14.44.21.51.32.07.12.07.66-.17 1.29Z" />
+              </svg>
+              Compartir por WhatsApp
+            </button>
+            <div className="sh-summary__minor">
+              {hasChecked && (
+                <button type="button" className="nk-btn nk-btn--ghost sh-clear" onClick={clearChecked}>
+                  Quitar lo cogido
+                </button>
+              )}
+              <button
+                type="button"
+                className="nk-btn nk-btn--ghost sh-clear"
+                onClick={() => setConfirmClear(true)}
+              >
+                Vaciar lista
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
@@ -151,6 +195,16 @@ export default function ShoppingApp() {
             setPending(null);
           }}
           onCancel={() => setPending(null)}
+        />
+      )}
+
+      {confirmClear && (
+        <ConfirmDialog
+          title="¿Vaciar la lista?"
+          body="Se quitan todos los productos del carrito. Esto no borra el catálogo ni los favoritos."
+          confirmLabel="Vaciar"
+          onConfirm={clearAll}
+          onCancel={() => setConfirmClear(false)}
         />
       )}
     </div>

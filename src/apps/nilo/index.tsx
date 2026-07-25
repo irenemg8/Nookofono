@@ -80,12 +80,11 @@ export default function NiloApp() {
               {PET.breed}
               {age && ` · ${age}`}
             </p>
+            {PET.birthday && <p className="pug-born">{longDate(PET.birthday)}</p>}
           </div>
         </div>
 
         <dl className="pug-rows">
-          <dt>Nacimiento</dt>
-          <dd>{PET.birthday ? longDate(PET.birthday) : "—"}</dd>
           <dt>Microchip</dt>
           <dd className="pug-mono">{PET.chip || "—"}</dd>
          {/* <dt>Pasaporte</dt>

@@ -243,3 +243,7 @@
     animation: none;
   }
 }
+
+[data-theme="night"] .tr-error {
+  color: #ff8a80;
+}

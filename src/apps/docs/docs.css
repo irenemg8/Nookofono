@@ -88,7 +88,7 @@
   cursor: pointer;
 }
 
-.dc-row__act { color: #4a86c4; font-weight: 700; }
+.dc-row__act { color: var(--nk-text-strong); font-weight: 700; }
 
 .dc-empty {
   text-align: center;

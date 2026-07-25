@@ -46,6 +46,11 @@
   font-size: 0.85rem;
   color: var(--nk-text-muted);
 }
+.pug-born {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: var(--nk-text-muted);
+}
 
 .pug-rows {
   margin: 14px 0 0;
@@ -301,6 +306,11 @@
 
 .pug-walk--on {
   background: linear-gradient(160deg, #e8f6d8, #d8eec4);
+}
+/* En noche el gradiente claro dejaría el texto (casi blanco) ilegible: se
+   oscurece a un verde profundo para conservar el contraste. */
+:root[data-theme="night"] .pug-walk--on {
+  background: linear-gradient(160deg, #2c4a34, #21402c);
 }
 
 .pug-walk__timer {

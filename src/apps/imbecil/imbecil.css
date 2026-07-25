@@ -235,3 +235,7 @@
     animation: none;
   }
 }
+
+[data-theme="night"] .im-error {
+  color: #ff8a80;
+}

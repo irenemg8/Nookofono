@@ -105,7 +105,7 @@
   border: none;
   padding: 14px;
   border-radius: 16px;
-  background: #fbf1e0;
+  background: var(--nk-bg-cream);
   box-shadow: 0 5px 14px var(--nk-shadow);
   cursor: pointer;
 }
@@ -252,7 +252,7 @@
   border: none;
   border-radius: 999px;
   padding: 0.3em 0.7em;
-  background: #fff;
+  background: var(--nk-surface);
   font-family: var(--nk-font);
   font-size: 0.68rem;
   font-weight: 600;

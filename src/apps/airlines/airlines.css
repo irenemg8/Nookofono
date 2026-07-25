@@ -127,7 +127,7 @@
   font-family: var(--nk-font);
   font-size: 1.05rem;
   font-weight: 600;
-  color: var(--nk-text-strong);
+  color: #1f5741;
 }
 
 .pa-pass__meta {

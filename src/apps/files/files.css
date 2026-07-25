@@ -327,3 +327,7 @@
 .rg-rename input:focus {
   outline: 2px solid var(--nk-leaf);
 }
+
+[data-theme="night"] .rg-menu button.rg-menu--danger {
+  color: #ff8a82;
+}

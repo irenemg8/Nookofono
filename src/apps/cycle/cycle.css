@@ -157,7 +157,7 @@
 .cy-day--today { outline: 2px solid var(--nk-leaf); outline-offset: -2px; }
 
 .cy-day--period { background: #e2504a; color: #fff; }
-.cy-day--fertile { background: #cdeecd; }
+.cy-day--fertile { background: #cdeecd; color: #2f5d3a; }
 .cy-day--ovulation { background: #6bb86f; color: #fff; }
 .cy-day--predicted-period {
   background: repeating-linear-gradient(45deg, #f6d3dd 0 4px, #fbe6ec 4px 8px);

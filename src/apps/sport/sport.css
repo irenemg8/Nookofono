@@ -104,7 +104,7 @@
 
 .sp-sport--on {
   border-color: var(--nk-leaf);
-  background: #fff;
+  background: var(--nk-surface);
 }
 
 .sp-sport--add {
@@ -334,7 +334,7 @@
   gap: 10px;
   padding: 12px 40px 12px 12px;
   border-radius: 14px;
-  background: #fbf1e0;
+  background: var(--nk-bg-cream);
   box-shadow: 0 4px 10px var(--nk-shadow);
 }
 
@@ -433,7 +433,7 @@
   gap: 10px;
   padding: 14px 40px 14px 14px;
   border-radius: 16px;
-  background: #fbf1e0;
+  background: var(--nk-bg-cream);
   box-shadow: 0 5px 14px var(--nk-shadow);
 }
 
@@ -488,7 +488,7 @@
   gap: 8px;
   padding: 10px;
   border-radius: 14px;
-  background: #fbf1e0;
+  background: var(--nk-bg-cream);
   box-shadow: 0 3px 8px var(--nk-shadow);
 }
 
@@ -500,6 +500,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  /* Que la fila de controles se reparta en dos líneas en móviles estrechos en
+     vez de desbordarse: los hijos llevan `flex: none` y no encogen solos. */
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .sp-exrow__kind {
@@ -598,7 +602,7 @@
   gap: 10px;
   padding: 12px;
   border-radius: 14px;
-  background: #fbf1e0;
+  background: var(--nk-bg-cream);
   box-shadow: 0 4px 10px var(--nk-shadow);
 }
 
