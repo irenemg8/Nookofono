@@ -20,7 +20,9 @@ WORKDIR /app/server
 COPY server/package*.json ./
 RUN npm ci
 COPY server/ ./
-RUN npm run build && npm prune --omit=dev
+# El catálogo de Mercadona es un .json de datos que tsc no transpila: se copia a
+# mano junto a los .js compilados (import-mercadona.js lo busca en su carpeta).
+RUN npm run build && cp src/db/mercadona-seed.json dist/db/mercadona-seed.json && npm prune --omit=dev
 
 # ---- Etapa 3: ejecución ----
 FROM node:22-alpine AS runtime

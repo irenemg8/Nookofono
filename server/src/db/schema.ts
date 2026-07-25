@@ -734,3 +734,52 @@ export const tractivePings = pgTable(
   },
   (t) => [index("idx_tractive_pings_created").on(t.createdAt)],
 );
+
+/* --------------------------------------------------------------- Mercadona */
+
+/**
+ * Catálogo de productos de Mercadona, importado de su API pública
+ * (`tienda.mercadona.es/api`, warehouse `vlc1` para el CP 46117). El `id` es el
+ * id REAL de Mercadona (string), para poder refrescar el precio por
+ * `/api/products/<id>/` y enlazar a la ficha del producto.
+ *
+ * `priceCents` es el precio de venta en céntimos (nunca float para dinero). Se
+ * refresca al reimportar; `refreshedAt` dice cuándo se miró por última vez.
+ * Compartido: es el catálogo de la pareja.
+ */
+export const mercadonaProducts = pgTable(
+  "mercadona_products",
+  {
+    id: text("id").primaryKey(), // id real de Mercadona
+    name: text("name").notNull(),
+    packaging: text("packaging").notNull().default(""), // 'Garrafa', '1 ud', 'pack'…
+    thumbnail: text("thumbnail").notNull().default(""),
+    priceCents: integer("price_cents").notNull().default(0),
+    category: text("category").notNull().default(""),
+    /** Si es de la lista habitual de la pareja (se muestra primero). */
+    favorite: boolean("favorite").notNull().default(false),
+    position: integer("position").notNull().default(0),
+    refreshedAt: timestamp("refreshed_at", { withTimezone: true }),
+    ...stamps,
+  },
+  (t) => [index("idx_mercadona_products_favorite").on(t.favorite, t.position)],
+);
+
+/**
+ * El carrito/lista de la compra de Mercadona. Una fila por producto que está en
+ * el carrito, con su cantidad y si está marcado (cogido). Compartido: Irene y
+ * Vicente ven el mismo carrito. `productId` referencia el catálogo pero sin FK
+ * dura, para que borrar del catálogo no rompa un carrito en uso.
+ */
+export const mercadonaCart = pgTable(
+  "mercadona_cart",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: text("product_id").notNull(),
+    quantity: integer("quantity").notNull().default(1),
+    checked: boolean("checked").notNull().default(false),
+    position: integer("position").notNull().default(0),
+    ...stamps,
+  },
+  (t) => [index("idx_mercadona_cart_position").on(t.position)],
+);

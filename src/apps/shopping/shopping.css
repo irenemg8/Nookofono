@@ -1,0 +1,245 @@
+.sh {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 90px;
+}
+
+.sh-empty {
+  text-align: center;
+  color: var(--nk-text-muted);
+  font-size: 0.85rem;
+  padding: 18px 0;
+}
+
+.sh-new {
+  border: 2px dashed var(--nk-border);
+  width: 100%;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 4px 12px var(--nk-shadow);
+  font-family: var(--nk-font);
+  font-weight: 600;
+  color: var(--nk-text);
+  cursor: pointer;
+}
+
+/* ---------- Lista del carrito ---------- */
+
+.sh-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sh-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  background: var(--nk-surface);
+  box-shadow: 0 4px 10px var(--nk-shadow);
+}
+
+.sh-item--checked {
+  background: var(--nk-bg-cream);
+  filter: saturate(0.6);
+}
+
+.sh-check {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2.5px solid var(--nk-leaf);
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sh-item--checked .sh-check {
+  background: var(--nk-nook-green);
+  border-color: var(--nk-nook-green);
+  color: #fff;
+}
+
+.sh-check svg {
+  width: 16px;
+  height: 16px;
+}
+
+.sh-thumb {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 24%;
+  object-fit: cover;
+  background: var(--nk-surface-sunk);
+  -webkit-touch-callout: none;
+  pointer-events: none;
+}
+
+.sh-thumb--sm {
+  width: 40px;
+  height: 40px;
+}
+
+.sh-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.sh-title {
+  display: block;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  color: var(--nk-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sh-item--checked .sh-title {
+  text-decoration: line-through;
+  color: var(--nk-text-muted);
+}
+
+.sh-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  color: var(--nk-text-muted);
+}
+
+.sh-price {
+  font-weight: 600;
+  color: var(--nk-text);
+}
+
+.sh-qty {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sh-qty__btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nk-surface-sunk);
+  color: var(--nk-text-strong);
+  font-family: var(--nk-font);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sh-qty__btn:active {
+  transform: translateY(1px);
+}
+
+.sh-qty__count {
+  min-width: 18px;
+  text-align: center;
+  font-family: var(--nk-font);
+  font-weight: 600;
+  color: var(--nk-text-strong);
+  font-size: 0.9rem;
+}
+
+.sh-item__remove {
+  position: static;
+}
+
+/* ---------- Resumen fijo ---------- */
+
+.sh-summary {
+  position: fixed;
+  left: 50%;
+  bottom: calc(14px + var(--sab));
+  transform: translateX(-50%);
+  width: min(100% - 32px, 398px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: var(--nk-bg-cream);
+  box-shadow: 0 8px 20px var(--nk-shadow-strong);
+  z-index: 5;
+}
+
+.sh-summary__total {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--nk-font);
+}
+
+.sh-summary__total span {
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.sh-summary__total strong {
+  font-size: 1.15rem;
+  color: var(--nk-nook-green);
+}
+
+.sh-clear {
+  flex: none;
+}
+
+/* ---------- Panel de añadir ---------- */
+
+.sh-search {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 0.7em 0.9em;
+  margin-bottom: 10px;
+  background: var(--nk-surface-sunk);
+  font-family: var(--nk-font-body);
+  font-size: 16px;
+  color: var(--nk-text-strong);
+}
+
+.sh-search:focus {
+  outline: 2px solid var(--nk-leaf);
+}
+
+.sh-panel-list {
+  max-height: 100%;
+}
+
+.sh-panel-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 14px;
+  background: var(--nk-surface);
+}
+
+.sh-in-cart {
+  flex: none;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--nk-nook-green);
+}

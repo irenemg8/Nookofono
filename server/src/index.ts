@@ -17,6 +17,7 @@ import authRoutes from "./routes/auth.js";
 import blobRoutes from "./routes/blob.js";
 import preferencesRoutes from "./routes/preferences.js";
 import profileRoutes from "./routes/profile.js";
+import mercadonaRoutes from "./routes/mercadona.js";
 import stepsRoutes from "./routes/steps.js";
 import valentinRoutes from "./routes/valentin.js";
 import {
@@ -115,6 +116,7 @@ app.route("/api/sport/sessions", sportSessionRoutes);
 app.route("/api/sport/routines", sportRoutineRoutes);
 app.route("/api/imbecil", imbecilRoutes);
 app.route("/api/tractive", tractiveRoutes);
+app.route("/api/mercadona", mercadonaRoutes);
 
 // Cualquier ruta de API que no exista devuelve JSON, no el index.html: si no,
 // un fallo de escritura en una URL se manifestaría como "la app no carga".

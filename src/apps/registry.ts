@@ -68,7 +68,6 @@ export const registry: MiniAppManifest[] = [
     enabled: true,
     page: 1,
     inDock: true,
-    comingSoon: true,
     teaser: "Listas con precios de Mercadona y vuestros favoritos.",
   },
   {

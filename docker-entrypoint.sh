@@ -9,6 +9,12 @@ set -e
 echo "iPug: aplicando migraciones…"
 node dist/db/migrate.js
 
+# Sembrar el catálogo de Mercadona sólo si está vacío (primer arranque). En
+# reinicios posteriores no hace nada. Refrescar precios es reejecutarlo a mano
+# sin `--if-empty`.
+echo "iPug: catálogo de Mercadona…"
+node dist/db/import-mercadona.js --if-empty
+
 echo "iPug: arrancando la API…"
 # `exec` para que el proceso de Node herede el PID 1 y reciba el SIGTERM de
 # Docker directamente; si no, el apagado limpio de index.ts nunca se dispara.
